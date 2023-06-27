@@ -1,63 +1,11 @@
-# Nuxt 3 Minimal Starter
+# Gameplay.gg
 
-Look at the [Nuxt 3 documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+> Community-driven gameplay database. Where **YOU** vote for the best game showcase.
 
-## Setup
+**Tired of looking at random Youtube videos and skipping through the parts with no gameplay when deciding whether to play a game or not?** 
+- On this site you can search for insightful gameplay clips easy and fast.
 
-Make sure to install the dependencies:
-
-```bash
-# npm
-npm install
-
-# pnpm
-pnpm install
-
-# yarn
-yarn install
-```
-
-## Development Server
-
-Start the development server on `http://localhost:3000`:
-
-```bash
-# npm
-npm run dev
-
-# pnpm
-pnpm run dev
-
-# yarn
-yarn dev
-```
-
-## Production
-
-Build the application for production:
-
-```bash
-# npm
-npm run build
-
-# pnpm
-pnpm run build
-
-# yarn
-yarn build
-```
-
-Locally preview production build:
-
-```bash
-# npm
-npm run preview
-
-# pnpm
-pnpm run preview
-
-# yarn
-yarn preview
-```
-
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+### Made with
+- [Nuxt.js](https://nuxt.com/)
+- [TailwindCSS](https://tailwindcss.com/)
+- [Firebase](https://firebase.google.com/)
