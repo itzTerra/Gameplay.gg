@@ -11,11 +11,15 @@
   "devDependencies": {
     "@nuxt/devtools": "latest",
     "@nuxt/image": "^1.0.0-rc.1",
+    "@tailwindcss/typography": "^0.5.9",
     "@types/node": "^18",
+    "daisyui": "^3.1.7",
     "nuxt": "^3.6.1"
   },
   "dependencies": {
+    "@nuxtjs/color-mode": "^3.3.0",
     "@nuxtjs/tailwindcss": "^6.8.0",
-    "@sidebase/nuxt-auth": "^0.6.0-beta.3"
+    "@sidebase/nuxt-auth": "^0.6.0-beta.3",
+    "next-auth": "4.21.1"
   }
 }

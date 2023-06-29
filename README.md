@@ -9,5 +9,5 @@
 
 ### Made with
 - [Nuxt.js](https://nuxt.com/)
-- [TailwindCSS](https://tailwindcss.com/)
+- [TailwindCSS](https://tailwindcss.com/) & [DaisyUI](https://daisyui.com/)
 - [Firebase](https://firebase.google.com/)
