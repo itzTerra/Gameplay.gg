@@ -5,13 +5,13 @@
                 <p>Copyright © 2023 - All right reserved</p>
             </div>
             <div class="flex gap-3">
-                <div class="divider divider-horizontal bg-base-content w-1"></div>
+                <div class="divider divider-horizontal bg-base-content w-0.5"></div>
 
                 <a class="link hover:no-underline hover:text-accent-focus transition-colors">About</a>
                 <a class="link hover:no-underline hover:text-accent-focus transition-colors">Contact</a>
             </div>
             <div class="flex gap-3">
-                <div class="divider divider-horizontal bg-base-content w-1"></div>
+                <div class="divider divider-horizontal bg-base-content w-0.5"></div>
 
                 <a class="link hover:no-underline hover:text-accent-focus transition-colors">Terms of Service</a>
                 <a class="link hover:no-underline hover:text-accent-focus transition-colors">Privacy Policy</a>

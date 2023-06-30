@@ -2,6 +2,10 @@
 export default defineNuxtConfig({
   devtools: { enabled: false },
   css: ['~/assets/css/tailwind.css'],
+  components: [
+    { path: '~/components/svg', prefix: 'SVG' },
+    '~/components'
+  ],
   modules: [
     '@nuxt/image',
     '@sidebase/nuxt-auth',

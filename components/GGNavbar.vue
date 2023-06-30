@@ -1,53 +1,84 @@
 <template>
     <div>
         <div class="navbar bg-accent text-accent-content md:px-10">
-            <a class="btn btn-ghost normal-case small-caps text-xl" href="/">Gameplay.gg</a>
+            <!-- NAVBAR HEADER -->
+            <a class="btn btn-ghost normal-case small-caps text-xl" href="/">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 128 128">
+                    <path fill="#464C4F"
+                        d="M19.64 35.33c.09-.26-.09-4.82 2.45-8.41s5.87-4.12 8.33-4.56c2.98-.53 10.17-1.4 11.31 1.05c1.14 2.45.26 3.77 2.1 4.47s-1.49 4.82-1.49 4.82l-22.7 2.63zm88.25-.09s.72-4.43-1.81-7.42c-3.8-4.51-9.75-5.97-15.38-5.97c-1.81 0-3.98.35-4.68 2.51c-.4 1.25-.68 2.77-1.56 2.94c-.87.18 17.73 5.93 23.43 7.94z" />
+                    <path fill="#5E6268"
+                        d="M39.04 81.29c-2.99 2.32-6.96 18.32-13.17 22.55s-20.28 1.97-21.34-6.66c-.93-7.61.76-23.61 5-39.96s7.5-24.45 17.41-27.1c7.95-2.13 23.53-3.63 38.66-3.48c15.14.15 28.39.15 36.72 3.33c7.47 2.85 12.56 10.6 16.05 25.73c3.48 15.14 6.17 33.34 5.75 39.36c-.61 8.78-13.02 14.38-22.25 7.57c-7.35-5.42-8.78-19.22-12.56-21.19s-47.55-2.27-50.27-.15z" />
+                    <path fill="#9E9E9E"
+                        d="M93.25 77.17c-.72.9.94 2.24 2.12 5.17c1.18 2.93 4.22 12.63 7.17 15.34c3.68 3.37 6.55 2.74 7.11 1.68s-2.62-3.8-6.36-9.91s-8.54-14.15-10.04-12.28zm-82.73-2.49c-1.11.2-4.05 14.96-1.87 21.2c1.82 5.2 8.79 5.49 11.41 4.74c5.22-1.49 6.86-6.55 5.67-7.11c-1.18-.56-5.32 3.4-9.23 1.56c-4.36-2.06-4.3-7.86-4.86-13.72c-.5-5.28-.06-6.86-1.12-6.67zm27.49-32.73c-.41 0-4.01-.02-4.01-.02l.02-4.35s.08-3.51-3.68-3.43c-3.37.07-3.3 2.88-3.3 3.43s-.02 4.32-.02 4.32s-3.82-.04-4.53-.02s-3.37.06-3.37 3.49c0 3.24 2.75 3.47 3.37 3.49s4.51.02 4.51.02s-.03 3.63-.02 4.22s.12 3.37 3.49 3.37c3.68 0 3.49-3.37 3.49-3.37l.02-4.19s3.44.03 4.04.02c.86-.02 3.39-.25 3.43-3.68c.03-3.39-3.02-3.3-3.44-3.3z" />
+                    <circle cx="48.4" cy="62.42" r="8.54" fill="#AFAFAF" />
+                    <circle cx="77.75" cy="62.55" r="8.54" fill="#AFAFAF" />
+                    <circle cx="48.39" cy="62.21" r="5.71" fill="#C8C8C8" />
+                    <circle cx="77.75" cy="62.4" r="5.71" fill="#C8C8C8" />
+                    <circle cx="85.82" cy="45.67" r="4.6" fill="#2086FA" />
+                    <circle cx="94.94" cy="54.48" r="4.6" fill="#06AC48" />
+                    <circle cx="104.12" cy="46.4" r="4.6" fill="#F72E26" />
+                    <circle cx="95.02" cy="37.01" r="4.6" fill="#FDB700" />
+                </svg>
+                <span class="hidden md:inline">Gameplay.gg</span>
+            </a>
+            <!-- SEARCH -->
             <div class="flex-grow flex items-center justify-center">
-                <div class="form-control hidden sm:flex mx-5 flex-grow max-w-md">
+                <div class="mx-5 hidden flex-grow max-w-md sm:join">
                     <input list="gamesDatalist" placeholder="Search for a game..."
-                        class="input h-10 input-bordered bg-accent-focus text-accent-content border-opacity-10 w-auto tracking-wider" />
+                        class="input h-10 input-bordered bg-accent-focus text-accent-content border-opacity-10 flex-grow w-auto tracking-wider join-item" />
                     <datalist id="gamesDatalist">
                         <option v-for="game in GAMES" :value="game.name"></option>
                     </datalist>
+                    <button class="btn btn-primary btn-sm h-10 join-item">
+                        <SVGSearch class="w-5 h-5" />
+                    </button>
                 </div>
-            </div>
-            <button class="btn btn-ghost sm:hidden">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24"
-                    stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-            </button>
-            <div class="items-center ms-auto">
-                <a class="btn btn-primary btn-sm hidden md:inline-flex mx-3">Submit a Clip</a>
-                <ThemeSwapper class="btn btn-ghost" />
-                <button class="btn btn-ghost">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                        stroke="currentColor" class="w-6 h-6">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                            d="M10.5 21l5.25-11.25L21 21m-9-3h7.5M3 5.621a48.474 48.474 0 016-.371m0 0c1.12 0 2.233.038 3.334.114M9 5.25V3m3.334 2.364C11.176 10.658 7.69 15.08 3 17.502m9.334-12.138c.896.061 1.785.147 2.666.257m-4.589 8.495a18.023 18.023 0 01-3.827-5.802" />
-                    </svg>
+                <button class="btn btn-ghost sm:hidden">
+                    <SVGSearch class="w-6 h-6" />
                 </button>
+            </div>
+            <!-- RIGHT SIDE -->
+            <div class="ms-auto flex items-center">
+                <!-- SUBMIT A CLIP BUTTON -->
+                <a class="btn btn-primary btn-sm hidden lg:inline-flex mx-3">Submit a Clip</a>
+                <!-- DARK AND LIGHT THEME SWAPPER -->
+                <label class="btn btn-ghost hidden xl:inline-flex items-center h-10">
+                    <div class="swap swap-rotate">
+                        <ThemeSwapper/>
+                        <SVGThemeLight class="swap-on w-7 h-7" />
+                        <SVGThemeDark class="swap-off w-7 h-7" />
+                    </div>
+                </label>
+                <!-- LANGUAGE PICKER -->
+                <LanguagePicker class="btn btn-ghost hidden xl:inline-flex">
+                    <SVGLanguage class="w-6 h-6" />
+                </LanguagePicker>
+                <!-- USER MENU -->
                 <div class="dropdown dropdown-end">
                     <label tabindex="0" class="btn btn-ghost">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                            stroke="currentColor" class="w-7 h-7">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M17.982 18.725A7.488 7.488 0 0012 15.75a7.488 7.488 0 00-5.982 2.975m11.963 0a9 9 0 10-11.963 0m11.963 0A8.966 8.966 0 0112 21a8.966 8.966 0 01-5.982-2.275M15 9.75a3 3 0 11-6 0 3 3 0 016 0z" />
-                        </svg>
+                        <SVGUser class="w-8 h-8" />
                     </label>
                     <ul tabindex="0"
-                        class="mt-3 z-[1] p-2 shadow menu menu-sm dropdown-content rounded-box w-52 bg-neutral text-neutral-content">
-                        <li><a class="md:hidden">Submit a Clip</a></li>
-                        <li>
-                            <a class="justify-between">
-                                Profile
-                                <span class="badge">New</span>
-                            </a>
+                        class="mt-3 z-[1] p-2 shadow menu menu-sm dropdown-content rounded-box w-52 bg-base-300 text-base-content">
+                        <li class="lg:hidden"><a>
+                                <SVGSubmitClip class="w-4 h-4" />Submit a Clip
+                            </a></li>
+                        <li class="xl:hidden">
+                            <label class="justify-between">
+                                <span class="flex items-center gap-2"><SVGThemeDark class="w-4 h-4" />Dark&nbsp;Theme</span>
+                                <ThemeSwapper class="toggle toggle-sm toggle-accent" checked/>
+                            </label>
                         </li>
-                        <li><a>Settings</a></li>
+                        <li class="xl:hidden"><LanguagePicker>
+                            <SVGLanguage class="w-4 h-4" /> Language
+                        </LanguagePicker></li>
+                        <li><a>
+                                <SVGSettings class="w-4 h-4" />Settings
+                            </a></li>
                         <div class="divider my-0"></div>
-                        <li><a>Logout</a></li>
+                        <li><a>
+                                <SVGLogout class="w-4 h-4" />Logout
+                            </a></li>
                     </ul>
                 </div>
             </div>
