@@ -53,6 +53,9 @@
                 <LanguagePicker class="btn btn-ghost hidden xl:inline-flex">
                     <SVGLanguage class="w-6 h-6" />
                 </LanguagePicker>
+                <!-- AUTH -->
+                <a href="/login/" class="btn btn-sm btn-primary">Log In</a>
+                <a href="/register/" class="btn btn-sm btn-secondary">Sign Up</a>
                 <!-- USER MENU -->
                 <div class="dropdown dropdown-end">
                     <label tabindex="0" class="btn btn-ghost">
@@ -88,6 +91,7 @@
 
 <script setup>
     // const GAMES = useFetch()
+    const GAMES = [];
 </script>
 
 <style lang="scss" scoped></style>
