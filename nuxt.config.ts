@@ -8,7 +8,6 @@ export default defineNuxtConfig({
   ],
   modules: [
     '@nuxt/image',
-    '@sidebase/nuxt-auth',
     '@nuxtjs/tailwindcss',
     '@nuxtjs/color-mode'
   ],
@@ -22,4 +21,11 @@ export default defineNuxtConfig({
     fallback: 'dark', // fallback value if not system preference found
     classSuffix: '',
   },
+  runtimeConfig: {
+    // The private keys which are only available within server-side
+    firebaseApiKey: "",
+    // Keys within public, will be also exposed to the client-side
+    public: {
+    }
+  }
 })

@@ -23,7 +23,7 @@
             </a>
             <!-- SEARCH -->
             <div class="flex-grow flex items-center justify-center">
-                <div class="mx-5 hidden flex-grow max-w-md sm:join">
+                <div class="hidden sm:join flex-grow max-w-md me-5">
                     <input list="gamesDatalist" placeholder="Search for a game..."
                         class="input h-10 input-bordered bg-accent-focus text-accent-content border-opacity-10 flex-grow w-auto tracking-wider join-item" />
                     <datalist id="gamesDatalist">
@@ -40,11 +40,12 @@
             <!-- RIGHT SIDE -->
             <div class="ms-auto flex items-center">
                 <!-- SUBMIT A CLIP BUTTON -->
-                <a class="btn btn-primary btn-sm hidden lg:inline-flex mx-3">Submit a Clip</a>
+                <a v-if="status == 'authenticated'" class="btn btn-primary btn-sm hidden lg:inline-flex mx-3">Submit a
+                    Clip</a>
                 <!-- DARK AND LIGHT THEME SWAPPER -->
                 <label class="btn btn-ghost hidden xl:inline-flex items-center h-10">
                     <div class="swap swap-rotate">
-                        <ThemeSwapper/>
+                        <ThemeSwapper />
                         <SVGThemeLight class="swap-on w-7 h-7" />
                         <SVGThemeDark class="swap-off w-7 h-7" />
                     </div>
@@ -54,10 +55,12 @@
                     <SVGLanguage class="w-6 h-6" />
                 </LanguagePicker>
                 <!-- AUTH -->
-                <a href="/login/" class="btn btn-sm btn-primary">Log In</a>
-                <a href="/register/" class="btn btn-sm btn-secondary">Sign Up</a>
+                <div class="flex gap-2">
+                    <a href="/register/" class="btn btn-sm btn-primary">Sign Up</a>
+                    <a v-if="status != 'authenticated'" href="/login/" class="btn btn-sm btn-secondary">Log In</a>
+                </div>
                 <!-- USER MENU -->
-                <div class="dropdown dropdown-end">
+                <div class="dropdown dropdown-end xl:hidden">
                     <label tabindex="0" class="btn btn-ghost">
                         <SVGUser class="w-8 h-8" />
                     </label>
@@ -68,20 +71,29 @@
                             </a></li>
                         <li class="xl:hidden">
                             <label class="justify-between">
-                                <span class="flex items-center gap-2"><SVGThemeDark class="w-4 h-4" />Dark&nbsp;Theme</span>
-                                <ThemeSwapper class="toggle toggle-sm toggle-accent" checked/>
+                                <span class="flex items-center gap-2">
+                                    <SVGThemeDark class="w-4 h-4" />Dark&nbsp;Theme
+                                </span>
+                                <ThemeSwapper class="toggle toggle-sm toggle-accent" checked />
                             </label>
                         </li>
-                        <li class="xl:hidden"><LanguagePicker>
-                            <SVGLanguage class="w-4 h-4" /> Language
-                        </LanguagePicker></li>
-                        <li><a>
+                        <li class="xl:hidden">
+                            <LanguagePicker>
+                                <SVGLanguage class="w-4 h-4" /> Language
+                            </LanguagePicker>
+                        </li>
+                        <li v-if="status == 'authenticated'"><a>
                                 <SVGSettings class="w-4 h-4" />Settings
                             </a></li>
                         <div class="divider my-0"></div>
-                        <li><a>
+                        <li>
+                            <button v-if="status == 'authenticated'" @click="logoutUser">
                                 <SVGLogout class="w-4 h-4" />Logout
-                            </a></li>
+                            </button>
+                            <a v-else href="/login/">
+                                <SVGLogin class="w-4 h-4" />Login
+                            </a>
+                        </li>
                     </ul>
                 </div>
             </div>
@@ -90,8 +102,12 @@
 </template>
 
 <script setup>
-    // const GAMES = useFetch()
-    const GAMES = [];
+const { logoutUser } = useAuth()
+
+
+// const GAMES = useFetch()
+const GAMES = [];
+
 </script>
 
 <style lang="scss" scoped></style>

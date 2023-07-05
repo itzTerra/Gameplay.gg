@@ -18,6 +18,10 @@
     flex-direction: column;
     flex-grow: 1;
   }
+
+  .menu .divider:first-child{
+    display: none;
+  }
 }
 
 @layer utilities {

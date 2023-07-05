@@ -35,3 +35,6 @@ logs
 # Built Visual Studio Code Extensions
 *.vsix
 .vscode/settings.json
+
+# Firebase Admin SDK
+service-account.json
