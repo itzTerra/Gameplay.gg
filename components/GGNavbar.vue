@@ -2,7 +2,7 @@
     <div>
         <div class="navbar bg-accent text-accent-content md:px-10">
             <!-- NAVBAR HEADER -->
-            <a class="btn btn-ghost normal-case small-caps text-xl" href="/">
+            <NuxtLink class="btn btn-ghost normal-case small-caps text-xl" to="/">
                 <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 128 128">
                     <path fill="#464C4F"
                         d="M19.64 35.33c.09-.26-.09-4.82 2.45-8.41s5.87-4.12 8.33-4.56c2.98-.53 10.17-1.4 11.31 1.05c1.14 2.45.26 3.77 2.1 4.47s-1.49 4.82-1.49 4.82l-22.7 2.63zm88.25-.09s.72-4.43-1.81-7.42c-3.8-4.51-9.75-5.97-15.38-5.97c-1.81 0-3.98.35-4.68 2.51c-.4 1.25-.68 2.77-1.56 2.94c-.87.18 17.73 5.93 23.43 7.94z" />
@@ -20,7 +20,7 @@
                     <circle cx="95.02" cy="37.01" r="4.6" fill="#FDB700" />
                 </svg>
                 <span class="hidden md:inline">Gameplay.gg</span>
-            </a>
+            </NuxtLink>
             <!-- SEARCH -->
             <div class="flex-grow flex items-center justify-center">
                 <div class="hidden sm:join flex-grow max-w-md me-5">
@@ -37,11 +37,12 @@
                     <SVGSearch class="w-6 h-6" />
                 </button>
             </div>
+            <button @click="printSession" class="btn btn-warning">PRINT SESSION</button>
             <!-- RIGHT SIDE -->
             <div class="ms-auto flex items-center">
                 <!-- SUBMIT A CLIP BUTTON -->
-                <a v-if="status == 'authenticated'" class="btn btn-primary btn-sm hidden lg:inline-flex mx-3">Submit a
-                    Clip</a>
+                <NuxtLink v-if="session?.user" to="/clip/" class="btn btn-primary btn-sm hidden lg:inline-flex mx-3">Submit a
+                    Clip</NuxtLink>
                 <!-- DARK AND LIGHT THEME SWAPPER -->
                 <label class="btn btn-ghost hidden xl:inline-flex items-center h-10">
                     <div class="swap swap-rotate">
@@ -55,20 +56,22 @@
                     <SVGLanguage class="w-6 h-6" />
                 </LanguagePicker>
                 <!-- AUTH -->
-                <div class="flex gap-2">
-                    <a href="/register/" class="btn btn-sm btn-primary">Sign Up</a>
-                    <a v-if="status != 'authenticated'" href="/login/" class="btn btn-sm btn-secondary">Log In</a>
+                <div v-if="!session?.user" class="flex gap-2">
+                    <NuxtLink to="/register/" class="btn btn-sm btn-primary">Sign Up</NuxtLink>
+                    <NuxtLink to="/login/" class="btn btn-sm btn-secondary">Log In</NuxtLink>
                 </div>
                 <!-- USER MENU -->
-                <div class="dropdown dropdown-end xl:hidden">
+                <div class="dropdown dropdown-end" :class="{ 'xl:hidden': !session?.user }">
                     <label tabindex="0" class="btn btn-ghost">
                         <SVGUser class="w-8 h-8" />
                     </label>
                     <ul tabindex="0"
                         class="mt-3 z-[1] p-2 shadow menu menu-sm dropdown-content rounded-box w-52 bg-base-300 text-base-content">
-                        <li class="lg:hidden"><a>
+                        <li class="lg:hidden">
+                            <NuxtLink>
                                 <SVGSubmitClip class="w-4 h-4" />Submit a Clip
-                            </a></li>
+                            </NuxtLink>
+                        </li>
                         <li class="xl:hidden">
                             <label class="justify-between">
                                 <span class="flex items-center gap-2">
@@ -82,17 +85,19 @@
                                 <SVGLanguage class="w-4 h-4" /> Language
                             </LanguagePicker>
                         </li>
-                        <li v-if="status == 'authenticated'"><a>
+                        <li v-if="session?.user">
+                            <NuxtLink>
                                 <SVGSettings class="w-4 h-4" />Settings
-                            </a></li>
+                            </NuxtLink>
+                        </li>
                         <div class="divider my-0"></div>
                         <li>
-                            <button v-if="status == 'authenticated'" @click="logoutUser">
+                            <button v-if="session?.user" @click="logoutUser">
                                 <SVGLogout class="w-4 h-4" />Logout
                             </button>
-                            <a v-else href="/login/">
+                            <NuxtLink v-else to="/login/">
                                 <SVGLogin class="w-4 h-4" />Login
-                            </a>
+                            </NuxtLink>
                         </li>
                     </ul>
                 </div>
@@ -101,13 +106,34 @@
     </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 const { logoutUser } = useAuth()
+// const session = useSessionData()
+const { session } = await useSession()
+// console.log(JSON.stringify(session.value))
+// if (session.value === null){
+//     const event = useRequestEvent()
+//     if (event){
+//         session.value = event.context.session
+//     } else{
+//         const res = await $fetch("/api/sessionid", {method: "POST"})
+//         console.log("Fetch result:", res, JSON.stringify(res))
+//         if (res){
+//             session.value = res
+//         }
+//     }
+// }
+console.log(JSON.stringify(session.value))
 
+watch(session, () => {
+    console.log("SESSION UPDATE", session)
+})
+
+const printSession = () => {
+    console.log("session:", session, "\nsessionJSON:", JSON.stringify(session), "\nsession.value", session.value)
+}
 
 // const GAMES = useFetch()
-const GAMES = [];
+const GAMES = [{ name: "game" }];
 
 </script>
-
-<style lang="scss" scoped></style>

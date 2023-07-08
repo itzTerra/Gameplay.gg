@@ -4,7 +4,6 @@
 - unique themes, logo, fonts
 - i18n
 - footer pages (About, Contact, ToS, Privacy)
-- settings?
 - SEO
 - Lighthouse (quality & optimization checks)
 

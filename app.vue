@@ -6,8 +6,6 @@
     </div>
 </template>
 
-
-
 <script setup lang="ts">
     const SITE_NAME = "Gameplay.gg";
 

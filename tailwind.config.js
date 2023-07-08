@@ -18,12 +18,12 @@ module.exports = {
     themes: [
       {
         dark: {
-          ...require('daisyui/src/theming/themes')['[data-theme=dark]'],
-          'base-200': '#252d37',
-          'base-300': '#29323d',
+          ...require("daisyui/src/theming/themes")["[data-theme=dark]"],
+          "base-200": "#252d37",
+          "base-300": "#29323d",
         },
       },
-      "light"
+      "light",
     ],
   },
   //   daisyui: {
@@ -32,21 +32,13 @@ module.exports = {
   //         // TODO
   //         mydark: {
   //           primary: "#33b7a3",
-
   //           secondary: "#1cc4a3",
-
   //           accent: "#d31815",
-
   //           neutral: "#263036",
-
   //           "base-100": "#404044",
-
   //           info: "#13b6bf",
-
   //           success: "#19a37a",
-
   //           warning: "#d7ac14",
-
   //           error: "#f7405c",
   //         },
   //       },

@@ -1,5 +1,5 @@
 <template>
-    <Auth :success="msgSuccess" :error="msgError">
+    <Auth :success="msgSuccess" :error="msgError" :change="change">
         <h3 class="mb-5 text-center text-3xl font-semibold">Create an account</h3>
         <form @submit.prevent="register">
             <div class="join join-vertical w-full">
@@ -12,7 +12,7 @@
             </div>
             <button class="w-full btn btn-primary my-5" type="submit">Sign Up</button>
         </form>
-        <p class="text-center">Already have an account? <a href="/login/" class="link link-secondary">Log in</a></p>
+        <p class="text-center">Already have an account? <NuxtLink to="/login/" class="link link-secondary">Log in</NuxtLink></p>
     </Auth>
 </template>
 
@@ -22,6 +22,7 @@ const { createUser } = useAuth()
 
 const msgSuccess = ref("")
 const msgError = ref("")
+const change = ref(false)
 
 const form = shallowReactive({
     email: "",
@@ -31,23 +32,20 @@ const form = shallowReactive({
 
 const register = async () => {
     const response = await createUser(form.email, form.password1)
+    // console.log(JSON.stringify(response))
+
     form.email = ""
     form.password1 = ""
     form.password2 = ""
 
     if (response.credentials) {
         msgSuccess.value = `Successfully signed up: ${response.credentials.user.email}`
-        // setTimeout(() => {
-        //     msgSuccess.value = ""
-        // }, 3000);
+        msgError.value = ""
     } else{
-        msgError.value = `Sign up failed:\n(${response.errorCode}) ${response.errorMessage}`
-        // setTimeout(() => {
-        //     msgError.value = ""
-        // }, 3000);
+        msgError.value = `Sign up failed: ${response.errorMessage}`
+        msgSuccess.value = ""
     }
+
+    change.value = !change.value
 }
-
 </script>
-
-<style lang="scss" scoped></style>

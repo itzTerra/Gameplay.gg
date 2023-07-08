@@ -7,27 +7,32 @@
 </template>
 
 <script setup>
-import { doc, onSnapshot, getDoc, updateDoc } from "firebase/firestore";
+definePageMeta({
+    middleware: ["auth-only", "save-url"]
+})
 
-// Server Side
-const { data } = useFetch('/api/clip');
 
-// Client Side
-onMounted(async() => {
-    const { firestore } = useNuxtApp();
-    const docRef = doc(firestore, `clips`, '0');
-    onSnapshot(docRef, (snap) => {
-        data.value = snap.data();
-    });
-});
+// import { doc, onSnapshot, getDoc, updateDoc } from "firebase/firestore";
 
-const updateClip = async() => {
-    const { firestore } = useNuxtApp();
-    const docRef = doc(firestore, `clips`, '0');
-    await updateDoc(docRef, {
-        name: `0-${Math.floor(Math.random() * 1000)}`,
-    });
-}
+// // Server Side
+// const { data } = useFetch('/api/clip');
+
+// // Client Side
+// onMounted(async() => {
+//     const { firestore } = useNuxtApp();
+//     const docRef = doc(firestore, `clips`, '0');
+//     onSnapshot(docRef, (snap) => {
+//         data.value = snap.data();
+//     });
+// });
+
+// const updateClip = async() => {
+//     const { firestore } = useNuxtApp();
+//     const docRef = doc(firestore, `clips`, '0');
+//     await updateDoc(docRef, {
+//         name: `0-${Math.floor(Math.random() * 1000)}`,
+//     });
+// }
 </script>
 
 <style lang="scss" scoped>

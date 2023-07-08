@@ -1,25 +1,31 @@
 <template>
-    <Auth :success="msgSuccess" :error="msgError">
+    <Auth :success="msgSuccess" :error="msgError" :change="change">
         <h3 class="mb-5 text-center text-3xl font-semibold">Log In</h3>
         <form @submit.prevent="login">
             <div class="join join-vertical w-full">
-                <input type="text" id="username" name="username" placeholder="Email address"
+                <input type="email" v-model="form.email" placeholder="Email address"
                     class="input input-lg input-bordered join-item" required>
-                <input type="password" id="pass" name="pass" placeholder="Enter your password"
+                <input type="password" v-model="form.password" placeholder="Enter your password"
                     class="input input-lg input-bordered overflow-ellipsis join-item" required>
             </div>
             <button class="w-full btn btn-primary my-5" type="submit">Log In</button>
         </form>
-        <p class="text-center">Don't have an account? <a href="/register/" class="link link-secondary">Sign up</a></p>
+        <p class="text-center">Don't have an account? <NuxtLink to="/register/" class="link link-secondary">Sign up</NuxtLink></p>
     </Auth>
 </template>
 
 <script setup lang="ts">
+definePageMeta({
+    middleware: ["unauth-only"]
+})
 
 const { loginUser } = useAuth()
+// const session = useSessionData()
+const { session } = await useSession()
 
 const msgSuccess = ref("")
 const msgError = ref("")
+const change = ref(false)
 
 const form = shallowReactive({
     email: "",
@@ -28,28 +34,18 @@ const form = shallowReactive({
 
 const login = async () => {
     const response = await loginUser(form.email, form.password)
-    nextTick().then(() => {
-        console.log(response.errorCode)
-    }); // Wait for the next render cycle
-    console.log(response)
-    
-    form.email = ""
+    // console.log(JSON.stringify(response))
     form.password = ""
 
     if (response.credentials) {
-        msgSuccess.value = `Successfully logged in: ${response.credentials.user.email}`
-        // setTimeout(() => {
-        //     msgSuccess.value = ""
-        // }, 3000);
+        form.email = ""
+        navigateTo(session.value ? session.value.lastUrl : "/")
+
     } else{
-        msgError.value = `Login failed:\n(${response.errorCode}) ${response.errorMessage}`
-        console.log(response.errorCode)
-        // setTimeout(() => {
-        //     msgError.value = ""
-        // }, 3000);
+        msgError.value = `Login failed: ${response.errorMessage}`
+        msgSuccess.value = ""
     }
+
+    change.value = !change.value
 }
-
 </script>
-
-<style lang="scss" scoped></style>
