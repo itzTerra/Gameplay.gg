@@ -5,8 +5,8 @@ import {
   signInWithEmailAndPassword,
   GoogleAuthProvider,
   signInWithPopup,
-  type Auth,
   type UserCredential,
+  type Auth,
 } from "firebase/auth";
 
 interface Response {

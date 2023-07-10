@@ -2,9 +2,13 @@ import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import { getAuth, getIdToken, onAuthStateChanged } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
+import type { User } from "firebase/auth";
 
 export default defineNuxtPlugin(async (nuxtApp) => {
+  console.log("FIREBASE CLIENT PLUGIN");
+
   const config = useRuntimeConfig();
+  const { $csrfFetch } = nuxtApp;
 
   const firebaseConfig = {
     apiKey: config.public.firebaseApiKey,
@@ -30,44 +34,35 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   nuxtApp.vueApp.provide("auth", auth);
   nuxtApp.provide("auth", auth);
 
-  const { update: updateSession, overwrite: writeSession } = await useSession();
-  console.log("FIREBASE CLIENT PLUGIN");
+  const updateUser = async (user: User | null) => {
+    console.log("Updating user: ", JSON.stringify(user));
 
-  //   await updateSession({ user: auth.currentUser });
-  //   const session = useSessionData();
-  //   session.value.user = auth.currentUser;
+    const clientUser = await useUser();
+    const clientSession = useClientSession();
 
-  //   const userCookie = useCookie("userCookie");
+    if (user) {
+        const idToken = await getIdToken(user);
+        clientUser.value = user;
+        $csrfFetch("/api/auth", {
+          method: "POST",
+          body: {
+            idToken: idToken,
+            rememberMe: clientSession.value.rememberMe || false,
+            user: user,
+          },
+        });
+    } else {
+      clientUser.value = null;
+      $csrfFetch("/api/auth", { method: "DELETE" });
+    }
+  };
+
+  //   await updateUser(auth.currentUser)
+
   onAuthStateChanged(auth, async (user) => {
-    console.log("AUTH STATE CHANGED", user, JSON.stringify(user));
-    await writeSession({ user: user });
-    await updateSession({user:user})
-
-    // session.value.user = user;
-
-    // if (!user) {
-    //   navigateTo("/");
-    //   return;
-    // }
     // https://firebase.google.com/docs/reference/js/firebase.User
-
-    // const idToken = await getIdToken(user);
-    // const response = await $fetch("/api/getCookie", {
-    //   headers: new Headers({ Authorization: `Bearer ${idToken}` }),
-    //   method: "POST",
-    //   body: {
-    //     user: user,
-    //   },
-    // });
-
-    // @ts-ignore
-    // userCookie.value = user; //ignore error because nuxt will serialize to json
-
-    // This is so insecure no?
-    // $fetch("/api/auth", {
-    //   method: "POST",
-    //   body: { user },
-    // });
+    console.log("AUTH STATE CHANGED");
+    updateUser(user);
   });
 
   const firestore = getFirestore(app);

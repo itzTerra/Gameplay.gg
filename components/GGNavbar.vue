@@ -37,11 +37,10 @@
                     <SVGSearch class="w-6 h-6" />
                 </button>
             </div>
-            <button @click="printSession" class="btn btn-warning">PRINT SESSION</button>
             <!-- RIGHT SIDE -->
             <div class="ms-auto flex items-center">
                 <!-- SUBMIT A CLIP BUTTON -->
-                <NuxtLink v-if="session?.user" to="/clip/" class="btn btn-primary btn-sm hidden lg:inline-flex mx-3">Submit a
+                <NuxtLink v-if="user" to="/clip/" class="btn btn-primary btn-sm hidden lg:inline-flex mx-3">Submit a
                     Clip</NuxtLink>
                 <!-- DARK AND LIGHT THEME SWAPPER -->
                 <label class="btn btn-ghost hidden xl:inline-flex items-center h-10">
@@ -56,12 +55,12 @@
                     <SVGLanguage class="w-6 h-6" />
                 </LanguagePicker>
                 <!-- AUTH -->
-                <div v-if="!session?.user" class="flex gap-2">
+                <div v-if="!user" class="flex gap-2">
                     <NuxtLink to="/register/" class="btn btn-sm btn-primary">Sign Up</NuxtLink>
                     <NuxtLink to="/login/" class="btn btn-sm btn-secondary">Log In</NuxtLink>
                 </div>
                 <!-- USER MENU -->
-                <div class="dropdown dropdown-end" :class="{ 'xl:hidden': !session?.user }">
+                <div class="dropdown dropdown-end" :class="{ 'xl:hidden': !user }">
                     <label tabindex="0" class="btn btn-ghost">
                         <SVGUser class="w-8 h-8" />
                     </label>
@@ -85,14 +84,14 @@
                                 <SVGLanguage class="w-4 h-4" /> Language
                             </LanguagePicker>
                         </li>
-                        <li v-if="session?.user">
+                        <li v-if="user">
                             <NuxtLink>
                                 <SVGSettings class="w-4 h-4" />Settings
                             </NuxtLink>
                         </li>
                         <div class="divider my-0"></div>
                         <li>
-                            <button v-if="session?.user" @click="logoutUser">
+                            <button v-if="user" @click="logoutUser">
                                 <SVGLogout class="w-4 h-4" />Logout
                             </button>
                             <NuxtLink v-else to="/login/">
@@ -107,31 +106,11 @@
 </template>
 
 <script setup lang="ts">
+
+const user = await useUser()
+
+
 const { logoutUser } = useAuth()
-// const session = useSessionData()
-const { session } = await useSession()
-// console.log(JSON.stringify(session.value))
-// if (session.value === null){
-//     const event = useRequestEvent()
-//     if (event){
-//         session.value = event.context.session
-//     } else{
-//         const res = await $fetch("/api/sessionid", {method: "POST"})
-//         console.log("Fetch result:", res, JSON.stringify(res))
-//         if (res){
-//             session.value = res
-//         }
-//     }
-// }
-console.log(JSON.stringify(session.value))
-
-watch(session, () => {
-    console.log("SESSION UPDATE", session)
-})
-
-const printSession = () => {
-    console.log("session:", session, "\nsessionJSON:", JSON.stringify(session), "\nsession.value", session.value)
-}
 
 // const GAMES = useFetch()
 const GAMES = [{ name: "game" }];

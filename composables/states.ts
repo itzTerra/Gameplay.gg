@@ -1,13 +1,6 @@
-// import type { User } from "firebase/auth";
+export const getUser = () => useState<any>("firebaseUser", () => null);
 
-// interface Session{
-//     user: User | null,
-//     lastUrl: string
-// }
-
-// export const useUser = () => useState<User | null>("firebaseUser", () => null);
-
-// export const useSessionData = () =>
-//   useState<Session>("session", () => {
-//     return { user: null, lastUrl: "" };
-//   });
+export const useClientSession = () =>
+  useState<Record<string, any>>("session", () => {
+    return {};
+  });

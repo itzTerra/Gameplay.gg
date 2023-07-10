@@ -8,7 +8,7 @@
 
 <script setup>
 definePageMeta({
-    middleware: ["auth-only", "save-url"]
+    middleware: ["auth", "save-url"]
 })
 
 

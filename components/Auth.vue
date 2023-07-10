@@ -8,7 +8,7 @@
                 <slot></slot>
                 <div class="divider">OR</div>
                 <div class="flex flex-col">
-                    <button class="btn" @click="continueGoogle" :disabled="session?.user != null">Continue with Google</button>
+                    <button class="btn" @click="continueGoogle" :disabled="user != null">Continue with Google</button>
                 </div>
             </div>
             <Alert :alertType="error || googleError ? 'error' : 'success'" :change="isChanged" :interval="5000">{{ error || googleError || success}}</Alert>
@@ -19,10 +19,9 @@
 <script setup lang="ts">
 const props = defineProps(['success', "error", "change"])
 
-const { loginUserGoogle } = useAuth();
-// const session = useSessionData()
-const { session } = await useSession()
+const user = await useUser()
 
+const {loginUserGoogle} = useAuth()
 
 const googleError = ref("")
 
@@ -46,7 +45,7 @@ const continueGoogle = async () => {
     // console.log(JSON.stringify(response))
 
     if (response.credentials) {
-        navigateTo(session.value ? session.value.lastUrl : "/")
+        // navigateTo(session.value ? session.value.lastUrl : "/")
     } else{
         googleError.value = `Login failed: ${response.errorMessage}`
         changeVal = !changeVal

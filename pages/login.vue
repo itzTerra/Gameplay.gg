@@ -8,20 +8,27 @@
                 <input type="password" v-model="form.password" placeholder="Enter your password"
                     class="input input-lg input-bordered overflow-ellipsis join-item" required>
             </div>
+            <div class="flex justify-center mt-3">
+                <label class="flex items-center gap-2">
+                    <input v-model="form.remember" type="checkbox" class="checkbox checkbox-sm">
+                    Remember me
+                </label>
+            </div>
             <button class="w-full btn btn-primary my-5" type="submit">Log In</button>
         </form>
-        <p class="text-center">Don't have an account? <NuxtLink to="/register/" class="link link-secondary">Sign up</NuxtLink></p>
+        <p class="text-center">Don't have an account? <NuxtLink to="/register/" class="link link-secondary">Sign up
+            </NuxtLink>
+        </p>
     </Auth>
 </template>
 
 <script setup lang="ts">
 definePageMeta({
-    middleware: ["unauth-only"]
+    middleware: ["unauth"]
 })
 
 const { loginUser } = useAuth()
-// const session = useSessionData()
-const { session } = await useSession()
+const clientSession = useClientSession()
 
 const msgSuccess = ref("")
 const msgError = ref("")
@@ -30,18 +37,24 @@ const change = ref(false)
 const form = shallowReactive({
     email: "",
     password: "",
+    remember: true
 })
 
 const login = async () => {
+    clientSession.value.rememberMe = form.remember
+
     const response = await loginUser(form.email, form.password)
     // console.log(JSON.stringify(response))
     form.password = ""
 
     if (response.credentials) {
         form.email = ""
-        navigateTo(session.value ? session.value.lastUrl : "/")
 
-    } else{
+        const route = useRoute()
+        navigateTo(route.query.redirect && typeof route.query.redirect === 'string'
+            ? route.query.redirect
+            : '/')
+    } else {
         msgError.value = `Login failed: ${response.errorMessage}`
         msgSuccess.value = ""
     }
