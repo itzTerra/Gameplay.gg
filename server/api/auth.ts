@@ -44,6 +44,6 @@ export default defineEventHandler(async (event) => {
     return "user deleted";
   }
 
-  res.statusCode = 401;
+  res.statusCode = 403;
   return "bad request";
 });

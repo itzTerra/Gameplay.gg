@@ -12,13 +12,19 @@
             </div>
             <button class="w-full btn btn-primary my-5" type="submit">Sign Up</button>
         </form>
-        <p class="text-center">Already have an account? <NuxtLink to="/login/" class="link link-secondary">Log in</NuxtLink></p>
+        <p class="text-center">Already have an account? <NuxtLink to="/login/" class="link link-secondary">Log in</NuxtLink>
+        </p>
+        <div class="divider">OR</div>
+        <div class="flex flex-col">
+            <button class="btn" @click="continueGoogle" :disabled="user != null">Continue with Google</button>
+        </div>
     </Auth>
 </template>
 
 <script setup lang="ts">
 
-const { createUser } = useAuth()
+const user = await useUser()
+const { createUser, loginUserGoogle } = useAuth()
 
 const msgSuccess = ref("")
 const msgError = ref("")
@@ -41,8 +47,22 @@ const register = async () => {
     if (response.credentials) {
         msgSuccess.value = `Successfully signed up: ${response.credentials.user.email}`
         msgError.value = ""
-    } else{
+        // TODO Send verification email and notify user in message
+    } else {
         msgError.value = `Sign up failed: ${response.errorMessage}`
+        msgSuccess.value = ""
+    }
+
+    change.value = !change.value
+}
+
+const continueGoogle = async () => {
+    const response = await loginUserGoogle()
+
+    if (response.credentials) {
+        
+    } else{
+        msgError.value = `Login failed: ${response.errorMessage}`
         msgSuccess.value = ""
     }
 

@@ -9,6 +9,8 @@ import {
   type Auth,
 } from "firebase/auth";
 
+import { collection, addDoc, type Firestore } from "firebase/firestore";
+
 interface Response {
   credentials?: UserCredential | void;
   errorCode?: string;
@@ -16,29 +18,55 @@ interface Response {
 }
 
 export default function () {
-  const auth = useNuxtApp().$auth as Auth;
+  const nuxtApp = useNuxtApp();
+  const auth = nuxtApp.$auth as Auth;
   const googleProvider = new GoogleAuthProvider();
 
   const createUser = async (email: string, password: string) => {
     let response: Response = {};
 
-    response.credentials = await createUserWithEmailAndPassword(auth, email, password)
-      .catch((error) => {
-        response.errorCode = error.code;
-        response.errorMessage = error.message;
-      });
+    response.credentials = await createUserWithEmailAndPassword(
+      auth,
+      email,
+      password
+    ).catch((error) => {
+      response.errorCode = error.code;
+      response.errorMessage = error.message;
+    });
+
+    if (response.credentials) {
+      // Create user entry in Firestore
+      await createFirebaseUser(response.credentials.user.uid);
+    }
 
     return response;
+  };
+
+  const createFirebaseUser = async (uid: string) => {
+    try {
+      await addDoc(collection(nuxtApp.$firestore as Firestore, "users"), {
+        username: generateUsername(),
+        perms: 0,
+      });
+
+      return true;
+    } catch (e) {
+      console.error("Error adding document: ", e);
+      return false;
+    }
   };
 
   const loginUser = async (email: string, password: string) => {
     let response: Response = {};
 
-    response.credentials = await signInWithEmailAndPassword(auth, email, password)
-      .catch((error) => {
-        response.errorCode = error.code;
-        response.errorMessage = error.message;
-      });
+    response.credentials = await signInWithEmailAndPassword(
+      auth,
+      email,
+      password
+    ).catch((error) => {
+      response.errorCode = error.code;
+      response.errorMessage = error.message;
+    });
 
     return response;
   };
@@ -46,13 +74,14 @@ export default function () {
   const loginUserGoogle = async () => {
     let response: Response = {};
 
-    response.credentials = await signInWithPopup(auth, googleProvider)
-      .catch((error) => {
+    response.credentials = await signInWithPopup(auth, googleProvider).catch(
+      (error) => {
         response.errorCode = error.code;
         response.errorMessage = error.message;
-      });
+      }
+    );
 
-      return response
+    return response;
   };
 
   const logoutUser = async () => {
@@ -64,6 +93,6 @@ export default function () {
     createUser,
     loginUser,
     logoutUser,
-    loginUserGoogle
+    loginUserGoogle,
   };
 }

@@ -19,6 +19,10 @@
         <p class="text-center">Don't have an account? <NuxtLink to="/register/" class="link link-secondary">Sign up
             </NuxtLink>
         </p>
+        <div class="divider">OR</div>
+        <div class="flex flex-col">
+            <button class="btn" @click="continueGoogle" :disabled="user != null">Continue with Google</button>
+        </div>
     </Auth>
 </template>
 
@@ -27,8 +31,10 @@ definePageMeta({
     middleware: ["unauth"]
 })
 
-const { loginUser } = useAuth()
+const user = await useUser()
+const { loginUser, loginUserGoogle } = useAuth()
 const clientSession = useClientSession()
+const route = useRoute()
 
 const msgSuccess = ref("")
 const msgError = ref("")
@@ -41,20 +47,34 @@ const form = shallowReactive({
 })
 
 const login = async () => {
+    form.password = ""
+
     clientSession.value.rememberMe = form.remember
 
     const response = await loginUser(form.email, form.password)
-    // console.log(JSON.stringify(response))
-    form.password = ""
 
     if (response.credentials) {
         form.email = ""
 
-        const route = useRoute()
         navigateTo(route.query.redirect && typeof route.query.redirect === 'string'
             ? route.query.redirect
             : '/')
     } else {
+        msgError.value = `Login failed: ${response.errorMessage}`
+        msgSuccess.value = ""
+    }
+
+    change.value = !change.value
+}
+
+const continueGoogle = async () => {
+    const response = await loginUserGoogle()
+
+    if (response.credentials) {
+        navigateTo(route.query.redirect && typeof route.query.redirect === 'string'
+            ? route.query.redirect
+            : '/')
+    } else{
         msgError.value = `Login failed: ${response.errorMessage}`
         msgSuccess.value = ""
     }
