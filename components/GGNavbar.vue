@@ -40,7 +40,7 @@
             <!-- RIGHT SIDE -->
             <div class="ms-auto flex items-center">
                 <!-- SUBMIT A CLIP BUTTON -->
-                <NuxtLink v-if="user" to="/clip/" class="btn btn-primary btn-sm hidden lg:inline-flex mx-3">Submit a
+                <NuxtLink v-if="user" to="/addclip/" class="btn btn-primary btn-sm hidden lg:inline-flex mx-3">Submit a
                     Clip</NuxtLink>
                 <!-- DARK AND LIGHT THEME SWAPPER -->
                 <label class="btn btn-ghost hidden xl:inline-flex items-center h-10">
@@ -67,7 +67,7 @@
                     <ul tabindex="0"
                         class="mt-3 z-[1] p-2 shadow menu menu-sm dropdown-content rounded-box w-52 bg-base-300 text-base-content">
                         <li class="lg:hidden">
-                            <NuxtLink>
+                            <NuxtLink to="/addclip/">
                                 <SVGSubmitClip class="w-4 h-4" />Submit a Clip
                             </NuxtLink>
                         </li>
@@ -110,7 +110,7 @@
 const user = await useUser()
 
 
-const { logoutUser } = useAuth()
+const { logoutUser } = await useAuth()
 
 // const GAMES = useFetch()
 const GAMES = [{ name: "game" }];

@@ -22,6 +22,10 @@
   .menu .divider:first-child{
     display: none;
   }
+
+  label.label{
+    user-select: text;
+  }
 }
 
 @layer utilities {

@@ -9,18 +9,27 @@ import {
   type Auth,
 } from "firebase/auth";
 
-import { collection, addDoc, type Firestore } from "firebase/firestore";
+import {
+  doc,
+  getDoc,
+  setDoc,
+  type Firestore,
+  updateDoc,
+} from "firebase/firestore";
 
 interface Response {
   credentials?: UserCredential | void;
   errorCode?: string;
-  errorMessage?: string;
+  username?: string;
 }
 
-export default function () {
+export default async function () {
   const nuxtApp = useNuxtApp();
   const auth = nuxtApp.$auth as Auth;
+  const firestoreClient = nuxtApp.$firestore as Firestore;
   const googleProvider = new GoogleAuthProvider();
+
+  const clientUser = await useUser();
 
   const createUser = async (email: string, password: string) => {
     let response: Response = {};
@@ -31,22 +40,49 @@ export default function () {
       password
     ).catch((error) => {
       response.errorCode = error.code;
-      response.errorMessage = error.message;
     });
 
     if (response.credentials) {
       // Create user entry in Firestore
-      await createFirebaseUser(response.credentials.user.uid);
+      response.username = await createFirestoreUser(
+        response.credentials.user.uid
+      );
+
+      // Update user state with firestore data
+      const firestoreData = (
+        await getDoc(
+          doc(firestoreClient, "users", response.credentials.user.uid)
+        ).catch(() => null)
+      )?.data();
+      console.log("Got Firestore user-data:", firestoreData);
+      if (firestoreData) {
+        clientUser.value = { ...clientUser.value, ...firestoreData };
+      }
     }
 
     return response;
   };
 
-  const createFirebaseUser = async (uid: string) => {
+  // @ts-nocheck
+  const createFirestoreUser = async (uid: string) => {
     try {
-      await addDoc(collection(nuxtApp.$firestore as Firestore, "users"), {
-        username: generateUsername(),
-        perms: 0,
+      const username = generateUsername();
+      await setDoc(doc(firestoreClient, "users", uid), {
+        username: username,
+        role: "user",
+      });
+
+      return username;
+    } catch (e) {
+      console.error("Error adding document: ", e);
+      return "";
+    }
+  };
+
+  const updateUsername = async (uid: string, username: string) => {
+    try {
+      await updateDoc(doc(firestoreClient, "users", uid), {
+        username: username,
       });
 
       return true;
@@ -65,7 +101,6 @@ export default function () {
       password
     ).catch((error) => {
       response.errorCode = error.code;
-      response.errorMessage = error.message;
     });
 
     return response;
@@ -77,7 +112,6 @@ export default function () {
     response.credentials = await signInWithPopup(auth, googleProvider).catch(
       (error) => {
         response.errorCode = error.code;
-        response.errorMessage = error.message;
       }
     );
 
@@ -94,5 +128,6 @@ export default function () {
     loginUser,
     logoutUser,
     loginUserGoogle,
+    updateUsername,
   };
 }

@@ -2,7 +2,7 @@
     <div class="mt-auto">
         <footer class="footer py-6 px-5 lg:px-10 2xl:px-20 bg-base-200 text-base-content rounded flex flex-wrap justify-center">
             <div>
-                <p>Copyright © 2023 - All right reserved</p>
+                <p>Copyright © 2023 - All rights reserved</p>
             </div>
             <div class="flex gap-3">
                 <div class="divider divider-horizontal bg-base-content w-0.5"></div>

@@ -1,71 +1,147 @@
 <template>
     <Auth :success="msgSuccess" :error="msgError" :change="change">
-        <h3 class="mb-5 text-center text-3xl font-semibold">Create an account</h3>
-        <form @submit.prevent="register">
-            <div class="join join-vertical w-full">
-                <input type="text" v-model="form.email" placeholder="Email address"
-                    class="input input-bordered input-lg join-item" required>
-                <input type="password" v-model="form.password1" placeholder="Password (8 characters min.)"
-                    class="input input-bordered overflow-ellipsis input-lg join-item" required>
-                <input type="password" v-model="form.password2" placeholder="Re-enter password"
-                    class="input input-bordered overflow-ellipsis input-lg join-item" required>
+        <button class="btn btn-success" @click="registered = !registered">TOGGLE</button>
+        <Transition name="slide" mode="out-in">
+            <div v-if="!registered">
+                <h3 class="mb-5 text-center text-3xl font-semibold">Create an account</h3>
+                <form @submit.prevent="register">
+                    <div class="join join-vertical w-full">
+                        <input type="text" v-model="registerForm.email" placeholder="Email address"
+                            class="input input-bordered input-lg join-item" required>
+                        <input type="password" v-model="registerForm.password1" placeholder="Password (8 characters min.)"
+                            class="input input-bordered overflow-ellipsis input-lg join-item" required>
+                        <input type="password" v-model="registerForm.password2" placeholder="Re-enter password"
+                            class="input input-bordered overflow-ellipsis input-lg join-item" required>
+                    </div>
+                    <button class="w-full btn btn-primary my-5" type="submit">Sign Up</button>
+                </form>
+                <p class="text-center">Already have an account? <NuxtLink to="/login/" class="link link-secondary">Log in
+                    </NuxtLink>
+                </p>
+                <div class="divider">OR</div>
+                <div class="flex flex-col">
+                    <button class="btn" @click="continueGoogle" :disabled="user != null">Continue with Google</button>
+                </div>
             </div>
-            <button class="w-full btn btn-primary my-5" type="submit">Sign Up</button>
-        </form>
-        <p class="text-center">Already have an account? <NuxtLink to="/login/" class="link link-secondary">Log in</NuxtLink>
-        </p>
-        <div class="divider">OR</div>
-        <div class="flex flex-col">
-            <button class="btn" @click="continueGoogle" :disabled="user != null">Continue with Google</button>
-        </div>
+            <div v-else>
+                <div class="flex flex-col items-center mb-5">
+                    <h3 class="mb-2 text-3xl font-semibold">Choose your username</h3>
+                    <div class="w-11/12 text-sm opacity-75">
+                        <SVGInfo class="inline w-5 h-5 me-1" />Unique identifier to be displayed under your comments or
+                        submitted clips.
+                    </div>
+                </div>
+                <form @submit.prevent="setUsername">
+                    <div class="form-control w-full">
+                        <label class="label">
+                            <span class="label-text">I would like to be called...</span>
+                        </label>
+                        <input type="text" v-model="newUsername" placeholder="New username"
+                            class="input input-bordered w-full" required />
+                        <label class="label">
+                            <span class="label-text">Current: <strong>{{ generatedUsername }}</strong></span>
+                        </label>
+                    </div>
+                    <div class="mt-6 flex gap-5 justify-end items-end">
+                        <button class="btn btn-secondary btn-sm" @click="navigateTo('/')">Keep current</button>
+                        <button class="btn btn-primary" type="submit">Apply</button>
+                    </div>
+
+                </form>
+            </div>
+        </Transition>
     </Auth>
 </template>
 
 <script setup lang="ts">
 
 const user = await useUser()
-const { createUser, loginUserGoogle } = useAuth()
+const { createUser, loginUserGoogle, updateUsername, loginUser } = useAuth()
+const clientSession = useClientSession()
 
 const msgSuccess = ref("")
 const msgError = ref("")
 const change = ref(false)
 
-const form = shallowReactive({
+const registered = ref(false)
+const generatedUsername = ref("")
+const newUsername = ref("")
+
+const registerForm = shallowReactive({
     email: "",
     password1: "",
     password2: ""
 })
 
 const register = async () => {
-    const response = await createUser(form.email, form.password1)
-    // console.log(JSON.stringify(response))
+    clientSession.value.rememberMe = true
+    const regResponse = await createUser(registerForm.email, registerForm.password1)
 
-    form.email = ""
-    form.password1 = ""
-    form.password2 = ""
-
-    if (response.credentials) {
-        msgSuccess.value = `Successfully signed up: ${response.credentials.user.email}`
+    if (regResponse.credentials) {
+        msgSuccess.value = `Successfully signed up and logged in: ${regResponse.credentials.user.email}`
         msgError.value = ""
+
+        registered.value = true
+        generatedUsername.value = regResponse.username!
+
         // TODO Send verification email and notify user in message
     } else {
-        msgError.value = `Sign up failed: ${response.errorMessage}`
+        if (regResponse.errorCode == "auth/email-already-exists" || regResponse.errorCode == "auth/invalid-email") {
+            registerForm.email = ""
+        }
+        if (regResponse.errorCode == "auth/invalid-password") {
+            registerForm.password1 = ""
+            registerForm.password2 = ""
+        }
+        
+        msgError.value = `Sign up failed: ${regResponse.errorCode}`
         msgSuccess.value = ""
     }
 
     change.value = !change.value
 }
 
+const setUsername = async () => {
+    if (await updateUsername(user.value.uid, newUsername.value)) {
+        msgSuccess.value = `Successfully changed username to: ${newUsername.value}`
+        msgError.value = ""
+        setTimeout(() => {
+            navigateTo("/")
+        }, 2000)
+    } else {
+        msgError.value = `Error in changing username!`
+        msgSuccess.value = ""
+    }
+    change.value = !change.value
+}
+
+
 const continueGoogle = async () => {
     const response = await loginUserGoogle()
 
     if (response.credentials) {
-        
-    } else{
-        msgError.value = `Login failed: ${response.errorMessage}`
+        navigateTo("")
+    } else {
+        msgError.value = `Login failed: ${response.errorCode}`
         msgSuccess.value = ""
     }
 
     change.value = !change.value
 }
 </script>
+<style>
+.slide-enter-active,
+.slide-leave-active {
+    transition: all 0.25s ease-out;
+}
+
+.slide-enter-from {
+    opacity: 0;
+    transform: translateX(20px);
+}
+
+.slide-leave-to {
+    opacity: 0;
+    transform: translateX(-20px);
+}
+</style>

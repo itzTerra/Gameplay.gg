@@ -32,7 +32,7 @@ definePageMeta({
 })
 
 const user = await useUser()
-const { loginUser, loginUserGoogle } = useAuth()
+const { loginUser, loginUserGoogle } = await useAuth()
 const clientSession = useClientSession()
 const route = useRoute()
 
@@ -47,11 +47,10 @@ const form = shallowReactive({
 })
 
 const login = async () => {
-    form.password = ""
-
     clientSession.value.rememberMe = form.remember
-
     const response = await loginUser(form.email, form.password)
+
+    form.password = ""
 
     if (response.credentials) {
         form.email = ""
@@ -60,7 +59,7 @@ const login = async () => {
             ? route.query.redirect
             : '/')
     } else {
-        msgError.value = `Login failed: ${response.errorMessage}`
+        msgError.value = `Login failed: ${response.errorCode}`
         msgSuccess.value = ""
     }
 
@@ -75,7 +74,7 @@ const continueGoogle = async () => {
             ? route.query.redirect
             : '/')
     } else{
-        msgError.value = `Login failed: ${response.errorMessage}`
+        msgError.value = `Login failed: ${response.errorCode}`
         msgSuccess.value = ""
     }
 

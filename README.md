@@ -1,9 +1,11 @@
 # *IN DEVELOPMENT*
 
 ## TODO (later)
+- username blacklist
 - unique themes, logo, fonts
 - i18n
 - footer pages (About, Contact, ToS, Privacy)
+- cookie banner
 - SEO
 - Lighthouse (quality & optimization checks)
 

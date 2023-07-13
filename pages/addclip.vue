@@ -1,8 +1,13 @@
 <template>
-    <div>
-        <h2>Data</h2>
-        <pre>{{ data }}</pre>
+    <div class="max-w-5xl bg-base-200 rounded m-6 p-6">
         <button @click="updateClip">Update clip</button>
+        
+        <div v-if="user.role >= 2">
+            <h2 class="text-3xl text-center">Admin View</h2>
+        </div>
+        <div v-else>
+            <h2 class="text-3xl text-center">User View</h2>
+        </div>
     </div>
 </template>
 
@@ -10,6 +15,8 @@
 definePageMeta({
     middleware: ["auth", "save-url"]
 })
+
+const user = await useUser()
 
 
 // import { doc, onSnapshot, getDoc, updateDoc } from "firebase/firestore";
