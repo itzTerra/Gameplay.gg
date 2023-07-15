@@ -4,3 +4,5 @@ export const useClientSession = () =>
   useState<Record<string, any>>("session", () => {
     return {};
   });
+
+export const getTwitchTokenData = () => useState<any>("twitchAccessToken", () => null)

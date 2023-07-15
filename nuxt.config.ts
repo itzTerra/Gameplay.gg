@@ -14,7 +14,9 @@ export default defineNuxtConfig({
         firebaseMessagingSenderId: process.env.NUXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
         firebaseAppId: process.env.NUXT_PUBLIC_FIREBASE_APP_ID,
         firebaseMeasurementId: process.env.NUXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
-        userCookieName: "user_token"
+        userCookieName: "user_token",
+        twitchDbClientId: process.env.NUXT_TWITCH_DB_CLIENT_ID,
+        twitchDbClientSecret: process.env.NUXT_TWITCH_DB_CLIENT_SECRET,
     },
   },
   modules: [

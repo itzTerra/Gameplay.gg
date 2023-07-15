@@ -23,8 +23,9 @@
             </NuxtLink>
             <!-- SEARCH -->
             <div class="flex-grow flex items-center justify-center">
-                <div class="hidden sm:join flex-grow max-w-md me-5">
-                    <input list="gamesDatalist" placeholder="Search for a game..."
+                <div v-if="typingTimeout != null">Loading...</div>
+                <div class="join flex-grow min-w-0 max-w-3xl md:me-5">
+                    <input v-model="searchValue" list="gamesDatalist" placeholder="Search for a game..."
                         class="input h-10 input-bordered bg-accent-focus text-accent-content border-opacity-10 flex-grow w-auto tracking-wider join-item" />
                     <datalist id="gamesDatalist">
                         <option v-for="game in GAMES" :value="game.name"></option>
@@ -33,9 +34,9 @@
                         <SVGSearch class="w-5 h-5" />
                     </button>
                 </div>
-                <button class="btn btn-ghost sm:hidden">
+                <!-- <button class="btn btn-ghost sm:hidden">
                     <SVGSearch class="w-6 h-6" />
-                </button>
+                </button> -->
             </div>
             <!-- RIGHT SIDE -->
             <div class="ms-auto flex items-center">
@@ -62,8 +63,14 @@
                 <!-- USER MENU -->
                 <div class="dropdown dropdown-end" :class="{ 'xl:hidden': !user }">
                     <label tabindex="0" class="btn btn-ghost">
-                        <SVGUser class="w-8 h-8" />
+                        
+                        <div class="avatar">
+                            <div class="w-9 rounded-lg ring ring-primary bg-slate-700">
+                                <SVGUser class="w-full h-full" />
+                            </div>
+                        </div>
                     </label>
+
                     <ul tabindex="0"
                         class="mt-3 z-[1] p-2 shadow menu menu-sm dropdown-content rounded-box w-52 bg-base-300 text-base-content">
                         <li class="lg:hidden">
@@ -108,11 +115,26 @@
 <script setup lang="ts">
 
 const user = await useUser()
-
-
 const { logoutUser } = await useAuth()
+const {search: searchGame} = await useGames()
 
+
+const searchValue = ref("")
 // const GAMES = useFetch()
 const GAMES = [{ name: "game" }];
+
+const typingTimeout = ref<any>(null)
+
+const search = async (inp: string) => {
+    clearTimeout(typingTimeout.value)
+
+    typingTimeout.value = setTimeout(async () => {
+        typingTimeout.value = null
+        await searchGame(inp)
+    }, 500);
+}
+watch(searchValue, async (val) => {
+    await search(val)
+})
 
 </script>

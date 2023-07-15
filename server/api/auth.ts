@@ -7,7 +7,7 @@ export default defineEventHandler(async (event) => {
 
   if (req.method == "GET") {
     let user = null;
-    const idToken = getQuery(event).idToken?.toString();
+    const idToken = (await readBody(event)).idToken;
 
     if (idToken) {
       user = await adminAuth()
