@@ -13,6 +13,11 @@
                         <input type="password" v-model="registerForm.password2" placeholder="Re-enter password"
                             class="input input-bordered overflow-ellipsis input-lg join-item" required>
                     </div>
+                    <div class="mt-2 text-sm opacity-75">
+                        <SVGInfo class="inline w-5 h-5 me-1" />By signing in, you agree to this site's <NuxtLink
+                            class="link hover:no-underline hover:text-accent-focus transition-colors">Terms of Service</NuxtLink> and <NuxtLink class="link hover:no-underline hover:text-accent-focus transition-colors">
+                            Privacy Policy</NuxtLink>
+                    </div>
                     <button class="w-full btn btn-primary my-5" type="submit">Sign Up</button>
                 </form>
                 <p class="text-center">Already have an account? <NuxtLink to="/login/" class="link link-secondary">Log in
@@ -56,7 +61,7 @@
 <script setup lang="ts">
 
 const user = await useUser()
-const { createUser, loginUserGoogle, updateUsername, loginUser } = useAuth()
+const { createUser, loginUserGoogle, updateUsername, loginUser } = await useAuth()
 const clientSession = useClientSession()
 
 const msgSuccess = ref("")
@@ -93,7 +98,7 @@ const register = async () => {
             registerForm.password1 = ""
             registerForm.password2 = ""
         }
-        
+
         msgError.value = `Sign up failed: ${regResponse.errorCode}`
         msgSuccess.value = ""
     }

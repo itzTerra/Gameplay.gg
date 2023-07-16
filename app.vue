@@ -1,8 +1,12 @@
 <template>
     <div>
-        <GGNavbar />
+        <client-only>
+            <GGNavbar :class="{ 'handheld-order': isHandheldDevice }" />
+        </client-only>
         <NuxtPage />
-        <GGFooter />
+        <client-only>
+            <GGFooter v-if="!isHandheldDevice" />
+        </client-only>
     </div>
 </template>
 
@@ -40,3 +44,9 @@ useHead({
     ],
 });
 </script>
+<style>
+.handheld-order {
+    margin-top: auto;
+    order: 2;
+}
+</style>
