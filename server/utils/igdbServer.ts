@@ -1,4 +1,4 @@
-import {type H3Event} from "h3"
+import { type H3Event } from "h3";
 
 const isTokenExpired = (expiry: number) => {
   let currentTime = Math.floor(Date.now() / 1000);
@@ -17,12 +17,25 @@ const fetchNewToken = async () => {
   });
 };
 
-export const igdbHeaders = async (event: H3Event) => {
-  const config = useRuntimeConfig();
+const getToken = async (event: H3Event | null) => {
+  let tokenData;
 
-  const eventContext = event.context;
-  // first try event context
-  let tokenData = eventContext.igdbToken;
+  if (event) {
+    // first try event context
+    tokenData = event.context.igdbToken;
+  }
+
+  if (!tokenData) {
+    // read token from Firestore if it exists and is not expired
+    const ref = firestore.doc(`tokens/twitchToken`);
+    const snapshot = await ref.get();
+    tokenData = snapshot.data();
+
+    if (event) {
+      // save to context
+      event.context.igdbToken = tokenData;
+    }
+  }
 
   if (!tokenData || isTokenExpired(tokenData.expires)) {
     const res = await fetchNewToken();
@@ -31,13 +44,28 @@ export const igdbHeaders = async (event: H3Event) => {
         token: res.access_token,
         expires: Math.floor(Date.now() / 1000) + res.expires_in,
       };
-      eventContext.igdbToken = tokenData;
+
+      if (event) {
+        // save to context
+        event.context.igdbToken = tokenData;
+      }
+
+      // save to firestore
+      await firestore.doc(`tokens/twitchToken`).set(tokenData);
     } else {
       console.log("error getting twitch access token");
     }
   }
+
+  return tokenData.token
+};
+
+export const igdbHeaders = async (event: H3Event) => {
+  const config = useRuntimeConfig();
+  const token = await getToken(event)
+
   return {
     "Client-ID": config.public.twitchDbClientId,
-    Authorization: "Bearer " + tokenData.token,
+    Authorization: "Bearer " + token,
   };
 };

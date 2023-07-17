@@ -42,4 +42,3 @@ export enum UserRole {
   ADMIN = 2,
   OWNER = 3,
 }
-

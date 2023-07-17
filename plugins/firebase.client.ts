@@ -8,7 +8,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   console.log("FIREBASE CLIENT PLUGIN");
 
   const config = useRuntimeConfig();
-  const { $csrfFetch } = nuxtApp;
+  const $csrfFetch = nuxtApp.$csrfFetch;
 
   const firebaseConfig = {
     apiKey: config.public.firebaseApiKey,

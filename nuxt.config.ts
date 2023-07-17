@@ -28,6 +28,7 @@ export default defineNuxtConfig({
   image: {
     format: ["avif", "webp", "jpg"],
     dir: "assets/img",
+    domains: ['images.igdb.com']
   },
   colorMode: {
     dataValue: "theme", // activate data-theme in <html> tag
@@ -36,6 +37,6 @@ export default defineNuxtConfig({
     classSuffix: "",
   },
   csurf: {
-    excludedUrls: ['/nocsrf1', ['/nocsrf2/.*', 'i']],
+    excludedUrls: ["/api/igdb/game", '/nocsrf1', ['/nocsrf2/.*', 'i']],
   } 
 });
