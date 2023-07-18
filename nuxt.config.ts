@@ -3,6 +3,20 @@ export default defineNuxtConfig({
   devtools: { enabled: false },
   css: ["~/assets/css/tailwind.css"],
   components: [{ path: "~/components/svg", prefix: "SVG" }, "~/components"],
+  routeRules: {
+    // Homepage pre-rendered at build time
+    '/': { prerender: true },
+    // Product page generated on-demand, revalidates in background
+    '/products/**': { swr: true },
+    // Blog post generated on-demand once until next deploy
+    '/blog/**': { isr: true },
+    // Admin dashboard renders only on client-side
+    '/game/**': { ssr: false },
+    // Add cors headers on API routes
+    // '/api/**': { cors: true },
+    // Redirects legacy urls
+    '/old-page': { redirect: '/new-page' }
+  },
   runtimeConfig: {
     // The private keys which are only available within server-side
     // Keys within public, will be also exposed to the client-side
@@ -37,6 +51,6 @@ export default defineNuxtConfig({
     classSuffix: "",
   },
   csurf: {
-    excludedUrls: ["/api/igdb/game", '/nocsrf1', ['/nocsrf2/.*', 'i']],
+    excludedUrls: [["/api/igdb/*", "i"], '/nocsrf1', ['/nocsrf2/.*', 'i']],
   } 
 });

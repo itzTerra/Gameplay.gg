@@ -1,4 +1,52 @@
 // @ts-nocheck
+
+const sortedCompanies = (companies) => {
+  if (!companies) return;
+  companies = companies.filter((comp) => comp.developer);
+  companies.sort((a, b) => b.developer - a.developer);
+  return companies;
+};
+
+const convertWebsites = (websites) => {
+  const res = {
+    social: [],
+    stores: [],
+    other: [],
+  };
+
+  websites.forEach((w) => {
+    const item = { name: websiteCatToName[w.category], url: w.url };
+    if (w.category <= 3) {
+      res.other.push(item);
+    } else if (w.category <= 9 || w.category == 14 || w.category == 18) {
+      res.social.push(item);
+    } else {
+      res.stores.push(item);
+    }
+  });
+
+  return res;
+};
+
+const simplePlatforms = (platforms) => {
+  const res = [];
+  platforms.forEach((p) => {
+    p = p.abbreviation;
+    if (["PS3", "PS4", "PS5"].includes(p)) {
+      if (!res.includes("PlayStation")) {
+        res.push("PlayStation");
+      }
+    } else if (["XONE", "Series X", "X360"].includes(p)) {
+      if (!res.includes("Xbox")) {
+        res.push("Xbox");
+      }
+    } else {
+      res.push(p);
+    }
+  });
+  return res;
+};
+
 export const searchGames = async (query: string) => {
   const $csrfFetch = useNuxtApp().$csrfFetch;
 
@@ -15,7 +63,7 @@ export const searchGames = async (query: string) => {
       first_release_date: game.first_release_date
         ? new Date(game.first_release_date * 1000).getFullYear()
         : "?",
-      companies: game.involved_companies?.map(
+      companies: sortedCompanies(game.involved_companies)?.map(
         (inv_comp) => inv_comp.company.name
       ),
       cover: "http:" + game.cover?.url,
@@ -26,7 +74,7 @@ export const searchGames = async (query: string) => {
 export const getGame = async (id: number | string) => {
   const $csrfFetch = useNuxtApp().$csrfFetch;
 
-  const game = await $fetch("/api/igdb/game", {
+  const game = await $csrfFetch("/api/igdb/game", {
     method: "POST",
     body: {
       id: id,
@@ -38,28 +86,12 @@ export const getGame = async (id: number | string) => {
     release_date: game.first_release_date
       ? new Date(game.first_release_date * 1000).getFullYear()
       : "?",
-    companies: game.involved_companies?.map(
+    companies: sortedCompanies(game.involved_companies)?.map(
       (inv_comp) => inv_comp.company.name
     ),
     cover: "http:" + game.cover?.url,
     genres: game.genres.map((genre) => genre.name),
-    platforms: game.platforms.map((platform) => {
-      return {
-        name: platform.abbreviation,
-        logo: "http:" + platform.platform_logo?.url,
-      };
-    }),
-    age_ratings: game.age_ratings.map((rating) => {
-      return {
-        name: rating.rating,
-        url: "http:" + rating.rating_cover_url,
-      };
-    }),
-    game_engines: game.game_engines.map(engine => {
-        return {
-            name: engine.name,
-            logo: "http:" + engine.logo.url
-        }
-    })
+    platforms: simplePlatforms(game.platforms),
+    websites: convertWebsites(game.websites),
   };
 };

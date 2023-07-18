@@ -1,5 +1,5 @@
 <template>
-    <div class="navbar bg-accent text-accent-content md:px-10 sticky">
+    <div class="navbar bg-accent text-accent-content md:px-10">
         <!-- NAVBAR HEADER -->
         <NuxtLink class="btn btn-ghost normal-case small-caps text-xl" to="/">
             <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 128 128">

@@ -1,6 +1,9 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@300;400;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
 
 @layer base {
   :root {
@@ -31,5 +34,9 @@
 @layer utilities {
   .small-caps {
     font-variant: small-caps;
+  }
+
+  .font-serif{
+    font-family: ui-serif, "Roboto Slab", Georgia, Cambria, "Times New Roman", Times, serif;;
   }
 }

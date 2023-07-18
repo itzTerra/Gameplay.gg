@@ -7,7 +7,7 @@
                 <SVGSearch class="w-5 h-5" />
             </button>
         </div>
-        <div v-if="showSearchResults" class="absolute top-10 left-0 bg-base-100 shadow-lg rounded-lg w-72 md:w-96 lg:w-[500px]">
+        <div v-show="showSearchResults" class="absolute top-10 left-0 z-[200] bg-base-100 shadow-lg rounded-lg w-72 md:w-96 lg:w-[500px]">
             <span v-if="typingTimeout != null" class="loading loading-dots loading-lg m-4"></span>
             <span v-if="!searchedGames">No results found.</span>
             <ul v-else class="rounded-lg max-h-[376px] overflow-y-auto">
@@ -46,7 +46,6 @@ const search = async (inp: string) => {
 
     typingTimeout.value = setTimeout(async () => {
         searchedGames.value = await searchGames(inp)
-        console.log(searchedGames.value)
         typingTimeout.value = null
     }, 500);
 }
