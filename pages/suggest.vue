@@ -17,7 +17,9 @@ definePageMeta({
 })
 
 const user = await useUser()
+const route = useRoute()
 
+const selectedGame = ref(route.query.game)
 
 // import { doc, onSnapshot, getDoc, updateDoc } from "firebase/firestore";
 

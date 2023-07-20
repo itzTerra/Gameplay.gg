@@ -61,7 +61,7 @@
 <script setup lang="ts">
 
 const user = await useUser()
-const { createUser, loginUserGoogle, updateUsername, loginUser } = await useAuth()
+const { createUser, loginUserGoogle, updateUsername } = await useAuth()
 const clientSession = useClientSession()
 
 const msgSuccess = ref("")

@@ -42,7 +42,7 @@ export default defineNuxtConfig({
   image: {
     format: ["avif", "webp", "jpg"],
     dir: "assets/img",
-    domains: ['images.igdb.com']
+    domains: ['images.igdb.com', "i.ytimg.com"]
   },
   colorMode: {
     dataValue: "theme", // activate data-theme in <html> tag

@@ -6,3 +6,5 @@ export const useClientSession = () =>
   });
 
 export const getTwitchTokenData = () => useState<any>("twitchAccessToken", () => null)
+
+export const getCachedClips = () => useState<any>("cachedClips", () => {return {}})

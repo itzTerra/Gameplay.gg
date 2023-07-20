@@ -1,4 +1,5 @@
 export default defineEventHandler(async (event) => {
+    // UNUSED
   const { req, res } = event.node;
   if (req.method == "POST") {
     const body = await readBody(event);

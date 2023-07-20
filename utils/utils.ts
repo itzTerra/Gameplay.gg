@@ -25,6 +25,7 @@ export const isHandheldDevice = computed(() => {
   );
 });
 
+// For dropdowns
 export const blurIfFocused = (el: Event | EventTarget | null) => {
   if (el instanceof Event) {
     el = el.target;
@@ -42,23 +43,3 @@ export enum UserRole {
   ADMIN = 2,
   OWNER = 3,
 }
-
-export const websiteCatToName = {
-  1: "Official",
-  2: "Wikia",
-  3: "Wikipedia",
-  4: "Facebook",
-  5: "Twitter",
-  6: "Twitch",
-  8: "Instagram",
-  9: "Youtube",
-  10: "iPhone",
-  11: "iPad",
-  12: "Android",
-  13: "Steam",
-  14: "Reddit",
-  15: "Itch",
-  16: "Epic Games",
-  17: "GOG",
-  18: "Discord",
-};
