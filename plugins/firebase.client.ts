@@ -1,7 +1,9 @@
+// @ts-nocheck
+
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import { getAuth, getIdToken, onAuthStateChanged } from "firebase/auth";
-import { getFirestore, getDoc, doc } from "firebase/firestore";
+import { getFirestore, getDoc, doc, onSnapshot } from "firebase/firestore";
 import type { User } from "firebase/auth";
 
 export default defineNuxtPlugin(async (nuxtApp) => {
@@ -9,6 +11,8 @@ export default defineNuxtPlugin(async (nuxtApp) => {
 
   const config = useRuntimeConfig();
   const $csrfFetch = nuxtApp.$csrfFetch;
+  const route = useRoute();
+  const router = useRouter();
 
   const firebaseConfig = {
     apiKey: config.public.firebaseApiKey,
@@ -38,9 +42,8 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   nuxtApp.vueApp.provide("firestore", firestore);
   nuxtApp.provide("firestore", firestore);
 
-
   const updateUser = async (user: User | null) => {
-    console.log("Updating user: ", JSON.stringify(user).slice(0, 40)+"...");
+    console.log("Updating user: ", JSON.stringify(user).slice(0, 40) + "...");
 
     const clientUser = await useUser();
     const clientSession = useClientSession();
@@ -49,13 +52,23 @@ export default defineNuxtPlugin(async (nuxtApp) => {
       const idToken = await getIdToken(user);
 
       // Get firestore user-data
-      const firestoreData = (await getDoc(doc(firestore, "users", user.uid)).catch(()=>null))?.data()
-      console.log("Got Firestore user-data:", firestoreData)
-      if (firestoreData){
-        clientUser.value = {...user, ...firestoreData}
-      } else{
+      const userDocRef = doc(firestore, "users", user.uid);
+
+      const firestoreData = (
+        await getDoc(userDocRef).catch(() => null)
+      )?.data();
+
+      console.log("Got Firestore user-data:", firestoreData);
+      if (firestoreData) {
+        clientUser.value = { ...user, ...firestoreData };
+      } else {
         clientUser.value = user;
       }
+
+      // Update values on Firestore update
+      onSnapshot(userDocRef, (snap) => {
+        clientUser.value = { ...clientUser.value, ...snap.data() };
+      });
 
       $csrfFetch("/api/auth", {
         method: "POST",
@@ -68,6 +81,15 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     } else {
       clientUser.value = null;
       $csrfFetch("/api/auth", { method: "DELETE" });
+
+      if (route.meta.middleware?.includes("auth")) {
+        navigateTo({
+          path: "/login",
+          query: {
+            redirect: route.fullPath,
+          },
+        });
+      }
     }
   };
 

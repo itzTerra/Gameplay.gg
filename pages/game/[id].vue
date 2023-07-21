@@ -63,7 +63,7 @@
             </div>
         </div>
         <div class="p-4 lg:px-6">
-            <div v-if="gameInfo.videos" class="flex flex-col">
+            <div v-if="gameInfo.featuredClips" class="flex flex-col">
                 <div class="flex mb-4">
                     <button class="btn btn-ghost flex items-center space-x-1 normal-case" @click="featuredShown = !featuredShown"><span
                             class="text-3xl">Featured</span>
@@ -90,13 +90,12 @@
                 </button>
                 <div v-if="user" class="flex gap-2">
                     <button class="btn btn-primary">Suggest</button>
-                    <button v-if="user.role && user.role >= 2" class="btn btn-primary">Add</button>
                 </div>
             </div>
             <div class="collapse">
                 <input v-model="communityShown" type="checkbox" class="min-h-0" />
                 <div class="collapse-content">
-                    <p v-if="true" class="text-base-content text-opacity-75">Nothing here yet...</p>
+                    <p v-if="!gameInfo.approvedClips" class="text-base-content text-opacity-75">Nothing here yet...</p>
                     <div class="flex flex-wrap gap-x-4 gap-y-8 justify-center">
                         <Thumbnail v-for="video in gameInfo.approvedClips" width="320" height="180" :video="video" />
                     </div>

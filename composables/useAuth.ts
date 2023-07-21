@@ -5,6 +5,8 @@ import {
   signInWithEmailAndPassword,
   GoogleAuthProvider,
   signInWithPopup,
+  sendPasswordResetEmail, 
+  confirmPasswordReset,
   type UserCredential,
   type Auth,
 } from "firebase/auth";
@@ -16,6 +18,9 @@ import {
   type Firestore,
   updateDoc,
 } from "firebase/firestore";
+
+// @ts-ignore
+import blacklist from "the-big-username-blacklist";
 
 interface Response {
   credentials?: UserCredential | void;
@@ -79,16 +84,23 @@ export default async function () {
     }
   };
 
-  const updateUsername = async (uid: string, username: string) => {
+  const updateUsername = async (
+    uid: string,
+    username: string,
+    validate = true
+  ) => {
+    if (validate && !blacklist.validate(username)) {
+      throw new Error("Invalid username");
+    }
+
     try {
       await updateDoc(doc(firestoreClient, "users", uid), {
         username: username,
       });
-
-      return true;
+      return true; // Resolves with 'true' if the update is successful
     } catch (e) {
-      console.error("Error adding document: ", e);
-      return false;
+      console.error("Error updating document: ", e);
+      throw new Error("Error updating document");
     }
   };
 
@@ -123,11 +135,29 @@ export default async function () {
     return result;
   };
 
+  const sendPassResetEmail = async (email: string) => {
+    try {
+        await sendPasswordResetEmail(auth, email)
+    } catch (error) {
+        console.error(error)
+    }
+  }
+
+  const confirmPassReset = async (code: string, newPassword: string) => {
+    try {
+        await confirmPasswordReset(auth, code, newPassword)
+    } catch (error) {
+        console.error(error)
+    }
+  }
+
   return {
     createUser,
     loginUser,
     logoutUser,
     loginUserGoogle,
     updateUsername,
+    sendPassResetEmail,
+    confirmPassReset
   };
 }

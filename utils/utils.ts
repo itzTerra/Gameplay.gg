@@ -31,7 +31,7 @@ export const blurIfFocused = (el: Event | EventTarget | null) => {
     el = el.target;
   }
   if (el != null && (el.matches(":focus") || el === document.activeElement)) {
-    setTimeout(function () {
+    setTimeout(() => {
       el.blur();
     }, 0);
   }
@@ -42,4 +42,8 @@ export enum UserRole {
   MODERATOR = 1,
   ADMIN = 2,
   OWNER = 3,
+}
+
+export function delay(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }

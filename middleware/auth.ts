@@ -1,9 +1,9 @@
 export default defineNuxtRouteMiddleware(async (to, from) => {
-  const user = await useUser();
+  let user = await useUser();
 
   if (!user || !user.value) {
-    setTimeout(() => {
-      if (!user || !user.value) {
+    await delay(2000)
+    if (!user || !user.value) {
         console.log("Authenticated users only, redirecting...");
         return navigateTo({
           path: "/login",
@@ -12,6 +12,16 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
           },
         });
       }
-    }, 2000);
+    // setTimeout(async () => {
+    //   if (!user || !user.value) {
+    //     console.log("Authenticated users only, redirecting...");
+    //     return navigateTo({
+    //       path: "/login",
+    //       query: {
+    //         redirect: to.fullPath,
+    //       },
+    //     });
+    //   }
+    // }, 2000);
   }
 });

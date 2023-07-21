@@ -1,18 +1,22 @@
 <template>
     <div>
         <client-only>
-            <GGNavbar class="fixed z-[200]" :class="{ 'handheld-order': isHandheldDevice }" />
+            <GGNavbar class="fixed top-0 left-0 w-100 h-16 z-[200]" :class="{ 'handheld-order': isHandheldDevice }" />
         </client-only>
-        <div class="pt-16">
-            <NuxtPage />
-        </div>
-        <client-only>
-            <GGFooter v-if="!isHandheldDevice" />
-        </client-only>
+        <main class="mt-16 flex flex-col content-min-height">
+            <div class="flex-1 overflow-y-auto flex flex-col content-max-height">
+                <NuxtPage class="flex-1" />
+                <client-only>
+                    <GGFooter v-if="!isHandheldDevice" class="mt-auto" />
+                </client-only>
+            </div>
+        </main>
+
+        <NuxtLoadingIndicator />
 
         <Transition name="embed">
-            <YTEmbed v-if="$route.query.video_id" :videoId="$route.query.video_id"
-                :videoMeta="{ name: $route.query.video_name }" @close="$router.replace({ query: undefined });" />
+            <YTEmbed v-if="$route.query.id" :videoId="$route.query.id" :videoTitle="$route.query.title"
+                @close="$router.replace({ query: undefined });" />
         </Transition>
 
         <button id="back-to-top-btn" class="btn btn-accent btn-circle opacity-50 hover:opacity-75">
@@ -79,7 +83,7 @@ onMounted(() => {
 })
 </script>
 
-<style>
+<style scoped>
 .handheld-order {
     margin-top: auto;
     order: 2;
@@ -101,5 +105,15 @@ onMounted(() => {
 .embed-enter-from,
 .embed-leave-to {
     opacity: 0;
+}
+
+.content-min-height {
+    min-height: calc(100vh - 4rem);
+    flex: 1;
+}
+
+.content-max-height{
+    max-height: calc(100vh - 4rem);
+    height: calc(100vh - 4rem);
 }
 </style>

@@ -15,6 +15,8 @@ export default defineEventHandler(async (event) => {
         .catch(() => null);
     }
 
+    console.log(idToken, user)
+
     return user;
   } else if (req.method == "POST") {
     // Add ID token to request context & create cookie

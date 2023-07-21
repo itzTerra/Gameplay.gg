@@ -7,8 +7,8 @@
             <div class="bg-base-200 py-4 px-5 rounded-xl mb-3">
                 <slot></slot>
             </div>
-            <Alert :alertType="error ? 'error' : 'success'" :change="change" :interval="5000">{{ error || success}}</Alert>
         </div>
+        <Alert :alertType="error ? 'error' : 'success'" :change="change" :interval="5000">{{ error || success}}</Alert>
     </div>
 </template>
 

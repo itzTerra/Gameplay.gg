@@ -23,7 +23,13 @@ module.exports = {
           "base-300": "#29323d",
         },
       },
-      "light",
+      {
+        light: {
+          ...require("daisyui/src/theming/themes")["[data-theme=light]"],
+          "base-200": "#e0e1e1",
+          "base-300": "#cccccc",
+        },
+      },
     ],
   },
   //   daisyui: {

@@ -25,6 +25,7 @@
     "firebase": "^9.23.0",
     "firebase-admin": "^11.9.0",
     "nuxt-csurf": "^1.2.0",
+    "the-big-username-blacklist": "^1.5.2",
     "unique-names-generator": "^4.7.1"
   }
 }

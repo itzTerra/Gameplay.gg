@@ -2,7 +2,7 @@
     <div class="max-w-5xl bg-base-200 rounded m-6 p-6">
         <button @click="updateClip">Update clip</button>
         
-        <div v-if="user.role >= 2">
+        <div v-if="user && user.role >= 3">
             <h2 class="text-3xl text-center">Admin View</h2>
         </div>
         <div v-else>

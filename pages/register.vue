@@ -1,6 +1,6 @@
 <template>
     <Auth :success="msgSuccess" :error="msgError" :change="change">
-        <button class="btn btn-success" @click="registered = !registered">TOGGLE</button>
+        <!-- <button class="btn btn-success" @click="registered = !registered">TOGGLE</button> -->
         <Transition name="slide" mode="out-in">
             <div v-if="!registered">
                 <h3 class="mb-5 text-center text-3xl font-semibold">Create an account</h3>
@@ -10,7 +10,7 @@
                             class="input input-bordered input-lg join-item" required>
                         <input type="password" v-model="registerForm.password1" placeholder="Password (8 characters min.)"
                             class="input input-bordered overflow-ellipsis input-lg join-item" required>
-                        <input type="password" v-model="registerForm.password2" placeholder="Re-enter password"
+                        <input type="password" v-model="registerForm.password2" placeholder="Confirm password"
                             class="input input-bordered overflow-ellipsis input-lg join-item" required>
                     </div>
                     <div class="mt-2 text-sm opacity-75">
@@ -51,7 +51,6 @@
                         <button class="btn btn-secondary btn-sm" @click="navigateTo('/')">Keep current</button>
                         <button class="btn btn-primary" type="submit">Apply</button>
                     </div>
-
                 </form>
             </div>
         </Transition>
@@ -114,7 +113,7 @@ const setUsername = async () => {
             navigateTo("/")
         }, 2000)
     } else {
-        msgError.value = `Error in changing username!`
+        msgError.value = `Error in changing username, try a different one`
         msgSuccess.value = ""
     }
     change.value = !change.value

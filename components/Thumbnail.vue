@@ -2,7 +2,7 @@
     <div>
         <div @mouseenter="hovering = true" @mousemove="moveOverVideo" @mouseleave="onMouseLeave"
             class="bg-base-200 text-base-content rounded-lg shadow-sm relative">
-            <NuxtLink class="cursor-pointer" :to="{path: $route.path, query: {id: video.id}}">
+            <NuxtLink class="cursor-pointer" :to="{path: $route.path, query: {id: video.id, title: video.title}}">
                 <div class="rounded-t-lg relative" :style="{ width: width + 'px', height: height + 'px' }">
                     <Transition>
                         <nuxt-picture v-show="currSrc == 0" format="avif,webp" :src="`${rootUrl}/0.jpg`"
@@ -71,7 +71,6 @@ const onMouseLeave = (e) => {
 </script>
 
 <style scoped>
-/* we will explain what these classes do next! */
 .v-enter-active,
 .v-leave-active {
     transition: opacity 0.25s ease-in;

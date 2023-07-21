@@ -1,5 +1,5 @@
 <template>
-    <div class="navbar bg-accent text-accent-content md:px-10">
+    <header class="navbar bg-accent text-accent-content md:px-10">
         <!-- NAVBAR HEADER -->
         <NuxtLink class="btn btn-ghost normal-case small-caps text-xl" to="/">
             <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 128 128">
@@ -47,10 +47,10 @@
                 <NuxtLink to="/login/" class="btn btn-sm btn-secondary">Log In</NuxtLink>
             </div>
             <!-- USER MENU -->
-            <div class="dropdown dropdown-end" :class="{ 'xl:hidden': !user, 'dropdown-top': isHandheldDevice }">
-                <label tabindex="0" class="btn btn-ghost" @mousedown="blurIfFocused">
+            <div class="dropdown dropdown-end ms-4" :class="{ 'xl:hidden': !user, 'dropdown-top': isHandheldDevice }">
+                <label ref="dropdown" tabindex="0" class="btn btn-square btn-ghost" @mousedown="blurIfFocused">
                     <div class="avatar pointer-events-none">
-                        <div class="w-9 rounded-lg ring ring-primary bg-slate-700">
+                        <div class="w-9 rounded-lg ring ring-primary bg-slate-700 text-white">
                             <SVGUser class="w-full h-full" />
                         </div>
                     </div>
@@ -76,12 +76,12 @@
                         </LanguagePicker>
                     </li>
                     <li v-if="user">
-                        <NuxtLink>
+                        <NuxtLink to="/settings/">
                             <SVGSettings class="w-4 h-4" />Settings
                         </NuxtLink>
                     </li>
                     <div class="divider my-0"></div>
-                    <li>
+                    <li @click="blurIfFocused">
                         <button v-if="user" @click="logoutUser">
                             <SVGLogout class="w-4 h-4" />Logout
                         </button>
@@ -92,12 +92,14 @@
                 </ul>
             </div>
         </div>
-    </div>
+    </header>
 </template>
 
 <script setup lang="ts">
 
 const user = await useUser()
 const { logoutUser } = await useAuth()
+
+const dropdown = ref(null)
 
 </script>
