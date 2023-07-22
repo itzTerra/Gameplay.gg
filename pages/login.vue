@@ -8,13 +8,17 @@
                 <input type="password" v-model="form.password" placeholder="Enter your password"
                     class="input input-lg input-bordered overflow-ellipsis join-item" required>
             </div>
-            <div class="flex justify-center mt-3">
+            <div class="flex justify-around flex-wrap gap-y-3 mt-3">
                 <label class="flex items-center gap-2">
                     <input v-model="form.remember" type="checkbox" class="checkbox checkbox-sm">
                     Remember me
                 </label>
+                <NuxtLink to="/resetpass/" class="link link-secondary link-hover">Forgot your password?</NuxtLink>
             </div>
-            <button class="w-full btn btn-primary my-5" type="submit">Log In</button>
+            <button class="w-full btn btn-primary my-5" type="submit">
+                <span v-show="loading == 'login'" class="loading loading-spinner"></span>
+                Log In
+            </button>
         </form>
         <p class="text-center">Don't have an account? <NuxtLink to="/register/" class="link link-secondary">Sign up
             </NuxtLink>
@@ -40,6 +44,8 @@ const msgSuccess = ref("")
 const msgError = ref("")
 const change = ref(false)
 
+const loading = ref("")
+
 const form = shallowReactive({
     email: "",
     password: "",
@@ -47,6 +53,7 @@ const form = shallowReactive({
 })
 
 const login = async () => {
+    loading.value = "login"
     clientSession.value.rememberMe = form.remember
     const response = await loginUser(form.email, form.password)
 
@@ -64,6 +71,7 @@ const login = async () => {
     }
 
     change.value = !change.value
+    loading.value = ""
 }
 
 const continueGoogle = async () => {
@@ -73,7 +81,7 @@ const continueGoogle = async () => {
         navigateTo(route.query.redirect && typeof route.query.redirect === 'string'
             ? route.query.redirect
             : '/')
-    } else{
+    } else {
         msgError.value = `Login failed: ${response.errorCode}`
         msgSuccess.value = ""
     }

@@ -2,7 +2,7 @@
     <div class="flex items-center justify-center flex-grow">
         <div class="w-96">
             <nav class="flex justify-center mb-2">
-                <NuxtLink to="/" class="hover:opacity-80">&#171; Home</NuxtLink>
+                <NuxtLink :to="backLink || '/'" class="hover:opacity-80">&#171; {{backText || 'Home'}}</NuxtLink>
             </nav>
             <div class="bg-base-200 py-4 px-5 rounded-xl mb-3">
                 <slot></slot>
@@ -13,5 +13,5 @@
 </template>
 
 <script setup lang="ts">
-const props = defineProps(['success', "error", "change"])
+const props = defineProps(['success', "error", "change", "backText", "backLink"])
 </script>

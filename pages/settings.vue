@@ -1,7 +1,7 @@
 <template>
     <div class="flex flex-col items-center ">
         <div
-            class="mx-auto my-auto bg-base-200 rounded-box px-8 py-4 w-full sm:w-[400px] xl:w-[600px] min-h-[300px] flex flex-col items-start">
+            class="mx-auto my-auto bg-base-200 rounded-box px-8 py-6 w-full sm:w-[400px] min-h-[300px] flex flex-col items-start">
             <h1 class="self-center text-3xl font-bold">Profile</h1>
             <div class="divider my-1"></div>
             <div class="flex flex-wrap gap-10 items-center justify-around w-full">
@@ -9,7 +9,8 @@
                     <p class="font-light text-lg mb-2">Username</p>
                     <div v-if="usernameEditing" class="flex items-center gap-1">
                         <input ref="usernameInput" type="text" v-model="newUsername" class="input w-56 me-4">
-                        <button v-if="!usernameLoading" @click="setUsername" class="btn btn-sm btn-ghost btn-circle" title="Save">
+                        <button v-if="!usernameLoading" @click="setUsername" class="btn btn-sm btn-ghost btn-circle"
+                            title="Save">
                             <SVGSave class="w-6 h-6" />
                         </button>
                         <span v-else class="loading loading-spinner"></span>
@@ -25,7 +26,67 @@
                     </div>
                 </div>
                 <div>
-                    <button class="btn btn-large btn-secondary">Change Password</button>
+                    <p class="font-light text-lg mb-2">Email</p>
+                    <div class="flex items-center gap-4">
+                        <p class="font-semibold text-xl p-3 bg-base-100 rounded-lg w-56 truncate">
+                            {{ formattedEmail }}</p>
+                        <button @click="openChangeEmailModal" class="btn btn-sm btn-ghost btn-circle">
+                            <SVGEdit class="w-6 h-6" />
+                        </button>
+                    </div>
+                    <dialog ref="changeEmailModal" class="modal">
+                        <div class="modal-box bg-base-200 text-base-content">
+                            <form method="dialog" ref="changeEmailCloseForm" @submit.prevent="closeChangeEmailModal">
+                                <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+                            </form>
+                            <h3 class="font-bold text-xl mb-5">Change Email</h3>
+                            <form @submit.prevent="changeEmail" class="flex flex-col">
+                                <input type="password" v-model="passwords.old" placeholder="Password"
+                                    class="input input-lg input-bordered overflow-ellipsis" required>
+                                <NuxtLink to="/resetpass/" target="_blank" tabindex="-1"
+                                    class="link link-secondary link-hover mt-2 ms-2 self-start" title="Open in new tab">
+                                    Forgot your password?
+                                </NuxtLink>
+                                <input type="email" v-model="newEmail" placeholder="New email"
+                                    class="input input-bordered overflow-ellipsis input-lg mt-6" required>
+                                <button class="btn btn-primary my-5 self-center w-auto" type="submit">
+                                    <span v-show="loading == 'changeEmail'" class="loading loading-spinner"></span>
+                                    Change
+                                </button>
+                            </form>
+                        </div>
+                    </dialog>
+                </div>
+                <div>
+                    <button class="btn btn-large btn-secondary" @click="openChangePassModal">Change
+                        Password</button>
+                    <dialog ref="changePassModal" class="modal">
+                        <div class="modal-box bg-base-200 text-base-content">
+                            <form method="dialog" ref="changePassCloseForm" @submit.prevent="closeChangePassModal">
+                                <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+                            </form>
+                            <h3 class="font-bold text-xl mb-5">Change Password</h3>
+                            <form @submit.prevent="changePassword" class="flex flex-col">
+                                <input type="password" v-model="passwords.old" placeholder="Old password"
+                                    class="input input-lg input-bordered overflow-ellipsis" required>
+                                <NuxtLink to="/resetpass/" target="_blank" tabindex="-1"
+                                    class="link link-secondary link-hover mt-2 ms-2 self-start" title="Open in new tab">
+                                    Forgot your password?
+                                </NuxtLink>
+                                <div class="join join-vertical w-full mt-6">
+                                    <input type="password" v-model="passwords.new1"
+                                        placeholder="New password (8 characters min.)"
+                                        class="input input-bordered overflow-ellipsis input-lg join-item" required>
+                                    <input type="password" v-model="passwords.new2" placeholder="Confirm new password"
+                                        class="input input-bordered overflow-ellipsis input-lg join-item" required>
+                                </div>
+                                <button class="btn btn-primary my-5 self-center w-auto" type="submit">
+                                    <span v-show="loading == 'changePass'" class="loading loading-spinner"></span>
+                                    Change
+                                </button>
+                            </form>
+                        </div>
+                    </dialog>
                 </div>
             </div>
         </div>
@@ -40,8 +101,23 @@ definePageMeta({
     middleware: ["auth", "save-url"]
 })
 
+const route = useRoute()
+const router = useRouter()
+
+const changePassModal = ref(null)
+const changePassCloseForm = ref(null)
+
+onMounted(() => {
+    if (route.query.action) {
+        if (route.query.action == "changePass") {
+            // @ts-ignore
+            changePassModal.value.showModal()
+        }
+    }
+})
+
 const user = await useUser()
-const { updateUsername } = await useAuth()
+const { updateUsername, updatePass, changeEmail: updateEmail } = await useAuth()
 
 const usernameEditing = ref(false)
 const usernameLoading = ref(false)
@@ -50,8 +126,9 @@ const msgSuccess = ref("")
 const msgError = ref("")
 const change = ref(false)
 
-const newUsername = ref("")
+const loading = ref("")
 
+const newUsername = ref("")
 const usernameInput = ref(null)
 
 const editUsername = async () => {
@@ -70,18 +147,132 @@ const setUsername = async () => {
     }
 
     usernameLoading.value = true
-    updateUsername(user.value.uid, newUsername.value, user.value.role < 3).then((result) => {
+    try {
+        await updateUsername(user.value.uid, newUsername.value, user.value.role < 3)
         msgSuccess.value = `Successfully changed username to: ${newUsername.value}`
         msgError.value = ""
 
         usernameEditing.value = false
-    }).catch((err) => {
+    } catch {
         msgError.value = `Error in changing username, try a different one`
         msgSuccess.value = ""
-    }).finally(() => {
+    }
+    
+    change.value = !change.value
+    usernameLoading.value = false
+}
+
+const passwords = shallowReactive({
+    old: "",
+    new1: "",
+    new2: ""
+})
+
+const openChangePassModal = () => {
+    // @ts-ignore
+    changePassModal.value.showModal()
+    router.replace({ path: route.fullPath, query: { action: "changePass" } })
+}
+
+const closeChangePassModal = () => {
+    // @ts-ignore
+    changePassCloseForm.value.submit()
+    router.replace(route.path)
+}
+
+const changePassword = async () => {
+    const passwordCheck = isValidPassword(passwords.new1, passwords.new2)
+    if (!passwordCheck.valid) {
+        passwords.new1 = ""
+        passwords.new2 = ""
+        msgError.value = passwordCheck.msg || ""
+        msgSuccess.value = ""
         change.value = !change.value
-        usernameLoading.value = false
-    });
+        return
+    }
+
+    loading.value = "changePass"
+    try {
+        await updatePass(passwords.old, passwords.new1);
+
+        msgSuccess.value = "Password successfully changed"
+        msgError.value = ""
+
+        passwords.old = ""
+        passwords.new1 = ""
+        passwords.new2 = ""
+        closeChangePassModal()
+    } catch (error) {
+        msgSuccess.value = ""
+
+        if (error == "Error: auth/wrong-password") {
+            passwords.old = ""
+            msgError.value = "Wrong old password"
+        } else if (error == "Error: auth/too-many-requests") {
+            msgError.value = "Too many failed login attempts, reset your password or try again later"
+        } else {
+            msgError.value = "Change failed: " + error
+        }
+    }
+    change.value = !change.value
+    loading.value = ""
+}
+
+const changeEmailModal = ref(null)
+const changeEmailCloseForm = ref(null)
+
+const newEmail = ref("")
+
+const formattedEmail = computed(() => {
+    if (!user.value || !user.value.email) return ""
+
+    const [name, domain] = user.value.email.split('@');
+    const domains = domain.split('.');
+    const firstLevelDomain = domains.pop()
+
+    const otherDomains = domains.map((d: string) => { return d.slice(0, 1) + "..." }).join(".")
+
+    return `${name.slice(0, 1)}...@${otherDomains}.${firstLevelDomain}`;
+})
+
+const openChangeEmailModal = () => {
+    // @ts-ignore
+    changeEmailModal.value.showModal()
+    router.replace({ path: route.fullPath, query: { action: "changeEmail" } })
+}
+
+const closeChangeEmailModal = () => {
+    // @ts-ignore
+    changeEmailCloseForm.value.submit()
+    router.replace(route.path)
+}
+
+const changeEmail = async () => {
+    loading.value = "changeEmail"
+    try {
+        await updateEmail(passwords.old, passwords.new1);
+
+        msgSuccess.value = "Email successfully changed"
+        msgError.value = ""
+
+        passwords.old = ""
+        passwords.new1 = ""
+        passwords.new2 = ""
+        closeChangeEmailModal()
+    } catch (error) {
+        msgSuccess.value = ""
+
+        if (error == "Error: auth/wrong-password") {
+            passwords.old = ""
+            msgError.value = "Wrong old password"
+        } else if (error == "Error: auth/too-many-requests") {
+            msgError.value = "Too many failed login attempts, reset your password or try again later"
+        } else {
+            msgError.value = "Change failed: " + error
+        }
+    }
+    change.value = !change.value
+    loading.value = ""
 }
 </script>
 

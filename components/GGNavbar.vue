@@ -57,7 +57,7 @@
                 </label>
                 <ul tabindex="0"
                     class="mt-3 z-[1] p-2 shadow menu menu-sm dropdown-content rounded-box w-52 bg-base-300 text-base-content">
-                    <li class="lg:hidden">
+                    <li class="lg:hidden" @click="blurIfFocused">
                         <NuxtLink to="/suggest/">
                             <SVGSubmitClip class="w-4 h-4" />Submit a Clip
                         </NuxtLink>
@@ -75,7 +75,7 @@
                             <SVGLanguage class="w-4 h-4" /> Language
                         </LanguagePicker>
                     </li>
-                    <li v-if="user">
+                    <li v-if="user" @click="blurIfFocused">
                         <NuxtLink to="/settings/">
                             <SVGSettings class="w-4 h-4" />Settings
                         </NuxtLink>

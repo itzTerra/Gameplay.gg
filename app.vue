@@ -117,3 +117,20 @@ onMounted(() => {
     height: calc(100vh - 4rem);
 }
 </style>
+
+<style>
+.slide-enter-active,
+.slide-leave-active {
+    transition: all 0.25s ease-out;
+}
+
+.slide-enter-from {
+    opacity: 0;
+    transform: translateX(20px);
+}
+
+.slide-leave-to {
+    opacity: 0;
+    transform: translateX(-20px);
+}
+</style>

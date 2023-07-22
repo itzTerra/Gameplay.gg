@@ -18,7 +18,10 @@
                             class="link hover:no-underline hover:text-accent-focus transition-colors">Terms of Service</NuxtLink> and <NuxtLink class="link hover:no-underline hover:text-accent-focus transition-colors">
                             Privacy Policy</NuxtLink>
                     </div>
-                    <button class="w-full btn btn-primary my-5" type="submit">Sign Up</button>
+                    <button class="w-full btn btn-primary my-5" type="submit">
+                        <span v-show="loading == 'register'" class="loading loading-spinner"></span>
+                        Sign Up
+                    </button>
                 </form>
                 <p class="text-center">Already have an account? <NuxtLink to="/login/" class="link link-secondary">Log in
                     </NuxtLink>
@@ -49,7 +52,10 @@
                     </div>
                     <div class="mt-6 flex gap-5 justify-end items-end">
                         <button class="btn btn-secondary btn-sm" @click="navigateTo('/')">Keep current</button>
-                        <button class="btn btn-primary" type="submit">Apply</button>
+                        <button class="btn btn-primary" type="submit">
+                            <span v-show="loading == 'applyUsername'" class="loading loading-spinner"></span>
+                            Apply
+                        </button>
                     </div>
                 </form>
             </div>
@@ -67,6 +73,8 @@ const msgSuccess = ref("")
 const msgError = ref("")
 const change = ref(false)
 
+const loading = ref("")
+
 const registered = ref(false)
 const generatedUsername = ref("")
 const newUsername = ref("")
@@ -78,6 +86,17 @@ const registerForm = shallowReactive({
 })
 
 const register = async () => {
+    const passwordCheck = isValidPassword(registerForm.password1, registerForm.password2)
+    if (!passwordCheck.valid){
+        registerForm.password1 = ""
+        registerForm.password2 = ""
+        msgError.value = `Sign up failed: ${passwordCheck.msg}`
+        msgSuccess.value = ""
+        change.value = !change.value
+        return
+    } 
+
+    loading.value = "register"
     clientSession.value.rememberMe = true
     const regResponse = await createUser(registerForm.email, registerForm.password1)
 
@@ -103,20 +122,27 @@ const register = async () => {
     }
 
     change.value = !change.value
+    loading.value = ""
 }
 
 const setUsername = async () => {
-    if (await updateUsername(user.value.uid, newUsername.value)) {
+    loading.value = "applyUsername"
+    try {
+        await updateUsername(user.value.uid, newUsername.value)
+
         msgSuccess.value = `Successfully changed username to: ${newUsername.value}`
         msgError.value = ""
+
         setTimeout(() => {
             navigateTo("/")
         }, 2000)
-    } else {
+    } catch {
         msgError.value = `Error in changing username, try a different one`
         msgSuccess.value = ""
     }
+
     change.value = !change.value
+    loading.value = ""
 }
 
 
@@ -124,7 +150,7 @@ const continueGoogle = async () => {
     const response = await loginUserGoogle()
 
     if (response.credentials) {
-        navigateTo("")
+        navigateTo("/")
     } else {
         msgError.value = `Login failed: ${response.errorCode}`
         msgSuccess.value = ""
@@ -133,19 +159,6 @@ const continueGoogle = async () => {
     change.value = !change.value
 }
 </script>
-<style>
-.slide-enter-active,
-.slide-leave-active {
-    transition: all 0.25s ease-out;
-}
+<style scoped>
 
-.slide-enter-from {
-    opacity: 0;
-    transform: translateX(20px);
-}
-
-.slide-leave-to {
-    opacity: 0;
-    transform: translateX(-20px);
-}
 </style>

@@ -5,8 +5,12 @@ import {
   signInWithEmailAndPassword,
   GoogleAuthProvider,
   signInWithPopup,
-  sendPasswordResetEmail, 
+  sendPasswordResetEmail,
   confirmPasswordReset,
+  updatePassword,
+  reauthenticateWithCredential,
+  EmailAuthProvider,
+  updateEmail,
   type UserCredential,
   type Auth,
 } from "firebase/auth";
@@ -27,6 +31,18 @@ interface Response {
   errorCode?: string;
   username?: string;
 }
+
+export const isValidPassword = (pass1: string, pass2: string) => {
+  if (pass1 !== pass2) {
+    return { valid: false, msg: "Passwords don't match" };
+  }
+
+  if (pass1.length < 8) {
+    return { valid: false, msg: "Password is too short" };
+  }
+
+  return { valid: true };
+};
 
 export default async function () {
   const nuxtApp = useNuxtApp();
@@ -84,26 +100,6 @@ export default async function () {
     }
   };
 
-  const updateUsername = async (
-    uid: string,
-    username: string,
-    validate = true
-  ) => {
-    if (validate && !blacklist.validate(username)) {
-      throw new Error("Invalid username");
-    }
-
-    try {
-      await updateDoc(doc(firestoreClient, "users", uid), {
-        username: username,
-      });
-      return true; // Resolves with 'true' if the update is successful
-    } catch (e) {
-      console.error("Error updating document: ", e);
-      throw new Error("Error updating document");
-    }
-  };
-
   const loginUser = async (email: string, password: string) => {
     let response: Response = {};
 
@@ -137,18 +133,70 @@ export default async function () {
 
   const sendPassResetEmail = async (email: string) => {
     try {
-        await sendPasswordResetEmail(auth, email)
+      await sendPasswordResetEmail(auth, email);
+      return true;
     } catch (error) {
-        console.error(error)
+      console.error(error);
+      return false;
     }
-  }
+  };
 
   const confirmPassReset = async (code: string, newPassword: string) => {
     try {
-        await confirmPasswordReset(auth, code, newPassword)
+      await confirmPasswordReset(auth, code, newPassword);
     } catch (error) {
-        console.error(error)
+      console.error(error);
+      throw new Error(error+"")
     }
+  };
+
+  const updateUsername = async (
+    uid: string,
+    username: string,
+    validate = true
+  ) => {
+    if (validate && !blacklist.validate(username)) {
+      throw new Error("Invalid username");
+    }
+
+    try {
+      await updateDoc(doc(firestoreClient, "users", uid), {
+        username: username,
+      });
+    } catch (e) {
+      console.error("Error updating document: ", e);
+      throw new Error("Error updating document");
+    }
+  };
+
+  const updatePass = async (oldPass: string, newPass: string) => {
+    try {
+        const authCredential = EmailAuthProvider.credential(auth.currentUser!.email!, oldPass)
+        await reauthenticateWithCredential(auth.currentUser!, authCredential)
+        await updatePassword(auth.currentUser!, newPass);
+      } catch (error) {
+        console.error(error);
+        // @ts-ignore
+        throw new Error(error.code || error+"")
+      }
+  }
+
+  const updateClientUser = () => {
+    clientUser.value = {...clientUser.value, ...auth.currentUser}
+  }
+
+  const changeEmail = async (oldPass: string, newEmail: string) => {
+    try {
+        const authCredential = EmailAuthProvider.credential(auth.currentUser!.email!, oldPass)
+        await reauthenticateWithCredential(auth.currentUser!, authCredential)
+        await updateEmail(auth.currentUser!, newEmail);
+
+        updateClientUser()
+      } catch (error) {
+        console.error(error);
+        // @ts-ignore
+        throw new Error(error.code || error+"")
+      }
   }
 
   return {
@@ -158,6 +206,8 @@ export default async function () {
     loginUserGoogle,
     updateUsername,
     sendPassResetEmail,
-    confirmPassReset
+    confirmPassReset,
+    updatePass,
+    changeEmail,
   };
 }
