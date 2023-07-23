@@ -21,6 +21,7 @@ import {
   setDoc,
   type Firestore,
   updateDoc,
+  writeBatch,
 } from "firebase/firestore";
 
 // @ts-ignore
@@ -65,9 +66,15 @@ export default async function () {
 
     if (response.credentials) {
       // Create user entry in Firestore
-      response.username = await createFirestoreUser(
-        response.credentials.user.uid
-      );
+      try {
+        response.username = await createFirestoreUser(
+          response.credentials.user.uid
+        );
+      } catch (e) {
+        response.username = await createFirestoreUser(
+          response.credentials.user.uid
+        ) || "error";
+      }
 
       // Update user state with firestore data
       const firestoreData = (
@@ -88,15 +95,23 @@ export default async function () {
   const createFirestoreUser = async (uid: string) => {
     try {
       const username = generateUsername();
-      await setDoc(doc(firestoreClient, "users", uid), {
+
+      const batch = writeBatch(firestoreClient);
+      batch.set(doc(firestoreClient, "users", uid), {
         username: username,
-        role: "user",
+        role: 0,
       });
+
+      batch.set(doc(firestoreClient, "index/users/username", username), {
+        uid: uid,
+      });
+
+      await batch.commit();
 
       return username;
     } catch (e) {
       console.error("Error adding document: ", e);
-      return "";
+      throw new Error(e+"");
     }
   };
 
@@ -146,7 +161,7 @@ export default async function () {
       await confirmPasswordReset(auth, code, newPassword);
     } catch (error) {
       console.error(error);
-      throw new Error(error+"")
+      throw new Error(error + "");
     }
   };
 
@@ -160,44 +175,67 @@ export default async function () {
     }
 
     try {
-      await updateDoc(doc(firestoreClient, "users", uid), {
+      const batch = writeBatch(firestoreClient);
+
+      const userDocRef = doc(firestoreClient, "users", uid);
+      const prevUsername = (await getDoc(userDocRef).catch(() => null))?.data()
+        ?.username;
+
+      batch.update(userDocRef, {
         username: username,
       });
+
+      batch.delete(doc(firestoreClient, "index/users/username", prevUsername));
+      batch.set(doc(firestoreClient, "index/users/username", username), {
+        uid: uid,
+      });
+
+      await batch.commit();
     } catch (e) {
       console.error("Error updating document: ", e);
-      throw new Error("Error updating document");
+      const err = new Error("" + e);
+      if (e == "FirebaseError: Missing or insufficient permissions.") {
+        err.name = "usernameExists";
+      }
+      throw err;
     }
   };
 
   const updatePass = async (oldPass: string, newPass: string) => {
     try {
-        const authCredential = EmailAuthProvider.credential(auth.currentUser!.email!, oldPass)
-        await reauthenticateWithCredential(auth.currentUser!, authCredential)
-        await updatePassword(auth.currentUser!, newPass);
-      } catch (error) {
-        console.error(error);
-        // @ts-ignore
-        throw new Error(error.code || error+"")
-      }
-  }
+      const authCredential = EmailAuthProvider.credential(
+        auth.currentUser!.email!,
+        oldPass
+      );
+      await reauthenticateWithCredential(auth.currentUser!, authCredential);
+      await updatePassword(auth.currentUser!, newPass);
+    } catch (error) {
+      console.error(error);
+      // @ts-ignore
+      throw new Error(error.code || error + "");
+    }
+  };
 
   const updateClientUser = () => {
-    clientUser.value = {...clientUser.value, ...auth.currentUser}
-  }
+    clientUser.value = { ...clientUser.value, ...auth.currentUser };
+  };
 
   const changeEmail = async (oldPass: string, newEmail: string) => {
     try {
-        const authCredential = EmailAuthProvider.credential(auth.currentUser!.email!, oldPass)
-        await reauthenticateWithCredential(auth.currentUser!, authCredential)
-        await updateEmail(auth.currentUser!, newEmail);
+      const authCredential = EmailAuthProvider.credential(
+        auth.currentUser!.email!,
+        oldPass
+      );
+      await reauthenticateWithCredential(auth.currentUser!, authCredential);
+      await updateEmail(auth.currentUser!, newEmail);
 
-        updateClientUser()
-      } catch (error) {
-        console.error(error);
-        // @ts-ignore
-        throw new Error(error.code || error+"")
-      }
-  }
+      updateClientUser();
+    } catch (error) {
+      console.error(error);
+      // @ts-ignore
+      throw new Error(error.code || error + "");
+    }
+  };
 
   return {
     createUser,

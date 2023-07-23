@@ -14,10 +14,7 @@
 
         <NuxtLoadingIndicator />
 
-        <Transition name="embed">
-            <YTEmbed v-if="$route.query.id" :videoId="$route.query.id" :videoTitle="$route.query.title"
-                @close="$router.replace({ query: undefined });" />
-        </Transition>
+        <YTEmbed v-if="$route.query.id" :videoId="$route.query.id"/>
 
         <button id="back-to-top-btn" class="btn btn-accent btn-circle opacity-50 hover:opacity-75">
             <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24">
@@ -97,22 +94,12 @@ onMounted(() => {
     z-index: 200;
 }
 
-.embed-enter-active,
-.embed-leave-active {
-    transition: opacity 0.25s ease-in-out;
-}
-
-.embed-enter-from,
-.embed-leave-to {
-    opacity: 0;
-}
-
 .content-min-height {
     min-height: calc(100vh - 4rem);
     flex: 1;
 }
 
-.content-max-height{
+.content-max-height {
     max-height: calc(100vh - 4rem);
     height: calc(100vh - 4rem);
 }

@@ -47,3 +47,12 @@ export enum UserRole {
 export function delay(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
+
+export interface ClipData {
+  approved: DocumentReference;
+  game_id: number;
+  featured: boolean;
+  likes: number;
+  suggested: DocumentReference;
+  title: string;
+}

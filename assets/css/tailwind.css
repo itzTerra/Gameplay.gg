@@ -87,6 +87,38 @@
   .form-floating > :disabled ~ label::after {
     background-color: rgba(0, 0, 0, 10%);
   }
+
+  .small-scrollbar {
+    --smallScrollbarWidth: 6px;
+    --smallScrollbarRadius: 8px;
+    --smallScrollbarThumbColor: #888;
+    --smallScrollbarThumbColorHover: #555;
+    --smallScrollbarTrackColor: rgba(0, 0, 0, 0.2);
+
+    scrollbar-width: thin;
+    scrollbar-color: var(--smallScrollbarThumbColor)
+      var(--smallScrollbarTrackColor);
+  }
+
+  .small-scrollbar::-webkit-scrollbar {
+    width: var(--smallScrollbarWidth);
+    height: var(--smallScrollbarWidth);
+  }
+
+  .small-scrollbar::-webkit-scrollbar-thumb {
+    background-color: var(--smallScrollbarThumbColor);
+    border-radius: var(--smallScrollbarRadius);
+  }
+
+  /* Hover style for the scrollbar thumb */
+  .small-scrollbar::-webkit-scrollbar-thumb:hover {
+    background-color: var(--smallScrollbarThumbColorHover);
+  }
+
+  /* Scrollbar track style (optional) */
+  .small-scrollbar::-webkit-scrollbar-track {
+    background-color: var(--smallScrollbarTrackColor);
+  }
 }
 
 @layer utilities {

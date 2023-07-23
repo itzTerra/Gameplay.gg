@@ -12,16 +12,5 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
           },
         });
       }
-    // setTimeout(async () => {
-    //   if (!user || !user.value) {
-    //     console.log("Authenticated users only, redirecting...");
-    //     return navigateTo({
-    //       path: "/login",
-    //       query: {
-    //         redirect: to.fullPath,
-    //       },
-    //     });
-    //   }
-    // }, 2000);
   }
 });

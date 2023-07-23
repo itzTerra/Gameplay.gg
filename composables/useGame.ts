@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { getDoc, doc, setDoc } from "firebase/firestore";
+import { getDoc, doc, setDoc, updateDoc, arrayUnion } from "firebase/firestore";
 
 const sortedCompanies = (companies) => {
   if (!companies) return;
@@ -117,62 +117,6 @@ export const searchGames = async (query: string) => {
   });
 };
 
-const getClips = async (id) => {
-  let featured = [];
-  let approved = [];
-  const cachedClips = getCachedClips();
-
-  let cached = false;
-
-  if (cachedClips.value) {
-    for (const clip of Object.values(cachedClips.value)) {
-      if (clip.game_id != id) {
-        cached = false;
-        break;
-      }
-
-      if (clip.featured) {
-        featured.push(clip);
-      } else {
-        approved.push(clip);
-      }
-    }
-
-    cached = cachedClips.value.length > 0;
-  }
-
-  if (!cached) {
-    const firestore = useNuxtApp().$firestore;
-    const firestoreData = (
-      await getDoc(doc(firestore, "games", id.toString())).catch(() => null)
-    )?.data();
-
-    if (firestoreData) {
-      cachedClips.value.id = id;
-
-      for (const docRef of firestoreData.featured) {
-        const clip = (await getDoc(docRef).catch(() => null))?.data();
-        if (clip) {
-          clip.id = docRef.id;
-          featured.push(clip);
-          cachedClips.value[clip.id] = clip;
-        }
-      }
-
-      for (const docRef of firestoreData.approved) {
-        const clip = (await getDoc(docRef).catch(() => null))?.data();
-        if (clip) {
-          clip.id = docRef.id;
-          approved.push(clip);
-          cachedClips.value[clip.id] = clip;
-        }
-      }
-    }
-  }
-
-  return { featured, approved };
-};
-
 const fillWithIgdb = async (clipArray, videos, gameId) => {
   const firestore = useNuxtApp().$firestore;
   const cachedClips = getCachedClips();
@@ -182,18 +126,26 @@ const fillWithIgdb = async (clipArray, videos, gameId) => {
     dictionary[clip.id] = clip;
   }
 
+  const igdbUserRef = doc(firestore, "users", "IGDB");
+  const systemUserRef = doc(firestore, "users", "system");
+
   for (const video of videos) {
     if (!dictionary.hasOwnProperty(video.video_id)) {
       const newClip = {
         game_id: gameId,
         title: video.name,
-        suggested: "IGDB",
-        approved: "auto",
+        suggested: igdbUserRef,
+        approved: systemUserRef,
         featured: true,
         likes: 0,
       };
-      await setDoc(doc(firestore, "clips", video.video_id), newClip);
-      cachedClips.value[video.video_id] = newClip
+      const docRef = doc(firestore, "clips", video.video_id);
+      await setDoc(docRef, newClip);
+      await updateDoc(doc(firestore, "games", gameId.toString()), {
+        featured: arrayUnion(docRef),
+      });
+      newClip.id = video.video_id;
+      cachedClips.value[video.video_id] = newClip;
       dictionary[video.video_id] = newClip;
     }
   }
@@ -214,13 +166,11 @@ export const getGame = async (id: number | string) => {
     },
   });
 
-  const { featured: featuredClips, approved: approvedClips } = await getClips(
-    game.id
-  );
-
-  if (game.videos) {
-    await fillWithIgdb(featuredClips, game.videos, game.id);
-  }
+  const clipsRes = await getClips(game.id, (featured) => {
+    if (game.videos) {
+        fillWithIgdb(featured, game.videos, game.id);
+      }
+  });
 
   return {
     ...game,
@@ -234,11 +184,9 @@ export const getGame = async (id: number | string) => {
     genres: game.genres.map((genre) => genre.name),
     platforms: simplePlatforms(game.platforms),
     websites: convertWebsites(game.websites),
-    featuredClips: featuredClips.concat(
-      game.videos?.map((video) => {
-        return { id: video.video_id, title: video.name };
-      }) || []
-    ),
-    approvedClips: approvedClips,
+    videos: game.videos?.map((video) => {
+      return { id: video.video_id, title: video.name };
+    }),
+    clips: clipsRes,
   };
 };

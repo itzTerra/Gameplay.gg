@@ -49,8 +49,6 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     const clientSession = useClientSession();
 
     if (user) {
-      const idToken = await getIdToken(user);
-
       // Get firestore user-data
       const userDocRef = doc(firestore, "users", user.uid);
 
@@ -58,7 +56,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
         await getDoc(userDocRef).catch(() => null)
       )?.data();
 
-      console.log("Got Firestore user-data:", firestoreData);
+      // console.log("Got Firestore user-data:", firestoreData);
       if (firestoreData) {
         clientUser.value = { ...user, ...firestoreData };
       } else {
@@ -70,6 +68,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
         clientUser.value = { ...clientUser.value, ...snap.data() };
       });
 
+      const idToken = await getIdToken(user);
       $csrfFetch("/api/auth", {
         method: "POST",
         body: {

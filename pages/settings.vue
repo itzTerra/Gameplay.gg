@@ -7,19 +7,18 @@
             <div class="flex flex-wrap gap-10 items-center justify-around w-full">
                 <div>
                     <p class="font-light text-lg mb-2">Username</p>
-                    <div v-if="usernameEditing" class="flex items-center gap-1">
+                    <form v-if="usernameEditing" @submit.prevent="setUsername" class="flex items-center gap-1">
                         <input ref="usernameInput" type="text" v-model="newUsername" class="input w-56 me-4">
-                        <button v-if="!usernameLoading" @click="setUsername" class="btn btn-sm btn-ghost btn-circle"
-                            title="Save">
+                        <button v-if="!usernameLoading" type="submit" class="btn btn-sm btn-ghost btn-circle" title="Save">
                             <SVGSave class="w-6 h-6" />
                         </button>
                         <span v-else class="loading loading-spinner"></span>
-                        <button @click="usernameEditing = false" class="btn btn-sm btn-ghost btn-circle" title="Cancel">
+                        <button @click="usernameEditing = false" type="button" class="btn btn-sm btn-ghost btn-circle" title="Cancel">
                             <SVGClose class="w-6 h-6" />
                         </button>
-                    </div>
+                    </form>
                     <div v-else class="flex items-center gap-4">
-                        <p class="font-semibold text-xl p-3 bg-base-100 rounded-lg w-56">{{ user ? user.username : '' }}</p>
+                        <p class="font-semibold text-xl p-3 bg-base-100 rounded-lg w-56 overflow-x-auto small-scrollbar">{{ user ? user.username : '' }}</p>
                         <button @click="editUsername" class="btn btn-sm btn-ghost btn-circle">
                             <SVGEdit class="w-6 h-6" />
                         </button>
@@ -41,7 +40,7 @@
                             </form>
                             <h3 class="font-bold text-xl mb-5">Change Email</h3>
                             <form @submit.prevent="changeEmail" class="flex flex-col">
-                                <input type="password" v-model="passwords.old" placeholder="Password"
+                                <input type="password" v-model="currentPass" placeholder="Password"
                                     class="input input-lg input-bordered overflow-ellipsis" required>
                                 <NuxtLink to="/resetpass/" target="_blank" tabindex="-1"
                                     class="link link-secondary link-hover mt-2 ms-2 self-start" title="Open in new tab">
@@ -153,11 +152,15 @@ const setUsername = async () => {
         msgError.value = ""
 
         usernameEditing.value = false
-    } catch {
-        msgError.value = `Error in changing username, try a different one`
+    } catch (error: any) {
+        if (error.name == "usernameExists") {
+            msgError.value = `Username already exists`
+        } else {
+            msgError.value = `Error in changing username, try a different one`
+        }
         msgSuccess.value = ""
     }
-    
+
     change.value = !change.value
     usernameLoading.value = false
 }
@@ -221,6 +224,7 @@ const changePassword = async () => {
 const changeEmailModal = ref(null)
 const changeEmailCloseForm = ref(null)
 
+const currentPass = ref("")
 const newEmail = ref("")
 
 const formattedEmail = computed(() => {
@@ -250,21 +254,20 @@ const closeChangeEmailModal = () => {
 const changeEmail = async () => {
     loading.value = "changeEmail"
     try {
-        await updateEmail(passwords.old, passwords.new1);
+        await updateEmail(currentPass.value, newEmail.value);
 
         msgSuccess.value = "Email successfully changed"
         msgError.value = ""
 
-        passwords.old = ""
-        passwords.new1 = ""
-        passwords.new2 = ""
+        currentPass.value = ""
+        newEmail.value = ""
         closeChangeEmailModal()
     } catch (error) {
         msgSuccess.value = ""
 
         if (error == "Error: auth/wrong-password") {
-            passwords.old = ""
-            msgError.value = "Wrong old password"
+            currentPass.value = ""
+            msgError.value = "Wrong current password"
         } else if (error == "Error: auth/too-many-requests") {
             msgError.value = "Too many failed login attempts, reset your password or try again later"
         } else {

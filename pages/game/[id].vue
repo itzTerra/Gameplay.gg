@@ -63,10 +63,12 @@
             </div>
         </div>
         <div class="p-4 lg:px-6">
-            <div v-if="gameInfo.featuredClips" class="flex flex-col">
-                <div class="flex mb-4">
-                    <button class="btn btn-ghost flex items-center space-x-1 normal-case" @click="featuredShown = !featuredShown"><span
-                            class="text-3xl">Featured</span>
+            <div v-if="gameInfo.clips.featured || gameInfo.videos" class="flex flex-col">
+                <div class="flex justify-between mb-4">
+                    <button class="btn btn-ghost flex items-center space-x-1 normal-case"
+                        @click="featuredShown = !featuredShown"><span class="text-3xl">
+                            <span v-show="!gameInfo.clips.featuredLoaded" class="loading loading-spinner"></span>
+                            Featured</span>
                         <SVGChevronDown class="w-4 h-4 transform transition-transform duration-300 origin-center"
                             :class="{ 'rotate-180': featuredShown }" />
                     </button>
@@ -76,15 +78,20 @@
                     <input v-model="featuredShown" type="checkbox" class="min-h-0" />
                     <div class="collapse-content">
                         <div class="flex flex-wrap gap-x-4 gap-y-8 justify-center">
-                            <Thumbnail v-for="video in gameInfo.featuredClips" width="320" height="180" :video="video" />
+                            <Thumbnail v-if="gameInfo.clips.featured" v-for="clip in gameInfo.clips.featured" width="320"
+                                height="180" :clip="clip" />
+                            <Thumbnail v-else v-for="clip in gameInfo.videos" width="320" height="180" :clip="clip" />
                         </div>
                         <div class="divider mt-8 mb-0"></div>
                     </div>
                 </div>
             </div>
-            <div class="flex mb-2">
-                <button class="btn btn-ghost flex items-center space-x-1 normal-case" @click="communityShown = !communityShown"><span
-                        class="text-3xl">Community</span>
+            <div class="flex justify-between mb-4">
+                <button class="btn btn-ghost flex items-center space-x-1 normal-case"
+                    @click="communityShown = !communityShown"><span class="text-3xl">
+                        <span v-show="!gameInfo.clips.approvedLoaded" class="loading loading-spinner"></span>
+                        Community
+                    </span>
                     <SVGChevronDown class="w-4 h-4 transform transition-transform duration-300 origin-center"
                         :class="{ 'rotate-180': communityShown }" />
                 </button>
@@ -95,9 +102,9 @@
             <div class="collapse">
                 <input v-model="communityShown" type="checkbox" class="min-h-0" />
                 <div class="collapse-content">
-                    <p v-if="!gameInfo.approvedClips" class="text-base-content text-opacity-75">Nothing here yet...</p>
+                    <p v-if="!gameInfo.clips.approved" class="text-base-content text-opacity-75">Nothing here yet...</p>
                     <div class="flex flex-wrap gap-x-4 gap-y-8 justify-center">
-                        <Thumbnail v-for="video in gameInfo.approvedClips" width="320" height="180" :video="video" />
+                        <Thumbnail v-for="clip in gameInfo.clips.approved" width="320" height="180" :clip="clip" />
                     </div>
                 </div>
             </div>

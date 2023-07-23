@@ -50,8 +50,8 @@
                             <span class="label-text">Current: <strong>{{ generatedUsername }}</strong></span>
                         </label>
                     </div>
-                    <div class="mt-6 flex gap-5 justify-end items-end">
-                        <button class="btn btn-secondary btn-sm" @click="navigateTo('/')">Keep current</button>
+                    <div class="mt-6 mb-2 flex gap-8 justify-center items-end">
+                        <NuxtLink class="btn btn-secondary btn-sm" to="/">Keep current</NuxtLink>
                         <button class="btn btn-primary" type="submit">
                             <span v-show="loading == 'applyUsername'" class="loading loading-spinner"></span>
                             Apply
@@ -136,8 +136,12 @@ const setUsername = async () => {
         setTimeout(() => {
             navigateTo("/")
         }, 2000)
-    } catch {
-        msgError.value = `Error in changing username, try a different one`
+    } catch (error: any) {
+        if (error.name == "usernameExists") {
+            msgError.value = `Username already exists`
+        } else {
+            msgError.value = `Error in changing username, try a different one`
+        }
         msgSuccess.value = ""
     }
 
