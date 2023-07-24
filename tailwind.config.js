@@ -1,4 +1,5 @@
 module.exports = {
+  darkMode: "class",
   plugins: [require("@tailwindcss/typography"), require("daisyui")],
   theme: {
     screens: {
@@ -20,7 +21,7 @@ module.exports = {
         dark: {
           ...require("daisyui/src/theming/themes")["[data-theme=dark]"],
           "base-200": "#252d37",
-          "base-300": "#29323d",
+          "base-300": "#343841",
         },
       },
       {

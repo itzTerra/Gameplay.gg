@@ -22,7 +22,10 @@
         </NuxtLink>
         <!-- SEARCH -->
         <div class="flex-grow flex items-center justify-center md:me-5">
-            <Search class="flex-grow flex min-w-0 max-w-3xl" />
+            <Search @onGameSelect="navigateOnSearch" class="flex-grow flex min-w-0 max-w-3xl"
+                inputClass="input h-10 input-lg input-bordered bg-accent-focus text-accent-content border-opacity-10 flex-grow w-40 tracking-wider"
+                buttonClass="btn btn-primary btn-sm"
+                resultsClass="w-72 md:w-96 lg:w-[500px]" />
         </div>
         <!-- RIGHT SIDE -->
         <div class="ms-auto flex items-center">
@@ -48,7 +51,7 @@
             </div>
             <!-- USER MENU -->
             <div class="dropdown dropdown-end ms-4" :class="{ 'xl:hidden': !user, 'dropdown-top': isHandheldDevice }">
-                <label ref="dropdown" tabindex="0" class="btn btn-square btn-ghost" @mousedown="blurIfFocused">
+                <label tabindex="0" class="btn btn-square btn-ghost" @mousedown="blurIfFocused">
                     <div class="avatar pointer-events-none">
                         <div class="w-9 rounded-lg ring ring-primary bg-slate-700 text-white">
                             <SVGUser class="w-full h-full" />
@@ -96,10 +99,11 @@
 </template>
 
 <script setup lang="ts">
-
 const user = await useUser()
 const { logoutUser } = await useAuth()
 
-const dropdown = ref(null)
+const navigateOnSearch = (gameId: string) => {
+    navigateTo(`/game/${gameId}`)
+}
 
 </script>

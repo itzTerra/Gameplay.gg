@@ -79,6 +79,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
       });
     } else {
       clientUser.value = null;
+
       $csrfFetch("/api/auth", { method: "DELETE" });
 
       if (route.meta.middleware?.includes("auth")) {

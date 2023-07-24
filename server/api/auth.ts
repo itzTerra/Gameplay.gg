@@ -4,18 +4,24 @@ export default defineEventHandler(async (event) => {
   const { req, res } = event.node;
 
   const config = useRuntimeConfig();
-
+  
   if (req.method == "GET") {
     let user = null;
-    const idToken = (await readBody(event)).idToken;
+
+    const idToken = getQuery(event).idToken
 
     if (idToken) {
       user = await adminAuth()
-        .verifyIdToken(idToken)
-        .catch(() => null);
+        .verifyIdToken(idToken.toString())
+        .catch((err) => {
+            if (err.code == "auth/id-token-expired"){
+                console.log("Expired token in cookie.")
+            } else {
+                console.error(err)
+            }
+            return null
+        });
     }
-
-    console.log(idToken, user)
 
     return user;
   } else if (req.method == "POST") {
@@ -30,12 +36,15 @@ export default defineEventHandler(async (event) => {
 
     event.context.user = body.user;
 
-    const cookieOptions: CookieOptions = { httpOnly: true, secure: true };
-    if (body.rememberMe) {
-      // Expires in 14 days
-      cookieOptions.maxAge = 3600 * 24 * 14;
+    const currCookieToken = getCookie(event, config.public.userCookieName)
+    if (idToken != currCookieToken){
+        const cookieOptions: CookieOptions = { httpOnly: true, secure: true };
+        if (body.rememberMe) {
+          // Expires in 14 days
+          cookieOptions.maxAge = 3600 * 24 * 14;
+        }
+        setCookie(event, config.public.userCookieName, idToken, cookieOptions);
     }
-    setCookie(event, config.public.userCookieName, idToken, cookieOptions);
 
     return "user updated";
   } else if (req.method == "DELETE") {

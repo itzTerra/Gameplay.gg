@@ -14,6 +14,7 @@ const fillClipsFromFirestore = async (
 ) => {
   for (const docRef of firestoreClips) {
     const clip = (await getDoc(docRef).catch(() => null))?.data();
+
     if (clip) {
       clip.id = docRef.id;
       clip.suggested = (await getDoc(clip.suggested).catch(() => null))?.data();
@@ -35,10 +36,9 @@ export const getClips = async (
     approved: [],
     approvedLoaded: false,
   });
+
   const cachedClips = getCachedClips();
-
   let cached = false;
-
   if (cachedClips.value) {
     for (const clip of Object.values(cachedClips.value)) {
       if (clip.game_id != gameId) {
@@ -54,6 +54,7 @@ export const getClips = async (
     }
 
     cached = Object.values(cachedClips.value).length > 0;
+    console.log("Clips are cached:", cached);
   }
 
   if (!cached) {
@@ -62,9 +63,9 @@ export const getClips = async (
       await getDoc(doc(firestore, "games", gameId.toString())).catch(() => null)
     )?.data();
 
-    if (firestoreData) {
-      cachedClips.value.id = gameId;
+    console.log("Firestore clips:", firestoreData);
 
+    if (firestoreData) {
       fillClipsFromFirestore(
         clipsRes.value.featured,
         firestoreData.featured,
@@ -82,7 +83,19 @@ export const getClips = async (
       ).then(() => {
         clipsRes.value.approvedLoaded = true;
       });
+    } else {
+      if (onFeaturedLoaded !== null) {
+        onFeaturedLoaded(clipsRes.value.featured);
+      }
+      clipsRes.value.featuredLoaded = true;
+      clipsRes.value.approvedLoaded = true;
     }
+  } else {
+    if (onFeaturedLoaded !== null) {
+      onFeaturedLoaded(clipsRes.value.featured);
+    }
+    clipsRes.value.featuredLoaded = true;
+    clipsRes.value.approvedLoaded = true;
   }
 
   return clipsRes;

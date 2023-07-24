@@ -118,7 +118,7 @@ export const searchGames = async (query: string) => {
 };
 
 const fillWithIgdb = async (clipArray, videos, gameId) => {
-  const firestore = useNuxtApp().$firestore;
+  const { $csrfFetch, $firestore } = useNuxtApp();
   const cachedClips = getCachedClips();
   const dictionary = {};
 
@@ -126,8 +126,8 @@ const fillWithIgdb = async (clipArray, videos, gameId) => {
     dictionary[clip.id] = clip;
   }
 
-  const igdbUserRef = doc(firestore, "users", "IGDB");
-  const systemUserRef = doc(firestore, "users", "system");
+  const igdbUserRef = doc($firestore, "users", "IGDB");
+  const systemUserRef = doc($firestore, "users", "system");
 
   for (const video of videos) {
     if (!dictionary.hasOwnProperty(video.video_id)) {
@@ -139,11 +139,20 @@ const fillWithIgdb = async (clipArray, videos, gameId) => {
         featured: true,
         likes: 0,
       };
-      const docRef = doc(firestore, "clips", video.video_id);
-      await setDoc(docRef, newClip);
-      await updateDoc(doc(firestore, "games", gameId.toString()), {
-        featured: arrayUnion(docRef),
-      });
+
+      try {
+        await $csrfFetch("/api/firestore/addIgdbClips", {
+          method: "POST",
+          body: {
+            videoId: video.video_id,
+            gameId: gameId.toString(),
+            clip: newClip,
+          },
+        });
+      } catch (err) {
+        console.error(err);
+      }
+
       newClip.id = video.video_id;
       cachedClips.value[video.video_id] = newClip;
       dictionary[video.video_id] = newClip;
@@ -168,8 +177,8 @@ export const getGame = async (id: number | string) => {
 
   const clipsRes = await getClips(game.id, (featured) => {
     if (game.videos) {
-        fillWithIgdb(featured, game.videos, game.id);
-      }
+      fillWithIgdb(featured, game.videos, game.id);
+    }
   });
 
   return {
@@ -180,7 +189,6 @@ export const getGame = async (id: number | string) => {
     companies: sortedCompanies(game.involved_companies)?.map(
       (inv_comp) => inv_comp.company.name
     ),
-    cover: "http:" + game.cover?.url,
     genres: game.genres.map((genre) => genre.name),
     platforms: simplePlatforms(game.platforms),
     websites: convertWebsites(game.websites),
