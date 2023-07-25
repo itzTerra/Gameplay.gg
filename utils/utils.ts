@@ -56,3 +56,53 @@ export interface ClipData {
   suggested: DocumentReference;
   title: string;
 }
+
+export const timeSecondsOrNull = (timeString) => {
+  if (!isNaN(timeString)) {
+    // If the timeString is already a number, return it directly
+    return Number(timeString);
+  } else {
+    // Split the timeString by ":" and convert each part to a number
+    let parts;
+    try {
+      parts = timeString.split(":").map(Number);
+    } catch {
+      return null;
+    }
+
+    // Calculate the total seconds from the parts
+    let totalSeconds = 0;
+
+    // Based on the number of parts present, calculate the total seconds
+    if (parts.length == 3) {
+      totalSeconds += parts[0] * 3600; // Hours to seconds
+      totalSeconds += parts[1] * 60; // Minutes to seconds
+      totalSeconds += parts[2]; // Seconds
+    } else if (parts.length == 2) {
+      totalSeconds += parts[0] * 60; // Minutes to seconds
+      totalSeconds += parts[1]; // Seconds
+    } else if (parts.length == 1) {
+      totalSeconds += parts[0]; // Seconds
+    } else {
+      totalSeconds = null;
+    }
+    
+    return totalSeconds;
+  }
+};
+
+export const secToTimeString = (seconds: number) => {
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const remainingSeconds = seconds % 60;
+
+  const timeStringParts = [hours, minutes, remainingSeconds].map((part) =>
+    part.toString().padStart(2, "0")
+  );
+
+  if (hours > 0) {
+    return `${timeStringParts[0]}:${timeStringParts[1]}:${timeStringParts[2]}`;
+  } else {
+    return `${timeStringParts[1]}:${timeStringParts[2]}`;
+  }
+};

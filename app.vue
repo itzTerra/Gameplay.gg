@@ -4,7 +4,7 @@
             <GGNavbar class="fixed top-0 left-0 w-100 h-16 z-[200]" :class="{ 'handheld-order': isHandheldDevice }" />
         </client-only>
         <main class="mt-16 flex flex-col content-min-height">
-            <div class="flex-1 overflow-y-auto flex flex-col content-max-height">
+            <div @scroll="onScroll" ref="scrollEl" class="flex-1 overflow-y-auto flex flex-col content-max-height">
                 <NuxtPage class="flex-1" />
                 <client-only>
                     <GGFooter v-if="!isHandheldDevice" class="mt-auto" />
@@ -14,9 +14,9 @@
 
         <NuxtLoadingIndicator />
 
-        <YTEmbed v-if="$route.query.id" :videoId="$route.query.id"/>
+        <YTEmbed v-if="$route.query.id" :videoId="$route.query.id" />
 
-        <button id="back-to-top-btn" class="btn btn-accent btn-circle opacity-50 hover:opacity-75">
+        <button v-show="bttBtnVisible" @click="scrollTop" id="back-to-top-btn" class="btn btn-accent btn-circle opacity-50 hover:opacity-75">
             <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24">
                 <path fill="currentColor"
                     d="m17.71 11.29l-5-5a1 1 0 0 0-.33-.21a1 1 0 0 0-.76 0a1 1 0 0 0-.33.21l-5 5a1 1 0 0 0 1.42 1.42L11 9.41V17a1 1 0 0 0 2 0V9.41l3.29 3.3a1 1 0 0 0 1.42 0a1 1 0 0 0 0-1.42Z" />
@@ -25,7 +25,7 @@
     </div>
 </template>
 
-<script setup lang="ts">
+<script setup>
 const SITE_NAME = "Gameplay.gg";
 
 useHead({
@@ -60,24 +60,23 @@ useHead({
     ],
 });
 
-onMounted(() => {
-    const bttbtn = document.getElementById("back-to-top-btn")!;
-    window.addEventListener("scroll", () => {
-        const THRESHOLD = 400
-        if (
-            document.body.scrollTop > THRESHOLD ||
-            document.documentElement.scrollTop > THRESHOLD
-        ) {
-            bttbtn.style.display = "inline-flex";
-        } else {
-            bttbtn.style.display = "none";
-        }
-    })
-    bttbtn.addEventListener("click", () => {
-        document.body.scrollTop = 0;
-        document.documentElement.scrollTop = 0;
-    });
-})
+const bttBtnVisible = ref(false)
+const scrollEl = ref(null)
+
+const onScroll = (event) => {
+    const THRESHOLD = 400
+    if (
+        event.target.scrollTop > THRESHOLD
+    ) {
+        bttBtnVisible.value = true
+    } else {
+        bttBtnVisible.value = false
+    }
+}
+
+const scrollTop = () => {
+    scrollEl.value.scrollTop = 0;
+}
 </script>
 
 <style scoped>
@@ -87,10 +86,10 @@ onMounted(() => {
 }
 
 #back-to-top-btn {
-    display: none;
+    /* display: none; */
     position: fixed;
-    right: 20px;
-    bottom: 20px;
+    right: 30px;
+    bottom: 30px;
     z-index: 200;
 }
 

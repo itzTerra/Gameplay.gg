@@ -45,7 +45,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   const updateUser = async (user: User | null) => {
     console.log("Updating user: ", JSON.stringify(user).slice(0, 40) + "...");
 
-    const clientUser = await useUser();
+    const clientUser = getUser();
     const clientSession = useClientSession();
 
     if (user) {

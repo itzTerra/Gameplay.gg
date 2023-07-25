@@ -100,6 +100,8 @@ export default async function () {
       batch.set(doc(firestoreClient, "users", uid), {
         username: username,
         role: 0,
+        likedClips: [],
+        suggestedClips: []
       });
 
       batch.set(doc(firestoreClient, "index/users/username", username), {

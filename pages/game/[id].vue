@@ -117,7 +117,7 @@ const user = await useUser()
 
 const gameInfo = ref()
 const route = useRoute()
-gameInfo.value = await getGame(route.params.id)
+gameInfo.value = await getFullGame(route.params.id)
 
 console.log(gameInfo.value)
 

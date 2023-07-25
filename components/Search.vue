@@ -73,7 +73,7 @@ const searchEl = ref(null)
 onMounted(() => {
     document.addEventListener("mousedown", (e) => {
         // @ts-ignore
-        if (e.target !== searchEl.value && !searchEl.value.contains(e.target)) {
+        if (searchEl.value && e.target !== searchEl.value && !searchEl.value.contains(e.target)) {
             showSearchResults.value = false
         }
     })

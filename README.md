@@ -1,6 +1,7 @@
 # *IN DEVELOPMENT*
 
 ## TODO (later)
+- like animation
 - length (and author and views?) on videos
 - game backgrounds and gradients
 - username blacklist

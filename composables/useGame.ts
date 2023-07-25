@@ -165,13 +165,28 @@ const fillWithIgdb = async (clipArray, videos, gameId) => {
   return clips;
 };
 
-export const getGame = async (id: number | string) => {
+export const getFullGame = async (id: number | string) => {
   const $csrfFetch = useNuxtApp().$csrfFetch;
 
   const game = await $csrfFetch("/api/igdb/game", {
     method: "POST",
     body: {
       id: id,
+      fields: [
+        "name",
+        "summary",
+        "first_release_date",
+        "involved_companies.developer",
+        "involved_companies.company.name",
+        "genres.name",
+        "platforms.abbreviation",
+        "total_rating",
+        "game_engines.name",
+        "videos.name",
+        "videos.video_id",
+        "websites.url",
+        "websites.category"
+      ]
     },
   });
 
@@ -198,3 +213,34 @@ export const getGame = async (id: number | string) => {
     clips: clipsRes,
   };
 };
+
+export const getShortGame = async (id) => {
+    const $csrfFetch = useNuxtApp().$csrfFetch;
+
+    const game = await $csrfFetch("/api/igdb/game", {
+      method: "POST",
+      body: {
+        id: id,
+        fields: [
+          "name",
+          "cover.url",
+          "first_release_date",
+          "involved_companies.developer",
+          "involved_companies.company.name",
+        ]
+      },
+    });
+
+    if (!game) return null
+  
+    return {
+      ...game,
+      release_date: game.first_release_date
+        ? new Date(game.first_release_date * 1000).getFullYear()
+        : "?",
+      companies: sortedCompanies(game.involved_companies)?.map(
+        (inv_comp) => inv_comp.company.name
+      ),
+      cover: game.cover ? "http:" + game.cover.url : null,
+    };
+}
