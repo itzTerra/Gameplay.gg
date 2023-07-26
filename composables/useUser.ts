@@ -31,6 +31,7 @@ export default async function () {
       const idToken = getCookie(event, cookieName);
       if (idToken) {
         user.value = await getUserFromCookie(idToken);
+        event.context.user = user.value
       }
     }
   }

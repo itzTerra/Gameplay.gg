@@ -86,7 +86,7 @@ export const timeSecondsOrNull = (timeString) => {
     } else {
       totalSeconds = null;
     }
-    
+
     return totalSeconds;
   }
 };
@@ -104,5 +104,33 @@ export const secToTimeString = (seconds: number) => {
     return `${timeStringParts[0]}:${timeStringParts[1]}:${timeStringParts[2]}`;
   } else {
     return `${timeStringParts[1]}:${timeStringParts[2]}`;
+  }
+};
+
+export const getTimeDifference = (timestamp) => {
+  const now = Date.now();
+  const timeDiffInSeconds = Math.floor((now - timestamp) / 1000);
+
+  const secondsInMinute = 60;
+  const secondsInHour = 60 * secondsInMinute;
+  const secondsInDay = 24 * secondsInHour;
+  const secondsInMonth = 30 * secondsInDay; // Assuming 30 days in a month for simplicity
+  const secondsInYear = 365 * secondsInDay; // Assuming 365 days in a year for simplicity
+
+  const years = Math.floor(timeDiffInSeconds / secondsInYear);
+  const months = Math.floor(timeDiffInSeconds / secondsInMonth);
+  const days = Math.floor(timeDiffInSeconds / secondsInDay);
+  const hours = Math.floor(timeDiffInSeconds / secondsInHour);
+
+  if (years >= 1) {
+    return `${years} ${years === 1 ? "year" : "years"} ago`;
+  } else if (months >= 1) {
+    return `${months} ${months === 1 ? "month" : "months"} ago`;
+  } else if (days >= 1) {
+    return `${days} ${days === 1 ? "day" : "days"} ago`;
+  } else if (hours >= 1) {
+    return `${hours} ${hours === 1 ? "hour" : "hours"} ago`;
+  } else {
+    return "Less than an hour ago";
   }
 };

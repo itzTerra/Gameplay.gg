@@ -14,8 +14,6 @@ export default defineEventHandler(async (event) => {
         body.clip.suggested = igdbUserRef
         body.clip.approved = systemUserRef
 
-        console.log(body.clip)
-
         const docRef = firestore.doc(`clips/${body.videoId}`);
         await docRef.set(body.clip);
         await firestore.doc(`games/${body.gameId}`).update({

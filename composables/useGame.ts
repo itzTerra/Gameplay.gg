@@ -138,6 +138,7 @@ const fillWithIgdb = async (clipArray, videos, gameId) => {
         approved: systemUserRef,
         featured: true,
         likes: 0,
+        date: Date.now()
       };
 
       try {
@@ -190,7 +191,7 @@ export const getFullGame = async (id: number | string) => {
     },
   });
 
-  const clipsRes = await getClips(game.id, (featured) => {
+  const clipsRes = await getClipsForGame(game.id, (featured) => {
     if (game.videos) {
       fillWithIgdb(featured, game.videos, game.id);
     }

@@ -22,7 +22,7 @@
                 </div>
             </div>
         </div>
-        <div class="px-8 py-4 rounded-b-box  flex flex-col md:flex-row flex-wrap bg-base-200">
+        <div class="px-8 py-4 rounded-b-box flex flex-col md:flex-row flex-wrap bg-base-200">
             <div class="flex-grow flex flex-col gap-6 items-center">
                 <div class="form-control w-full max-w-xs">
                     <label class="label">
@@ -64,7 +64,7 @@
                     <label class="label">
                         <span class="label-text">URL</span>
                     </label>
-                    <input @input="(e) => { onUrlInput(e.target?.value) }" type="text"
+                    <input @input="(e) => { onUrlInput(e.target?.value) }" v-model="_clipUrl" type="text"
                         placeholder="e.g. https://youtu.be/XXQgcNZSPgY" class="input input-bordered input-lg w-full"
                         required />
                     <div class="text-sm opacity-75 mt-1">
@@ -116,7 +116,7 @@
                 </div>
                 <button @click="suggest" class="btn btn-primary btn-lg w-40">Submit</button>
             </div>
-            <dialog ref="confirmModal" class="modal">
+            <dialog ref="confirmModal" class="modal modal-bottom sm:modal-middle">
                 <div class="modal-box bg-base-200 text-base-content">
                     <form method="dialog">
                         <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
@@ -127,10 +127,10 @@
                             <button @click="confirmSuggest" class="btn btn-success">Yes</button>
                         </div>
                     </form>
-
                 </div>
             </dialog>
         </div>
+        <Alert :alertType="msgError ? 'error' : 'success'" :change="change" :interval="5000">{{ msgError || msgSuccess}}</Alert>
     </div>
 </template>
 
@@ -144,6 +144,10 @@ const route = useRoute()
 const router = useRouter()
 
 const loading = ref("")
+
+const msgSuccess = ref("")
+const msgError = ref("")
+const change = ref(false)
 
 const selectedGame = ref(null)
 const selectedGameError = ref(false)
@@ -159,6 +163,7 @@ const form = shallowReactive({
 })
 
 const clipId = ref("")
+const _clipUrl = ref("")
 const clipUrlError = ref(false)
 
 const ytPlayer = ref(null)
@@ -290,7 +295,7 @@ const suggest = () => {
 
 const confirmSuggest = () => {
     submitClip({
-        id: clipId.value,
+        clip_id: clipId.value,
         game_id: selectedGame.value.id,
         title: form.title,
         description: form.description,
@@ -299,7 +304,25 @@ const confirmSuggest = () => {
         end_time: endTimeSecs,
         featured: form.makeFeatured,
         suggested: user.value.uid,
-    }, form.autoApprove)
+    }, form.autoApprove).then(() => {
+        msgSuccess.value = "Clip suggestion successfully submitted"
+        msgError.value = ""
+
+        form.title = ""
+        form.description = ""
+        form.modNotes = ""
+        form.startTime = ""
+        form.endTime = ""
+        _clipUrl.value = ""
+        clipId.value = ""
+    }).catch((err) => {
+        console.error(err)
+        msgError.value = "Unknown error occured"
+        msgSuccess.value = ""
+    }).finally(() => {
+        change.value = !change.value
+    })
+
 }
 </script>
 

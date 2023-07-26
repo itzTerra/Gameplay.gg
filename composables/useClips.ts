@@ -12,6 +12,10 @@ import {
   increment,
   arrayRemove,
   onSnapshot,
+  getDocs,
+  query,
+  orderBy,
+  deleteDoc,
 } from "firebase/firestore";
 import { type ClipData } from "utils/utils";
 
@@ -27,6 +31,7 @@ const fillClipsFromFirestore = async (
       clip.id = docRef.id;
       clip.suggested = (await getDoc(clip.suggested).catch(() => null))?.data();
       clip.approved = (await getDoc(clip.approved).catch(() => null))?.data();
+      clip.date = getTimeDifference(clip.date);
 
       clipArray.push(clip);
       cache.value[clip.id] = clip;
@@ -34,7 +39,7 @@ const fillClipsFromFirestore = async (
   }
 };
 
-export const getClips = async (
+export const getClipsForGame = async (
   gameId: string | number,
   onFeaturedLoaded: CallableFunction | null = null
 ) => {
@@ -114,6 +119,7 @@ export const useClip = async (id: string) => {
 
   const firestore = useNuxtApp().$firestore as Firestore;
   const clipDocRef = doc(firestore, "clips", id.toString());
+  console.log(firestore, clipDocRef);
 
   const cachedClips = getCachedClips();
   if (cachedClips.value && cachedClips.value[id]) {
@@ -125,6 +131,8 @@ export const useClip = async (id: string) => {
     if (firestoreData) {
       firestoreData.id = id;
       clip.value = firestoreData;
+
+      clip.value.date = getTimeDifference(clip.value.date);
 
       getDoc(firestoreData.suggested)
         .then((snap) => {
@@ -145,9 +153,9 @@ export const useClip = async (id: string) => {
 
   // Update values on Firestore update
   onSnapshot(clipDocRef, (snap) => {
-    const data = snap.data()
-    if (data && data.likes != clip.value.likes){
-        clip.value.likes = data.likes;
+    const data = snap.data();
+    if (data && data.likes != clip.value.likes) {
+      clip.value.likes = data.likes;
     }
   });
 
@@ -163,30 +171,91 @@ export const submitClip = async (
 
   if (autoApprove) {
     const clipDocRef = doc(firestore, "clips", clipDataRaw.clipId);
-    setDoc(clipDocRef, {
+    await setDoc(clipDocRef, {
       ...clipDataRaw,
       suggested: userRef,
       approved: userRef,
       likes: 0,
+      date: Date.now(),
     });
-    console.log("saved to clips");
 
     if (clipDataRaw.featured) {
-      updateDoc(doc(firestore, "games", clipDataRaw.game_id.toString()), {
+      await updateDoc(doc(firestore, "games", clipDataRaw.game_id.toString()), {
         featured: arrayUnion(clipDocRef),
       });
     } else {
-      updateDoc(doc(firestore, "games", clipDataRaw.game_id.toString()), {
+      await updateDoc(doc(firestore, "games", clipDataRaw.game_id.toString()), {
         approved: arrayUnion(clipDocRef),
       });
     }
-    console.log("updated game clips");
   } else {
-    addDoc(collection(firestore, "clips"), {
+    await addDoc(collection(firestore, "suggestedClips"), {
       ...clipDataRaw,
       suggested: userRef,
+      date: Date.now(),
     });
-    console.log("saved to suggestedClips");
+  }
+};
+
+export const useSuggestedClips = async () => {
+  const clips = ref<any>([]);
+
+  const firestore = useNuxtApp().$firestore as Firestore;
+
+  if (firestore) {
+    getDocs(query(collection(firestore, "suggestedClips"), orderBy("date")))
+      .then(async (snap) => {
+        for (const doc of snap.docs) {
+          const clip = doc.data();
+          clip.id = doc.id;
+          clip.suggested = (
+            await getDoc(clip.suggested).catch(() => null)
+          )?.data();
+          clip.date = getTimeDifference(clip.date);
+          delete clip.suggested.approvedClips;
+
+          clips.value.push(clip);
+        }
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+  }
+
+  return clips;
+};
+
+export const rejectClip = async (docId: string) => {
+  const firestore = useNuxtApp().$firestore as Firestore;
+
+  await deleteDoc(doc(firestore, "suggestedClips", docId));
+};
+
+export const approveClip = async (clip: any, uid: string) => {
+  const firestore = useNuxtApp().$firestore as Firestore;
+
+  await deleteDoc(doc(firestore, "suggestedClips", clip.id));
+  delete clip.id;
+
+  const clipId = clip.clip_id;
+  delete clip.clip_id;
+  delete clip.mod_notes;
+
+  const clipDocRef = doc(firestore, "clips", clipId)
+  await setDoc(clipDocRef, {
+    ...clip,
+    approved: doc(firestore, "users", uid),
+    likes: 0,
+  });
+
+  if (clip.featured) {
+    await updateDoc(doc(firestore, "games", clip.game_id.toString()), {
+      featured: arrayUnion(clipDocRef),
+    });
+  } else {
+    await updateDoc(doc(firestore, "games", clip.game_id.toString()), {
+      approved: arrayUnion(clipDocRef),
+    });
   }
 };
 

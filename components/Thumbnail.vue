@@ -1,7 +1,7 @@
 <template>
     <div>
         <div @mouseenter="hovering = true" @mousemove="moveOverVideo" @mouseleave="onMouseLeave"
-            class="bg-base-200 text-base-content rounded-lg shadow-sm relative">
+            class="bg-base-200 text-base-content rounded-lg shadow-sm relative" :class="`w-[${width}px]`">
             <NuxtLink class="cursor-pointer" :to="{path: $route.path, query: {id: clip.id, title: clip.title}}">
                 <div class="rounded-t-lg relative" :style="{ width: width + 'px', height: height + 'px' }">
                     <Transition>
@@ -25,8 +25,12 @@
                             :imgAttrs="{ class: 'rounded-t-lg' }" />
                     </Transition>
                 </div>
-                <div class="p-2">
-                    <span class="font-semibold">{{ clip.title }}</span>
+                <div class="p-2 flex justify-between">
+                    <div class="flex flex-col flex-grow">
+                        <span class="font-semibold text-lg">{{ clip.title }}</span>
+                        <Username :user-data="clip.suggested" class="text-sm"/>
+                    </div>
+                    <span class="text-sm flex-shrink">{{ clip.date }}</span>
                 </div>
             </NuxtLink>
             <NuxtLink v-show="hovering" :to="`https://youtu.be/${clip.id}`" target="_blank"

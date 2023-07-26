@@ -59,7 +59,7 @@
                 <div>
                     <button class="btn btn-large btn-secondary" @click="openChangePassModal">Change
                         Password</button>
-                    <dialog ref="changePassModal" class="modal">
+                    <dialog ref="changePassModal" class="modal modal-bottom sm:modal-middle">
                         <div class="modal-box bg-base-200 text-base-content">
                             <form method="dialog" ref="changePassCloseForm" @submit.prevent="closeChangePassModal">
                                 <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>

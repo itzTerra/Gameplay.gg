@@ -30,7 +30,7 @@
         <!-- RIGHT SIDE -->
         <div class="ms-auto flex items-center">
             <!-- SUBMIT A CLIP BUTTON -->
-            <NuxtLink v-if="user" to="/suggest/" class="btn btn-primary btn-sm hidden lg:inline-flex mx-3">Submit a
+            <NuxtLink v-if="user" to="/suggest/" class="btn btn-primary btn-sm hidden lg:inline-flex mx-3">Suggest a
                 Clip</NuxtLink>
             <!-- DARK AND LIGHT THEME SWAPPER -->
             <label class="btn btn-ghost hidden xl:inline-flex items-center h-10">
@@ -41,9 +41,9 @@
                 </div>
             </label>
             <!-- LANGUAGE PICKER -->
-            <LanguagePicker class="btn btn-ghost hidden xl:inline-flex">
+            <!-- <LanguagePicker class="btn btn-ghost hidden xl:inline-flex">
                 <SVGLanguage class="w-6 h-6" />
-            </LanguagePicker>
+            </LanguagePicker> -->
             <!-- AUTH -->
             <div v-if="!user" class="md:flex gap-2 hidden">
                 <NuxtLink to="/register/" class="btn btn-sm btn-primary">Sign Up</NuxtLink>
@@ -62,7 +62,7 @@
                     class="mt-3 z-[1] p-2 shadow menu menu-sm dropdown-content rounded-box w-52 bg-base-300 text-base-content">
                     <li class="lg:hidden" @click="blurIfFocused">
                         <NuxtLink to="/suggest/">
-                            <SVGSubmitClip class="w-4 h-4" />Submit a Clip
+                            <SVGSubmitClip class="w-4 h-4" />Suggest a Clip
                         </NuxtLink>
                     </li>
                     <li class="xl:hidden">
@@ -73,14 +73,19 @@
                             <ThemeSwapper class="toggle toggle-sm toggle-accent" checked />
                         </label>
                     </li>
-                    <li class="xl:hidden">
+                    <!-- <li class="xl:hidden">
                         <LanguagePicker>
                             <SVGLanguage class="w-4 h-4" /> Language
                         </LanguagePicker>
-                    </li>
+                    </li> -->
                     <li v-if="user" @click="blurIfFocused">
                         <NuxtLink to="/settings/">
-                            <SVGSettings class="w-4 h-4" />Settings
+                            <SVGSettings class="w-4 h-4" />Profile
+                        </NuxtLink>
+                    </li>
+                    <li v-if="user && user.role >= 2" @click="blurIfFocused">
+                        <NuxtLink to="/suggestions/">
+                            <SVGManage class="w-4 h-4" />Manage Suggestions
                         </NuxtLink>
                     </li>
                     <div class="divider my-0"></div>

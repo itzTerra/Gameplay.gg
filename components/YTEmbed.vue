@@ -16,13 +16,8 @@
                             <div class="flex flex-col">
                                 <h2 class="text-xl md:text-2xl lg:text-3xl font-light mt-3 w-11/12">
                                     {{ clip.title || clipTitle || '&nbsp;' }}</h2>
-                                <p v-if="clip.suggested">by <strong
-                                        :class="{ 'text-green-700': clip.suggested.role == 2, 'text-blue-700': clip.suggested.role == 3, 'text-red-700': clip.suggested.role == 4 }">
-                                        <NuxtLink v-if="clip.suggested.username == 'IGDB'" to="https://www.igdb.com/"
-                                            class="link link-hover">
-                                            {{ clip.suggested.username }}</NuxtLink><span
-                                            v-else>{{ clip.suggested.username }}</span>
-                                    </strong><span v-if="user && user.role > 2"> (approved by
+                                <p>by
+                                    <Username :user-data="clip.suggested" /><span v-if="user && user.role > 2"> (approved by
                                         <strong
                                             :class="{ 'text-green-700': clip.approved.role == 2, 'text-blue-700': clip.approved.role == 3, 'text-red-700': clip.approved.role == 4 }">{{ clip.approved.username }}</strong>)</span>
                                 </p>
@@ -30,15 +25,21 @@
                             <div class="flex gap-2 items-center">
                                 <button @click="like" class="btn btn-ghost btn-sm btn-circle" :disabled="!user">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                                        <path :fill="isClipLiked ? 'currentColor' : 'none'" stroke="currentColor" stroke-linecap="round"
-                                            stroke-linejoin="round" stroke-width="2"
+                                        <path :fill="isClipLiked ? 'currentColor' : 'none'" stroke="currentColor"
+                                            stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M7 11v8a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1h3a4 4 0 0 0 4-4V6a2 2 0 0 1 4 0v5h3a2 2 0 0 1 2 2l-1 5a2 3 0 0 1-2 2h-7a3 3 0 0 1-3-3" />
                                     </svg>
                                 </button>
                                 <span class="text-xl font-bold">{{ clip.likes }}</span>
                             </div>
                         </div>
-                        <p>{{ clip.description }}</p>
+                        <p>
+                            <SVGClock class="inline w-5 h-5" /> {{ clip.date }}
+                        </p>
+                        <h3 class="font-semibold text-lg mt-2">Description</h3>
+                        <p v-show="clip.description != ''" class="p-2 bg-base-200 rounded-lg">
+                            {{ clip.description }}
+                        </p>
                     </div>
                 </div>
                 <button @click="close" class="btn btn-error btn-circle btn-sm lg:btn-md absolute -top-4 -right-4">
@@ -79,7 +80,7 @@ const like = () => {
     if (likeAmount.value >= 10) return
     likeAmount.value += 1
 
-    if (isClipLiked.value){
+    if (isClipLiked.value) {
         dislikeClip(user.value.uid, clip.value.id)
     } else {
         likeClip(user.value.uid, clip.value.id)

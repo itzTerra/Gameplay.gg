@@ -31,9 +31,9 @@
 </template>
 
 <script setup lang="ts">
-definePageMeta({
-    middleware: ["unauth"]
-})
+// definePageMeta({
+//     middleware: ["unauth"]
+// })
 
 const user = await useUser()
 const { loginUser, loginUserGoogle } = await useAuth()
@@ -50,6 +50,14 @@ const form = shallowReactive({
     email: "",
     password: "",
     remember: true
+})
+
+onMounted(() => {
+    if (user.value) {
+        const where = route.query.redirect || clientSession.value.lastUrl || "/";
+        console.log("Unauthenticated users only, redirecting to", where);
+        return navigateTo(where);
+    }
 })
 
 const login = async () => {
