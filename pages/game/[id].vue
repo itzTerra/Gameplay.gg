@@ -1,12 +1,11 @@
 <template>
     <div>
-        <div class="p-4 lg:px-6 xl:px-8 border-b-2 border-base-content border-opacity-10 shadow-lg">
+        <div class="p-4 lg:px-6 xl:px-8 border-b-2 border-base-content border-opacity-10 shadow-lg bg-geometry">
             <div class="flex">
                 <div class="flex flex-col gap-2">
-                    <div class="flex items-start lg:mb-2">
-                        <h1 class="text-3xl lg:text-6xl font-bold tracking-wide">{{ gameInfo.name }}&nbsp; <span
-                                class="text-2xl lg:text-5xl font-light">{{ gameInfo.release_date }}</span></h1>
-                    </div>
+                    <h1 class="tracking-wide lg:mb-2"><span
+                            class="text-3xl lg:text-5xl font-bold dark:text-gray-200">{{ gameInfo.name }}</span>
+                        &nbsp; <span class="text-2xl lg:text-4xl font-light">{{ gameInfo.release_date }}</span></h1>
                     <div class="flex gap-4 items-center">
                         <p class="text-xl lg:text-2xl font-light">{{ gameInfo.companies?.join(", ") || "Unknown" }}</p>
                         <div class="divider divider-horizontal bg-base-content px-0 w-0.5 mx-2"></div>
@@ -72,12 +71,15 @@
                         <SVGChevronDown class="w-4 h-4 transform transition-transform duration-300 origin-center"
                             :class="{ 'rotate-180': featuredShown }" />
                     </button>
-                    <NuxtLink v-if="user && user.role && user.role >= 2" :to="{path: '/suggest/', query: {game: $route.params.id, featured: 1}}" class="btn btn-primary">Add</NuxtLink>
+                    <NuxtLink v-if="user && user.role && user.role >= 2"
+                        :to="{ path: '/suggest/', query: { game: $route.params.id, featured: 1 } }" class="btn btn-primary">
+                        Add
+                    </NuxtLink>
                 </div>
                 <div class="collapse">
                     <input v-model="featuredShown" type="checkbox" class="min-h-0" />
                     <div class="collapse-content">
-                        <div class="flex flex-wrap gap-x-4 gap-y-8 justify-center">
+                        <div class="flex flex-wrap gap-x-4 gap-y-8 justify-center items-start">
                             <Thumbnail v-if="gameInfo.clips.featured" v-for="clip in gameInfo.clips.featured" width="320"
                                 height="180" :clip="clip" />
                             <Thumbnail v-else v-for="clip in gameInfo.videos" width="320" height="180" :clip="clip" />
@@ -96,14 +98,15 @@
                         :class="{ 'rotate-180': communityShown }" />
                 </button>
                 <div v-if="user" class="flex gap-2">
-                    <NuxtLink :to="{path: '/suggest/', query: {game: $route.params.id}}" class="btn btn-primary">Suggest</NuxtLink>
+                    <NuxtLink :to="{ path: '/suggest/', query: { game: $route.params.id } }" class="btn btn-primary">Suggest
+                    </NuxtLink>
                 </div>
             </div>
             <div class="collapse">
                 <input v-model="communityShown" type="checkbox" class="min-h-0" />
                 <div class="collapse-content">
                     <p v-if="!gameInfo.clips.approved" class="text-base-content text-opacity-75">Nothing here yet...</p>
-                    <div class="flex flex-wrap gap-x-4 gap-y-8 justify-center">
+                    <div class="flex flex-wrap gap-x-4 gap-y-8 justify-center items-start">
                         <Thumbnail v-for="clip in gameInfo.clips.approved" width="320" height="180" :clip="clip" />
                     </div>
                 </div>
@@ -114,12 +117,10 @@
 
 <script setup>
 const user = await useUser()
-
-const gameInfo = ref()
 const route = useRoute()
+const gameInfo = ref()
 gameInfo.value = await getFullGame(route.params.id)
-
-console.log(gameInfo.value)
+useHead({ title: gameInfo.value.name })
 
 const summaryShown = ref(false)
 const featuredShown = ref(true)
@@ -131,4 +132,5 @@ const communityShown = ref(true)
 .tooltip * {
     z-index: 100;
 }
+
 </style>

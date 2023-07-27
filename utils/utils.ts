@@ -1,5 +1,6 @@
 // @ts-nocheck
 
+import { type Timestamp } from "firebase/firestore";
 import {
   uniqueNamesGenerator,
   NumberDictionary,
@@ -58,6 +59,8 @@ export interface ClipData {
 }
 
 export const timeSecondsOrNull = (timeString) => {
+  if (timeString === "") return null;
+
   if (!isNaN(timeString)) {
     // If the timeString is already a number, return it directly
     return Number(timeString);
@@ -84,7 +87,7 @@ export const timeSecondsOrNull = (timeString) => {
     } else if (parts.length == 1) {
       totalSeconds += parts[0]; // Seconds
     } else {
-      totalSeconds = null;
+      return null;
     }
 
     return totalSeconds;
@@ -107,9 +110,9 @@ export const secToTimeString = (seconds: number) => {
   }
 };
 
-export const getTimeDifference = (timestamp) => {
+export const getTimeDifference = (timestamp: Timestamp) => {
   const now = Date.now();
-  const timeDiffInSeconds = Math.floor((now - timestamp) / 1000);
+  const timeDiffInSeconds = Math.floor((now - timestamp.toMillis()) / 1000);
 
   const secondsInMinute = 60;
   const secondsInHour = 60 * secondsInMinute;

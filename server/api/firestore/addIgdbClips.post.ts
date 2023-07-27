@@ -1,4 +1,4 @@
-import { arrayUnion } from "firebase/firestore";
+import { FieldValue, Timestamp } from "firebase-admin/firestore";
 
 export default defineEventHandler(async (event) => {
     const { req, res } = event.node
@@ -13,11 +13,20 @@ export default defineEventHandler(async (event) => {
         const systemUserRef = firestore.doc("users/system");
         body.clip.suggested = igdbUserRef
         body.clip.approved = systemUserRef
+        body.clip.date = Timestamp.fromDate(new Date(2023, 6, 20))
 
         const docRef = firestore.doc(`clips/${body.videoId}`);
         await docRef.set(body.clip);
-        await firestore.doc(`games/${body.gameId}`).update({
-            featured: arrayUnion(docRef),
+
+        const gameDocRef = firestore.doc(`games/${body.gameId}`)
+        if (!(await gameDocRef.get()).exists){
+            await gameDocRef.set({
+                featured: [],
+                approved: []
+            })
+        }
+        await gameDocRef.update({
+            featured: FieldValue.arrayUnion(docRef),
         });
     } catch (err) {
         res.statusCode = 401

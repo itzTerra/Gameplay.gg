@@ -5,6 +5,7 @@
 </template>
 
 <script setup>
+useHead({title: "Confirm"})
 const route = useRoute()
 
 onMounted(() => {

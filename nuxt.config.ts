@@ -51,6 +51,6 @@ export default defineNuxtConfig({
     classSuffix: "",
   },
   csurf: {
-    excludedUrls: [["/api/igdb/*", "i"], '/nocsrf1', ['/nocsrf2/.*', 'i']],
+    excludedUrls: [["/api/igdb/*", "i"], ["/api/firestore/addIgdbClips", "i"], '/nocsrf1', ['/nocsrf2/.*', 'i']],
   } 
 });

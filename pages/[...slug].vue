@@ -9,4 +9,3 @@
         </ContentDoc>
     </div>
 </template>
-  

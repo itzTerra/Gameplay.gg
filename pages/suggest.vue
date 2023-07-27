@@ -12,10 +12,16 @@
                     <SVGQuestion v-else class="w-full h-full bg-slate-950 text-white" />
                 </div>
                 <div class="flex-grow flex flex-col items-start justify-between py-2 px-4 bg-geometry rounded-tr-box">
-                    <p class="text-lg text-black dark:text-white font-light line-clamp-2 leading-snug"
-                        :title="selectedGame?.name || 'None'">
-                        {{ selectedGame?.name || 'None' }}</p>
-                    <div class="flex-grow flex text-sm items-end w-full">
+                    <div class="flex justify-between items-start w-full">
+                        <p class="text-lg text-black dark:text-white font-light line-clamp-2 leading-snug"
+                            :title="selectedGame?.name || 'None'">
+                            {{ selectedGame?.name || 'None' }}</p>
+                        <NuxtLink v-if="selectedGame" :to="'/game/' + selectedGame.id" target="_blank"
+                            class="link link-hover link-accent">
+                            <SVGArrowRight />
+                        </NuxtLink>
+                    </div>
+                    <div class="flex text-sm items-end w-full">
                         <p class="line-clamp-2 leading-snug">{{ selectedGame?.companies?.join(", ") || "Unknown" }}</p>
                         <p class="ms-auto">{{ selectedGame?.release_date || '?' }}</p>
                     </div>
@@ -130,11 +136,13 @@
                 </div>
             </dialog>
         </div>
-        <Alert :alertType="msgError ? 'error' : 'success'" :change="change" :interval="5000">{{ msgError || msgSuccess}}</Alert>
+        <Alert :alertType="msgError ? 'error' : 'success'" :change="change" :interval="5000">{{ msgError || msgSuccess }}
+        </Alert>
     </div>
 </template>
 
 <script setup>
+useHead({ title: "Suggest clip" })
 definePageMeta({
     middleware: ["auth", "save-url"]
 })
@@ -184,20 +192,23 @@ onMounted(() => {
 
     window.onYouTubeIframeAPIReady = function () {
         console.log("YT API ready")
-
-        ytPlayer.value = new YT.Player("videoPlayerEl", {
-            events: {
-                'onReady': () => {
-                    console.log("player ready")
-                    clipDuration.value = ytPlayer.value.getDuration()
-                },
-                'onStateChange': (event) => {
-                    console.log("player state change")
-                }
-            }
-        });
+        initYtPlayer()
     }
 })
+
+const initYtPlayer = () => {
+    ytPlayer.value = new YT.Player("videoPlayerEl", {
+        events: {
+            'onReady': () => {
+                console.log("player ready")
+                clipDuration.value = ytPlayer.value.getDuration()
+            },
+            'onStateChange': (event) => {
+                console.log("player state change")
+            }
+        }
+    });
+}
 
 const selectGame = async (gameId) => {
     loading.value = "gameBanner"
@@ -208,6 +219,7 @@ const selectGame = async (gameId) => {
         router.push({
             path: route.path,
             query: {
+                ...route.query,
                 game: gameId
             }
         })
@@ -233,6 +245,9 @@ const validateUrl = async (url) => {
 
     if (videoId && (await isValidYtVideo(videoId))) {
         clipId.value = videoId
+        if (!ytPlayer.value){
+            initYtPlayer()
+        }
         ytPlayer.value.loadVideoById(videoId);
     } else {
         clipId.value = ""
@@ -246,7 +261,9 @@ const onUrlInput = (inp) => {
     clearTimeout(typingTimeout.value)
 
     typingTimeout.value = setTimeout(async () => {
-        await validateUrl(inp)
+        await validateUrl(inp).catch((err) => {
+            console.error(err)
+        })
         typingTimeout.value = null
     }, 300);
 }
@@ -267,6 +284,16 @@ const suggest = () => {
     if (!clipId.value) {
         clipUrlError.value = true
         return
+    }
+
+    if (clipDuration.value == 0) {
+        clipDuration.value = ytPlayer.value.getDuration()
+        if (clipDuration.value == 0) {
+            msgError.value = "Oops! Couldn't read the clip duration, try refreshing the page"
+            msgSuccess.value = ""
+            change.value = !change.value
+            return
+        }
     }
 
     startTimeSecs = timeSecondsOrNull(form.startTime)

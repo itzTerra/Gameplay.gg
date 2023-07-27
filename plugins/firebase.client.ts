@@ -11,8 +11,6 @@ export default defineNuxtPlugin(async (nuxtApp) => {
 
   const config = useRuntimeConfig();
   const $csrfFetch = nuxtApp.$csrfFetch;
-  const route = useRoute();
-  const router = useRouter();
 
   const firebaseConfig = {
     apiKey: config.public.firebaseApiKey,
@@ -81,15 +79,6 @@ export default defineNuxtPlugin(async (nuxtApp) => {
       clientUser.value = null;
 
       $csrfFetch("/api/auth", { method: "DELETE" });
-
-      if (route.meta.middleware?.includes("auth")) {
-        navigateTo({
-          path: "/login",
-          query: {
-            redirect: route.fullPath,
-          },
-        });
-      }
     }
   };
 

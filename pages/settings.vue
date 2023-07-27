@@ -96,6 +96,7 @@
 </template>
 
 <script setup lang="ts">
+useHead({title: "Profile"})
 definePageMeta({
     middleware: ["auth", "save-url"]
 })

@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { getDoc, doc, setDoc, updateDoc, arrayUnion } from "firebase/firestore";
+import { getDoc, doc, setDoc, updateDoc, arrayUnion, Timestamp } from "firebase/firestore";
 
 const sortedCompanies = (companies) => {
   if (!companies) return;
@@ -118,7 +118,7 @@ export const searchGames = async (query: string) => {
 };
 
 const fillWithIgdb = async (clipArray, videos, gameId) => {
-  const { $csrfFetch, $firestore } = useNuxtApp();
+  const { $csrfFetch } = useNuxtApp();
   const cachedClips = getCachedClips();
   const dictionary = {};
 
@@ -126,19 +126,16 @@ const fillWithIgdb = async (clipArray, videos, gameId) => {
     dictionary[clip.id] = clip;
   }
 
-  const igdbUserRef = doc($firestore, "users", "IGDB");
-  const systemUserRef = doc($firestore, "users", "system");
-
   for (const video of videos) {
     if (!dictionary.hasOwnProperty(video.video_id)) {
       const newClip = {
         game_id: gameId,
         title: video.name,
-        suggested: igdbUserRef,
-        approved: systemUserRef,
+        suggested: {username: "IGDB", role: 2},
+        approved: {username: "system", role: 3},
         featured: true,
         likes: 0,
-        date: Date.now()
+        date: Timestamp.fromDate(new Date(2023, 6, 20))
       };
 
       try {
@@ -155,15 +152,12 @@ const fillWithIgdb = async (clipArray, videos, gameId) => {
       }
 
       newClip.id = video.video_id;
+      newClip.date = getTimeDifference(newClip.date);
+
       cachedClips.value[video.video_id] = newClip;
-      dictionary[video.video_id] = newClip;
+      clipArray.push(newClip)
     }
   }
-
-  // Extract the filled array from the dictionary
-  const clips = Object.values(dictionary);
-
-  return clips;
 };
 
 export const getFullGame = async (id: number | string) => {
@@ -190,10 +184,14 @@ export const getFullGame = async (id: number | string) => {
       ]
     },
   });
+  // console.log(getCachedClips().value)
 
-  const clipsRes = await getClipsForGame(game.id, (featured) => {
+
+  const clipsRes = await getClipsForGame(game.id, async (featured) => {
     if (game.videos) {
-      fillWithIgdb(featured, game.videos, game.id);
+      fillWithIgdb(featured, game.videos, game.id).then(() => {
+        clipsRes.value.featuredLoaded = true
+      });
     }
   });
 

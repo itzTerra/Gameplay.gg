@@ -64,7 +64,7 @@
 </template>
 
 <script setup lang="ts">
-
+useHead({title: 'Sign up'})
 const user = await useUser()
 const { createUser, loginUserGoogle, updateUsername } = await useAuth()
 const clientSession = useClientSession()

@@ -14,9 +14,12 @@
 
         <NuxtLoadingIndicator />
 
-        <YTEmbed v-if="$route.query.id" :videoId="$route.query.id" />
+        <Transition name="embed">
+            <YTEmbed v-if="$route.query.id" :videoId="$route.query.id" />
+        </Transition>
 
-        <button v-show="bttBtnVisible" @click="scrollTop" id="back-to-top-btn" class="btn btn-accent btn-circle opacity-50 hover:opacity-75">
+        <button v-show="bttBtnVisible" @click="scrollTop" id="back-to-top-btn"
+            class="btn btn-accent btn-circle opacity-50 hover:opacity-75">
             <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24">
                 <path fill="currentColor"
                     d="m17.71 11.29l-5-5a1 1 0 0 0-.33-.21a1 1 0 0 0-.76 0a1 1 0 0 0-.33.21l-5 5a1 1 0 0 0 1.42 1.42L11 9.41V17a1 1 0 0 0 2 0V9.41l3.29 3.3a1 1 0 0 0 1.42 0a1 1 0 0 0 0-1.42Z" />

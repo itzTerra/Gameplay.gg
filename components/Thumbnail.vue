@@ -1,45 +1,43 @@
 <template>
-    <div>
-        <div @mouseenter="hovering = true" @mousemove="moveOverVideo" @mouseleave="onMouseLeave"
-            class="bg-base-200 text-base-content rounded-lg shadow-sm relative" :class="`w-[${width}px]`">
-            <NuxtLink class="cursor-pointer" :to="{path: $route.path, query: {id: clip.id, title: clip.title}}">
-                <div class="rounded-t-lg relative" :style="{ width: width + 'px', height: height + 'px' }">
-                    <Transition>
-                        <nuxt-picture v-show="currSrc == 0" format="avif,webp" :src="`${rootUrl}/0.jpg`"
-                            :width="width + 'px'" :height="height + 'px'" loading="lazy" class="rounded-t-lg absolute"
-                            :imgAttrs="{ class: 'rounded-t-lg' }" />
-                    </Transition>
-                    <Transition>
-                        <nuxt-picture v-show="currSrc == 1" format="avif,webp" :src="`${rootUrl}/sd1.jpg`"
-                            :width="width + 'px'" :height="height + 'px'" loading="lazy" class="rounded-t-lg absolute"
-                            :imgAttrs="{ class: 'rounded-t-lg' }" />
-                    </Transition>
-                    <Transition>
-                        <nuxt-picture v-show="currSrc == 2" format="avif,webp" :src="`${rootUrl}/sd2.jpg`"
-                            :width="width + 'px'" :height="height + 'px'" loading="lazy" class="rounded-t-lg absolute"
-                            :imgAttrs="{ class: 'rounded-t-lg' }" />
-                    </Transition>
-                    <Transition>
-                        <nuxt-picture v-show="currSrc == 3" format="avif,webp" :src="`${rootUrl}/sd3.jpg`"
-                            :width="width + 'px'" :height="height + 'px'" loading="lazy" class="rounded-t-lg absolute"
-                            :imgAttrs="{ class: 'rounded-t-lg' }" />
-                    </Transition>
+    <div @mouseenter="hovering = true" @mousemove="moveOverVideo" @mouseleave="onMouseLeave"
+        class="bg-base-200 text-base-content rounded-lg shadow-sm relative" :class="`w-[${width}px]`">
+        <NuxtLink class="cursor-pointer" :to="{ path: $route.path, query: { id: clip.id, title: clip.title } }">
+            <div class="rounded-t-lg relative" :style="{ width: width + 'px', height: height + 'px' }">
+                <Transition>
+                    <nuxt-picture v-show="currSrc == 0" format="avif,webp" :src="`${rootUrl}/0.jpg`" :width="width + 'px'"
+                        :height="height + 'px'" loading="lazy" class="rounded-t-lg absolute"
+                        :imgAttrs="{ class: 'rounded-t-lg' }" />
+                </Transition>
+                <Transition>
+                    <nuxt-picture v-show="currSrc == 1" format="avif,webp" :src="`${rootUrl}/sd1.jpg`" :width="width + 'px'"
+                        :height="height + 'px'" loading="lazy" class="rounded-t-lg absolute"
+                        :imgAttrs="{ class: 'rounded-t-lg' }" />
+                </Transition>
+                <Transition>
+                    <nuxt-picture v-show="currSrc == 2" format="avif,webp" :src="`${rootUrl}/sd2.jpg`" :width="width + 'px'"
+                        :height="height + 'px'" loading="lazy" class="rounded-t-lg absolute"
+                        :imgAttrs="{ class: 'rounded-t-lg' }" />
+                </Transition>
+                <Transition>
+                    <nuxt-picture v-show="currSrc == 3" format="avif,webp" :src="`${rootUrl}/sd3.jpg`" :width="width + 'px'"
+                        :height="height + 'px'" loading="lazy" class="rounded-t-lg absolute"
+                        :imgAttrs="{ class: 'rounded-t-lg' }" />
+                </Transition>
+            </div>
+            <div class="p-2 flex justify-between items-baseline gap-2">
+                <div class="flex flex-col flex-grow">
+                    <span class="font-semibold text-lg">{{ clip.title }}</span>
+                    <Username :user-data="clip.suggested" class="text-sm" />
                 </div>
-                <div class="p-2 flex justify-between">
-                    <div class="flex flex-col flex-grow">
-                        <span class="font-semibold text-lg">{{ clip.title }}</span>
-                        <Username :user-data="clip.suggested" class="text-sm"/>
-                    </div>
-                    <span class="text-sm flex-shrink">{{ clip.date }}</span>
-                </div>
-            </NuxtLink>
-            <NuxtLink v-show="hovering" :to="`https://youtu.be/${clip.id}`" target="_blank"
-                class="absolute top-0 right-0 px-6 py-2 bg-black text-gray-400 bg-opacity-60 rounded-bl hover:bg-opacity-75 hover:text-gray-300 transition">
-                <p>Youtube<sup>
-                        <SVGExternalLink class="inline w-4 h-4" />
-                    </sup></p>
-            </NuxtLink>
-        </div>
+                <span class="text-sm flex-shrink text-end">{{ clip.date }}</span>
+            </div>
+        </NuxtLink>
+        <NuxtLink v-show="hovering" :to="`https://youtu.be/${clip.id}`" target="_blank"
+            class="absolute top-0 right-0 px-6 py-2 bg-black text-gray-400 bg-opacity-60 rounded-bl hover:bg-opacity-75 hover:text-gray-300 transition">
+            <p>Youtube<sup>
+                    <SVGExternalLink class="inline w-4 h-4" />
+                </sup></p>
+        </NuxtLink>
     </div>
 </template>
 

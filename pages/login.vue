@@ -31,6 +31,7 @@
 </template>
 
 <script setup lang="ts">
+useHead({title: "Login"})
 // definePageMeta({
 //     middleware: ["unauth"]
 // })
@@ -52,13 +53,21 @@ const form = shallowReactive({
     remember: true
 })
 
-onMounted(() => {
-    if (user.value) {
+watch(user, (newVal, oldVal) => {
+    if (newVal) {
         const where = route.query.redirect || clientSession.value.lastUrl || "/";
         console.log("Unauthenticated users only, redirecting to", where);
         return navigateTo(where);
     }
 })
+
+// onMounted(() => {
+//     if (user.value) {
+//         const where = route.query.redirect || clientSession.value.lastUrl || "/";
+//         console.log("Unauthenticated users only, redirecting to", where);
+//         return navigateTo(where);
+//     }
+// })
 
 const login = async () => {
     loading.value = "login"

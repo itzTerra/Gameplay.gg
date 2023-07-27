@@ -28,7 +28,7 @@
         <div class="w-[320px] h-[180px] lg:w-[480px] lg:h-[270px] xl:w-[640px] xl:h-[360px]">
             <div v-if="openedClip" class="flex flex-col">
                 <iframe class="w-[320px] h-[180px] lg:w-[480px] lg:h-[270px] xl:w-[640px] xl:h-[360px]"
-                    :src="`https://www.youtube-nocookie.com/embed/${openedClip.clip_id}?modestbranding=1${openedClip.start ? '&start=' + openedClip.start : ''}${openedClip.end ? '&end=' + openedClip.end : ''}`"
+                    :src="`https://www.youtube-nocookie.com/embed/${openedClip.clip_id}?modestbranding=1${openedClip.start_time ? '&start=' + openedClip.start_time : ''}${openedClip.end_time ? '&end=' + openedClip.end_time : ''}`"
                     title="YouTube video player" frameborder="0"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                     allowfullscreen>
@@ -70,11 +70,11 @@
                         {{ openedClip.mod_notes }}
                     </p>
                     <div class="flex gap-6 mt-8 justify-center">
-                        <button @click="() => { reject(openedClip) }" class="btn btn-error">
+                        <button @click="() => { reject(openedClip.id) }" class="btn btn-error">
                             <span v-show="loading == 'reject'" class="loading loading-spinner"></span>
                             REJECT
                         </button>
-                        <button @click="() => { approve(openedClip) }" class="btn btn-success">
+                        <button @click="() => { approve(openedClip.id) }" class="btn btn-success">
                             <span v-show="loading == 'approve'" class="loading loading-spinner"></span>
                             APPROVE
                         </button>
@@ -82,10 +82,12 @@
                 </div>
             </div>
         </div>
+        <Alert :alertType="msgError ? 'error' : 'success'" :change="change" :interval="3000">{{ msgError || msgSuccess}}</Alert>
     </div>
 </template>
 
 <script lang="ts" setup>
+useHead({title: "Manage Suggestions"})
 definePageMeta({
     middleware: ["auth", "save-url"]
 })
@@ -94,6 +96,9 @@ const user = await useUser()
 const suggestedClips = await useSuggestedClips()
 
 const loading = ref("")
+const msgSuccess = ref("")
+const msgError = ref("")
+const change = ref(false)
 
 const openedClip = ref<any>(null)
 const openedClipGame = ref<any>(null)
@@ -103,26 +108,44 @@ const selectClip = async (clip: any) => {
     openedClipGame.value = await getShortGame(clip.game_id)
 }
 
-const reject = async (clip: any) => {
+const reject = async (clipId: string) => {
     loading.value = "reject"
     try {
-        await rejectClip(clip.id)
-        suggestedClips.value = suggestedClips.value.filter(item => item.id != clip.id)
+        await rejectClip(clipId)
+        suggestedClips.value = suggestedClips.value.filter((item: any) => item.id != clipId)
+
+        openedClip.value = null
+
+        msgSuccess.value = "Successfully rejected"
+        msgError.value = ""
     } catch (err) {
         console.error(err)
+
+        msgError.value = "Unknown error occured"
+        msgSuccess.value = ""
     }
     loading.value = ""
+    change.value = !change.value
 }
 
-const approve = async (clip: any) => {
+const approve = async (clipId: string) => {
     loading.value = "approve"
     try {
-        await approveClip(clip, user.value.uid)
-        suggestedClips.value = suggestedClips.value.filter(item => item.id != clip.id)
+        await approveClip(clipId, user.value.uid)
+        suggestedClips.value = suggestedClips.value.filter((item: any) => item.id != clipId)
+        
+        openedClip.value = null
+
+        msgSuccess.value = "Successfully approved"
+        msgError.value = ""
     } catch (err) {
         console.error(err)
+
+        msgError.value = "Unknown error occured"
+        msgSuccess.value = ""
     }
     loading.value = ""
+    change.value = !change.value
 }
 </script>
 

@@ -23,6 +23,7 @@
 </template>
 
 <script setup>
+useHead({title: "Reset password"})
 const { sendPassResetEmail } = await useAuth()
 
 const msgSuccess = ref("")
