@@ -1,5 +1,12 @@
 // @ts-nocheck
-import { getDoc, doc, setDoc, updateDoc, arrayUnion, Timestamp } from "firebase/firestore";
+import {
+  getDoc,
+  doc,
+  setDoc,
+  updateDoc,
+  arrayUnion,
+  Timestamp,
+} from "firebase/firestore";
 
 const sortedCompanies = (companies) => {
   if (!companies) return;
@@ -131,11 +138,11 @@ const fillWithIgdb = async (clipArray, videos, gameId) => {
       const newClip = {
         game_id: gameId,
         title: video.name,
-        suggested: {username: "IGDB", role: 2},
-        approved: {username: "system", role: 3},
+        suggested: { username: "IGDB", role: 2 },
+        approved: { username: "system", role: 3 },
         featured: true,
         likes: 0,
-        date: Timestamp.fromDate(new Date(2023, 6, 20))
+        date: Timestamp.fromDate(new Date(2023, 6, 20)),
       };
 
       try {
@@ -155,7 +162,7 @@ const fillWithIgdb = async (clipArray, videos, gameId) => {
       newClip.date = getTimeDifference(newClip.date);
 
       cachedClips.value[video.video_id] = newClip;
-      clipArray.push(newClip)
+      clipArray.push(newClip);
     }
   }
 };
@@ -163,7 +170,7 @@ const fillWithIgdb = async (clipArray, videos, gameId) => {
 export const getFullGame = async (id: number | string) => {
   const $csrfFetch = useNuxtApp().$csrfFetch;
 
-  const game = await $csrfFetch("/api/igdb/game", {
+  const game = await $csrfFetch("/api/igdb/games", {
     method: "POST",
     body: {
       id: id,
@@ -180,17 +187,16 @@ export const getFullGame = async (id: number | string) => {
         "videos.name",
         "videos.video_id",
         "websites.url",
-        "websites.category"
-      ]
+        "websites.category",
+      ],
     },
   });
   // console.log(getCachedClips().value)
 
-
   const clipsRes = await getClipsForGame(game.id, async (featured) => {
     if (game.videos) {
       fillWithIgdb(featured, game.videos, game.id).then(() => {
-        clipsRes.value.featuredLoaded = true
+        clipsRes.value.featuredLoaded = true;
       });
     }
   });
@@ -213,25 +219,26 @@ export const getFullGame = async (id: number | string) => {
   };
 };
 
-export const getShortGame = async (id) => {
-    const $csrfFetch = useNuxtApp().$csrfFetch;
+export const getShortGames = async (ids) => {
+  const $csrfFetch = useNuxtApp().$csrfFetch;
 
-    const game = await $csrfFetch("/api/igdb/game", {
-      method: "POST",
-      body: {
-        id: id,
-        fields: [
-          "name",
-          "cover.url",
-          "first_release_date",
-          "involved_companies.developer",
-          "involved_companies.company.name",
-        ]
-      },
-    });
+  const games = await $csrfFetch("/api/igdb/games", {
+    method: "POST",
+    body: {
+      ids: ids,
+      fields: [
+        "name",
+        "cover.url",
+        "first_release_date",
+        "involved_companies.developer",
+        "involved_companies.company.name",
+      ],
+    },
+  });
 
-    if (!game) return null
-  
+  if (!games) return null;
+
+  return games.map((game) => {
     return {
       ...game,
       release_date: game.first_release_date
@@ -242,4 +249,40 @@ export const getShortGame = async (id) => {
       ),
       cover: game.cover ? "http:" + game.cover.url : null,
     };
-}
+  });
+};
+
+export const useNewGames = async (gamesPerPage: number, minRating: number) => {
+  const $csrfFetch = useNuxtApp().$csrfFetch;
+
+  const newGames = ref<any>([]);
+
+  const queryGames = async (count: number) => {
+    try {
+      const res = await $csrfFetch("/api/igdb/newgames", {
+        method: "POST",
+        body: {
+          count: count,
+          minRating: minRating,
+          fields: [
+            "name",
+            "cover.url",
+            "first_release_date",
+            "involved_companies.developer",
+            "involved_companies.company.name",
+          ],
+        },
+      });
+
+      console.log(res)
+
+      newGames.value.concat(res)
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  queryGames(gamesPerPage)
+
+  return { newGames, queryGames }
+};

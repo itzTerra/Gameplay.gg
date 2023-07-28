@@ -80,9 +80,9 @@
                     <input v-model="featuredShown" type="checkbox" class="min-h-0" />
                     <div class="collapse-content">
                         <div class="flex flex-wrap gap-x-4 gap-y-8 justify-center items-start">
-                            <Thumbnail v-if="gameInfo.clips.featured" v-for="clip in gameInfo.clips.featured" width="320"
+                            <ClipThumbnail v-if="gameInfo.clips.featured" v-for="clip in gameInfo.clips.featured" width="320"
                                 height="180" :clip="clip" />
-                            <Thumbnail v-else v-for="clip in gameInfo.videos" width="320" height="180" :clip="clip" />
+                            <ClipThumbnail v-else v-for="clip in gameInfo.videos" width="320" height="180" :clip="clip" />
                         </div>
                         <div class="divider mt-8 mb-0"></div>
                     </div>
@@ -107,7 +107,7 @@
                 <div class="collapse-content">
                     <p v-if="!gameInfo.clips.approved" class="text-base-content text-opacity-75">Nothing here yet...</p>
                     <div class="flex flex-wrap gap-x-4 gap-y-8 justify-center items-start">
-                        <Thumbnail v-for="clip in gameInfo.clips.approved" width="320" height="180" :clip="clip" />
+                        <ClipThumbnail v-for="clip in gameInfo.clips.approved" :key="clip.clip_id" width="320" height="180" :clip="clip" />
                     </div>
                 </div>
             </div>

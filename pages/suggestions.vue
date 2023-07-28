@@ -12,7 +12,7 @@
                 <div class="w-2/12 text-end">When</div>
             </div>
             <ul class="flex-grow h-96 flex flex-col gap-3 overflow-y-auto">
-                <li v-for="clip in suggestedClips">
+                <li v-for="clip in suggestedClips" :key="clip.id">
                     <button @click="() => { selectClip(clip) }"
                         class="py-3 px-5 bg-base-100 hover:bg-opacity-80 w-full flex rounded-lg items-center justify-start text-start">
                         <div class="w-4/12 text-lg truncate">{{ clip.title }}</div>
@@ -105,7 +105,7 @@ const openedClipGame = ref<any>(null)
 
 const selectClip = async (clip: any) => {
     openedClip.value = clip
-    openedClipGame.value = await getShortGame(clip.game_id)
+    openedClipGame.value = await getShortGames([clip.game_id])
 }
 
 const reject = async (clipId: string) => {

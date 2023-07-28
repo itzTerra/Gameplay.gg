@@ -78,6 +78,14 @@ onMounted(() => {
         }
     })
 })
+onUnmounted(() => {
+    document.removeEventListener("mousedown", (e) => {
+        // @ts-ignore
+        if (searchEl.value && e.target !== searchEl.value && !searchEl.value.contains(e.target)) {
+            showSearchResults.value = false
+        }
+    })
+})
 </script>
 
 <style scoped>

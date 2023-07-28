@@ -318,59 +318,72 @@ export const dislikeClip = async (uid: string, clipId: string) => {
   });
 };
 
-export const usePopularClips = async (count: number) => {
+export const usePopularClips = async (clipsPerPage: number = 8) => {
   const firestore = useNuxtApp().$firestore as Firestore;
 
   const clips = ref<any>([]);
+  const games = ref<any>({});
   let lastClipSnap: null | QueryDocumentSnapshot<DocumentData>;
 
-  const queryClips = async () => {
-    getDocs(
-      lastClipSnap
-        ? query(
-            collection(firestore, "clips"),
-            orderBy("likes", "desc"),
-            orderBy("date", "desc"),
-            orderBy("title"),
-            startAfter(lastClipSnap),
-            limit(count)
-          )
-        : query(
-            collection(firestore, "clips"),
-            orderBy("likes", "desc"),
-            orderBy("date", "desc"),
-            orderBy("title"),
-            limit(count)
-          )
-    )
-      .then(async (snap) => {
-        for (const doc of snap.docs) {
-          const clip = doc.data();
+  const queryClips = async (count: number) => {
+    try {
+      const snap = await getDocs(
+        lastClipSnap
+          ? query(
+              collection(firestore, "clips"),
+              orderBy("likes", "desc"),
+              orderBy("date", "desc"),
+              orderBy("title"),
+              startAfter(lastClipSnap),
+              limit(count)
+            )
+          : query(
+              collection(firestore, "clips"),
+              orderBy("likes", "desc"),
+              orderBy("date", "desc"),
+              orderBy("title"),
+              limit(count)
+            )
+      );
 
-          clip.id = doc.id;
-          clip.suggested = (
-            await getDoc(clip.suggested).catch(() => null)
-          )?.data();
-          clip.approved = (
-            await getDoc(clip.approved).catch(() => null)
-          )?.data();
-          clip.date = getTimeDifference(clip.date);
+      const gameIds = [];
+      for (const doc of snap.docs) {
+        const clip = reactive(doc.data());
 
-          clips.value.push(clip);
+        clip.id = doc.id;
+        getDoc(clip.suggested).then((snap) => {
+          clip.suggested = snap.data();
+          clip.suggestedLoaded = true;
+        });
+        clip.date = getTimeDifference(clip.date);
+        gameIds.push(clip.game_id);
 
-          lastClipSnap = doc;
-        }
-      })
-      .catch((err) => {
-        console.error(err);
+        clips.value.push(clip);
+
+        lastClipSnap = doc;
+      }
+
+      getShortGames(gameIds).then((res) => {
+        let reduced = res.reduce((result: any, obj: any) => {
+          result[obj.id] = obj;
+          return result;
+        }, {});
+
+        games.value = {
+          ...games.value,
+          ...reduced,
+        };
       });
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   if (firestore) {
-    queryClips();
+    queryClips(clipsPerPage);
   }
 
-  console.log(clips.value);
+  console.log(clips.value, games.value);
 
-  return {clips, queryClips};
+  return { clips, queryClips, games };
 };
