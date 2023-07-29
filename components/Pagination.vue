@@ -10,7 +10,7 @@
                 class="join-item btn">{{ currPage - 2 }}</button>
             <button v-show="currPage >= 3" @click="$emit('pageChange', currPage-1)"
                 class="join-item btn">{{ currPage - 1 }}</button>
-            <button class="join-item btn btn-active">{{ currPage }}</button>
+            <button class="join-item btn btn-active btn-secondary">{{ currPage }}</button>
             <button v-show="currPage < pages - 1" @click="$emit('pageChange', currPage+1)"
                 class="join-item btn">{{ currPage + 1 }}</button>
             <button v-show="currPage == 1 && pages >= 4" @click="$emit('pageChange', currPage+2)"
@@ -29,5 +29,3 @@
 defineProps(["pages", "currPage"])
 defineEmits(["pageChange"])
 </script>
-
-<style scoped></style>

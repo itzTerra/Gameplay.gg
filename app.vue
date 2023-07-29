@@ -5,7 +5,7 @@
         </client-only>
         <main class="mt-16 flex flex-col content-min-height">
             <div @scroll="onScroll" ref="scrollEl" class="flex-1 overflow-y-auto flex flex-col content-max-height">
-                <NuxtPage class="flex-1" />
+                <NuxtPage class="flex-1 bg-cool" />
                 <client-only>
                     <GGFooter v-if="!isHandheldDevice" class="mt-auto" />
                 </client-only>
@@ -14,7 +14,7 @@
 
         <NuxtLoadingIndicator />
 
-        <Transition name="embed">
+        <Transition name="fade">
             <YTEmbed v-if="$route.query.id" :videoId="$route.query.id" />
         </Transition>
 
@@ -108,6 +108,26 @@ const scrollTop = () => {
 </style>
 
 <style>
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.25s ease-in-out;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+.longFade-enter-active,
+.longFade-leave-active {
+    transition: opacity 0.5s ease;
+}
+
+.longFade-enter-from,
+.longFade-leave-to {
+    opacity: 0;
+}
+
 .slide-enter-active,
 .slide-leave-active {
     transition: all 0.25s ease-out;

@@ -4,7 +4,7 @@
             <h1 class="font-semibold text-xl text-end"><span class="font-bold"
                     :class="{ 'text-red-700': suggestedClips.length > 0, 'text-green-700': suggestedClips.length == 0 }">{{ suggestedClips.length }}</span>
                 suggestion(s)</h1>
-            <div class="divider"></div>
+            <div class="divider before:bg-primary after:bg-primary"></div>
             <div class="font-semibold flex text-start mb-1 px-5">
                 <div class="w-4/12">Title</div>
                 <div class="w-3/12">User</div>
@@ -46,7 +46,7 @@
                         <div v-if="openedClipGame" class="flex">
                             <div class="w-[72px] h-[72px] flex-shrink-0">
                                 <nuxt-img v-if="openedClipGame.cover" :src="openedClipGame?.cover" alt="" />
-                                <SVGQuestion v-else class="w-full h-full bg-slate-950 text-white" />
+                                <MissingImg v-else />
                             </div>
                             <div
                                 class="flex flex-col items-start bg-base-200 py-2 px-4 justify-between">

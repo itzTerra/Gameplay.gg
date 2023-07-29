@@ -170,10 +170,10 @@ const fillWithIgdb = async (clipArray, videos, gameId) => {
 export const getFullGame = async (id: number | string) => {
   const $csrfFetch = useNuxtApp().$csrfFetch;
 
-  const game = await $csrfFetch("/api/igdb/games", {
+  const game = (await $csrfFetch("/api/igdb/games", {
     method: "POST",
     body: {
-      id: id,
+      ids: [id],
       fields: [
         "name",
         "summary",
@@ -190,7 +190,7 @@ export const getFullGame = async (id: number | string) => {
         "websites.category",
       ],
     },
-  });
+  }))[0];
   // console.log(getCachedClips().value)
 
   const clipsRes = await getClipsForGame(game.id, async (featured) => {
@@ -256,33 +256,53 @@ export const useNewGames = async (gamesPerPage: number, minRating: number) => {
   const $csrfFetch = useNuxtApp().$csrfFetch;
 
   const newGames = ref<any>([]);
+  const hasMore = ref(true);
+
+  const offset = ref(0);
 
   const queryGames = async (count: number) => {
     try {
       const res = await $csrfFetch("/api/igdb/newgames", {
         method: "POST",
         body: {
-          count: count,
           minRating: minRating,
           fields: [
             "name",
-            "cover.url",
             "first_release_date",
-            "involved_companies.developer",
-            "involved_companies.company.name",
+            "artworks.image_id",
+            "artworks.width",
+            "artworks.height",
+            "total_rating",
+            "platforms.abbreviation",
+            "genres.name",
           ],
+          limit: count,
+          offset: offset.value,
         },
       });
 
-      console.log(res)
+      if (res.length < count) {
+        hasMore.value = false;
+      }
 
-      newGames.value.concat(res)
+      for (let game of res) {
+        game = {
+          ...game,
+          release_date: getLongDateString(new Date(game.first_release_date * 1000)),
+          genres: game.genres.map((genre) => genre.name),
+          platforms: simplePlatforms(game.platforms),
+        };
+
+        newGames.value.push(game);
+      }
+
+      offset.value += count;
     } catch (err) {
       console.error(err);
     }
   };
 
-  queryGames(gamesPerPage)
+  queryGames(gamesPerPage);
 
-  return { newGames, queryGames }
+  return { newGames, queryGames, hasMore };
 };

@@ -18,7 +18,7 @@
                     <button @click="() => {selectGame(game.id)}" class="w-full text-start bg-base-200 hover:bg-base-300 p-2 rounded-lg flex items-stretch gap-3">
                         <div class="w-[72px] h-[72px] flex-shrink-0">
                             <nuxt-img v-if="game.cover" :src="game.cover" alt="" class="rounded" />
-                            <SVGQuestion v-else class="w-full h-full rounded bg-slate-950 text-white" />
+                            <MissingImg v-else />
                         </div>
                         <div class="flex-grow flex flex-col justify-between">
                             <p class="text-lg text-black dark:text-white font-light line-clamp-2 leading-snug" :title="game.name">{{ game.name }}</p>

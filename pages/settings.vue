@@ -3,17 +3,17 @@
         <div
             class="mx-auto my-auto bg-base-200 rounded-box px-8 py-6 w-full sm:w-[400px] min-h-[300px] flex flex-col items-start">
             <h1 class="self-center text-3xl font-bold">Profile</h1>
-            <div class="divider my-1"></div>
+            <div class="divider my-1 before:bg-primary after:bg-primary"></div>
             <div class="flex flex-wrap gap-10 items-center justify-around w-full">
                 <div>
                     <p class="font-light text-lg mb-2">Username</p>
                     <form v-if="usernameEditing" @submit.prevent="setUsername" class="flex items-center gap-1">
                         <input ref="usernameInput" type="text" v-model="newUsername" class="input w-56 me-4">
-                        <button v-if="!usernameLoading" type="submit" class="btn btn-sm btn-ghost btn-circle" title="Save">
+                        <button v-if="!usernameLoading" type="submit" class="btn btn-sm btn-success btn-circle" title="Save">
                             <SVGSave class="w-6 h-6" />
                         </button>
                         <span v-else class="loading loading-spinner"></span>
-                        <button @click="usernameEditing = false" type="button" class="btn btn-sm btn-ghost btn-circle" title="Cancel">
+                        <button @click="usernameEditing = false" type="button" class="btn btn-sm btn-error btn-circle" title="Cancel">
                             <SVGClose class="w-6 h-6" />
                         </button>
                     </form>
@@ -57,7 +57,7 @@
                     </dialog>
                 </div>
                 <div>
-                    <button class="btn btn-large btn-secondary" @click="openChangePassModal">Change
+                    <button class="btn btn-large btn-primary" @click="openChangePassModal">Change
                         Password</button>
                     <dialog ref="changePassModal" class="modal modal-bottom sm:modal-middle">
                         <div class="modal-box bg-base-200 text-base-content">

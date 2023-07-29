@@ -7,10 +7,11 @@ import { getFirestore, getDoc, doc, onSnapshot } from "firebase/firestore";
 import type { User } from "firebase/auth";
 
 export default defineNuxtPlugin(async (nuxtApp) => {
-  console.log("FIREBASE CLIENT PLUGIN");
+  // console.log("FIREBASE CLIENT PLUGIN");
 
   const config = useRuntimeConfig();
   const $csrfFetch = nuxtApp.$csrfFetch;
+  const route = useRoute()
 
   const firebaseConfig = {
     apiKey: config.public.firebaseApiKey,
@@ -41,7 +42,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   nuxtApp.provide("firestore", firestore);
 
   const updateUser = async (user: User | null) => {
-    console.log("Updating user: ", JSON.stringify(user).slice(0, 40) + "...");
+    // console.log("Updating user: ", JSON.stringify(user).slice(0, 40) + "...");
 
     const clientUser = getUser();
     const clientSession = useClientSession();
@@ -79,12 +80,21 @@ export default defineNuxtPlugin(async (nuxtApp) => {
       clientUser.value = null;
 
       $csrfFetch("/api/auth", { method: "DELETE" });
+
+      if (route.meta.middleware?.includes("auth")){
+        navigateTo({
+            path: "/login/",
+            query: {
+                redirect: route.fullPath
+            }
+        })
+      }
     }
   };
 
   onAuthStateChanged(auth, async (user) => {
     // https://firebase.google.com/docs/reference/js/firebase.User
-    console.log("AUTH STATE CHANGED");
+    // console.log("AUTH STATE CHANGED");
     updateUser(user);
   });
 });

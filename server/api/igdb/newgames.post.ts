@@ -2,7 +2,7 @@ export default defineEventHandler(async (event) => {
   const body = await readBody(event);
 
   try {
-    if (!body.count || !body.minRating || !body.fields) throw new Error("bad arguments")
+    if (!body.limit || !body.minRating || !body.fields) throw new Error("bad arguments")
 
     const res = await $fetch<Record<string, any>[]>(
       "https://api.igdb.com/v4/games",
@@ -12,9 +12,10 @@ export default defineEventHandler(async (event) => {
         body: 
         `
         fields ${body.fields.join(", ")}; 
-        where total_rating >= ${body.minRating} & release_dates.date != null & release_dates.date < ${Math.floor(Date.now() / 1000)};
-        sort release_dates.date desc, rating desc;
-        limit ${body.count}; 
+        where total_rating_count > 5 & total_rating >= ${body.minRating} & first_release_date != null & first_release_date < ${Math.floor(Date.now() / 1000)};
+        sort first_release_date desc;
+        limit ${body.limit};
+        ${body.offset ? `offset ${body.offset};` : ''}
         `,
       }
     );

@@ -137,3 +137,31 @@ export const getTimeDifference = (timestamp: Timestamp) => {
     return "Less than an hour ago";
   }
 };
+
+const monthNames = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
+
+export const getLongDateString = (date: Date) => {
+  const day = date.getDate();
+  const month = date.getMonth();
+
+  const suffixes = ['st', 'nd', 'rd'];
+  let suffix = "th"
+  if (day < 11 || day > 13) {
+    suffix = suffixes[(day % 10) - 1] || "th";
+  }
+
+  return `${monthNames[month]} ${day}${suffix}`;
+};

@@ -15,7 +15,7 @@
                     </div>
                     <div class="mt-2 text-sm opacity-75">
                         <SVGInfo class="inline w-5 h-5 me-1" />By signing in, you agree to this site's <NuxtLink
-                            class="link hover:no-underline hover:text-accent-focus transition-colors">Terms of Service</NuxtLink> and <NuxtLink class="link hover:no-underline hover:text-accent-focus transition-colors">
+                            class="link hover:no-underline hover:text-secondary-focus transition-colors">Terms of Service</NuxtLink> and <NuxtLink class="link hover:no-underline hover:text-secondary-focus transition-colors">
                             Privacy Policy</NuxtLink>
                     </div>
                     <button class="w-full btn btn-primary my-5" type="submit">
@@ -23,12 +23,12 @@
                         Sign Up
                     </button>
                 </form>
-                <p class="text-center">Already have an account? <NuxtLink to="/login/" class="link link-secondary">Log in
+                <p class="text-center">Already have an account? <NuxtLink to="/login/" class="link link-hover link-secondary">Log in
                     </NuxtLink>
                 </p>
                 <div class="divider">OR</div>
                 <div class="flex flex-col">
-                    <button class="btn" @click="continueGoogle" :disabled="user != null">Continue with Google</button>
+                    <ContinueGoogle class="self-center" @click="continueGoogle" :disabled="user != null" />
                 </div>
             </div>
             <div v-else>
@@ -44,7 +44,7 @@
                         <label class="label">
                             <span class="label-text">I would like to be called...</span>
                         </label>
-                        <input type="text" v-model="newUsername" placeholder="New username"
+                        <input ref="newNameForm" type="text" v-model="newUsername" placeholder="New username"
                             class="input input-bordered w-full" required />
                         <label class="label">
                             <span class="label-text">Current: <strong>{{ generatedUsername }}</strong></span>
@@ -74,6 +74,8 @@ const msgError = ref("")
 const change = ref(false)
 
 const loading = ref("")
+
+const newNameForm = ref<any>(null)
 
 const registered = ref(false)
 const generatedUsername = ref("")
@@ -105,6 +107,9 @@ const register = async () => {
         msgError.value = ""
 
         registered.value = true
+        if (newNameForm.value){
+            newNameForm.value.focus()
+        }
         generatedUsername.value = regResponse.username!
 
         // TODO Send verification email and notify user in message

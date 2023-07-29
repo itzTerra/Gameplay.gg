@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div class="p-4 lg:px-6 xl:px-8 border-b-2 border-base-content border-opacity-10 shadow-lg bg-geometry">
+        <div class="p-4 lg:px-6 xl:px-8 border-b-2 border-base-content border-opacity-10 shadow-lg bg-base-200 dark:bg-base-100 bg-geometry">
             <div class="flex">
                 <div class="flex flex-col gap-2">
                     <h1 class="tracking-wide lg:mb-2"><span
@@ -10,23 +10,23 @@
                         <p class="text-xl lg:text-2xl font-light">{{ gameInfo.companies?.join(", ") || "Unknown" }}</p>
                         <div class="divider divider-horizontal bg-base-content px-0 w-0.5 mx-2"></div>
                         <div class="flex gap-4">
-                            <Platform v-for="platform in gameInfo.platforms" :platform="platform" class="h-5 w-5" />
+                            <Platform v-for="platform in gameInfo.platforms" :platform="platform" width="1.25rem" height="1.25rem" />
                         </div>
                     </div>
                 </div>
                 <Rating v-if="gameInfo.total_rating" :rating="gameInfo.total_rating"
-                    class="w-12 h-12 lg:w-16 lg:h-16 text-xl lg:text-3xl ms-auto lg:border-4 my-auto lg:me-5" />
+                    class="w-12 h-12 lg:w-16 lg:h-16 text-xl lg:text-3xl ms-auto lg:border-4 my-auto lg:me-5 cursor-default" />
             </div>
             <div class="mt-4 flex flex-col items-start gap-2">
                 <div v-if="gameInfo.summary">
                     <div class="flex items-center gap-3 flex-wrap">
-                        <button class="btn btn-sm btn-secondary flex items-center space-x-1"
+                        <button class="btn btn-sm btn-primary flex items-center space-x-1"
                             :class="{ 'rounded-b-none': summaryShown }"
                             @click="summaryShown = !summaryShown"><span>Summary</span>
                             <SVGChevronDown class="w-4 h-4 transform transition-transform duration-300 origin-center"
                                 :class="{ 'rotate-180': summaryShown }" />
                         </button>
-                        <div v-for="genre in gameInfo.genres" class="badge badge-lg badge-accent whitespace-nowrap">
+                        <div v-for="genre in gameInfo.genres" class="badge badge-lg badge-secondary whitespace-nowrap">
                             {{ genre }}</div>
                     </div>
                     <div class="collapse rounded-tl-none">

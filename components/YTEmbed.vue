@@ -15,11 +15,11 @@
                         <div class="flex flex-col">
                             <h2 class="text-xl md:text-2xl lg:text-3xl font-light mt-3 mb-1">
                                 {{ clip.title || clipTitle || '&nbsp;' }}</h2>
-                            <p>by
-                                <Username :user-data="clip.suggested" /><span v-if="user && user.role > 2"> (approved by
-                                    <strong
-                                        :class="{ 'text-green-700': clip.approved.role == 2, 'text-blue-700': clip.approved.role == 3, 'text-red-700': clip.approved.role == 4 }">{{ clip.approved.username }}</strong>)</span>
-                            </p>
+                            <Username :user-data="clip.suggested" /><span v-if="user && user.role > 2" class="text-base-content">
+                                (approved by
+                                <strong
+                                    :class="{ 'text-green-700': clip.approved.role == 2, 'text-blue-700': clip.approved.role == 3, 'text-red-700': clip.approved.role == 4 }">{{ clip.approved.username }}</strong>)
+                            </span>
                         </div>
                         <div class="flex gap-2 items-center">
                             <button @click="like" class="btn btn-ghost btn-sm btn-circle" :disabled="!user">
@@ -86,15 +86,3 @@ const like = () => {
     }
 }
 </script>
-
-<style scoped>
-.embed-enter-active,
-.embed-leave-active {
-    transition: opacity 0.25s ease-in-out;
-}
-
-.embed-enter-from,
-.embed-leave-to {
-    opacity: 0;
-}
-</style>

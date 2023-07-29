@@ -9,8 +9,8 @@
                     class="input input-lg input-bordered overflow-ellipsis join-item" required>
             </div>
             <div class="flex justify-around flex-wrap gap-y-3 mt-3">
-                <label class="flex items-center gap-2">
-                    <input v-model="form.remember" type="checkbox" class="checkbox checkbox-sm">
+                <label class="flex items-center gap-2 cursor-pointer">
+                    <input v-model="form.remember" type="checkbox" class="checkbox checkbox-sm checkbox-accent">
                     Remember me
                 </label>
                 <NuxtLink to="/resetpass/" class="link link-secondary link-hover">Forgot your password?</NuxtLink>
@@ -20,12 +20,12 @@
                 Log In
             </button>
         </form>
-        <p class="text-center">Don't have an account? <NuxtLink to="/register/" class="link link-secondary">Sign up
+        <p class="text-center">Don't have an account? <NuxtLink to="/register/" class="link link-hover link-accent">Sign up
             </NuxtLink>
         </p>
-        <div class="divider">OR</div>
+        <div class="divider before:bg-primary after:bg-primary">OR</div>
         <div class="flex flex-col">
-            <button class="btn" @click="continueGoogle" :disabled="user != null">Continue with Google</button>
+            <ContinueGoogle @click="continueGoogle" class="self-center" :disabled="user != null" />
         </div>
     </Auth>
 </template>

@@ -1,5 +1,5 @@
 <template>
-    <header class="navbar bg-accent text-accent-content md:px-10">
+    <header class="navbar bg-primary text-primary-content md:px-10">
         <!-- NAVBAR HEADER -->
         <NuxtLink class="btn btn-ghost normal-case small-caps text-xl" to="/">
             <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 128 128">
@@ -23,17 +23,17 @@
         <!-- SEARCH -->
         <div class="flex-grow flex items-center justify-center md:me-5">
             <Search @onGameSelect="navigateOnSearch" class="flex-grow flex min-w-0 max-w-3xl"
-                inputClass="input h-10 input-lg input-bordered bg-accent-focus text-accent-content border-opacity-10 flex-grow w-40 tracking-wider"
-                buttonClass="btn btn-primary btn-sm"
+                inputClass="input h-10 input-lg input-bordered text-black dark:text-gray-200 dark:bg-base-300 border-opacity-10 flex-grow w-40 tracking-wider"
+                buttonClass="btn btn-secondary btn-sm"
                 resultsClass="w-72 md:w-96 lg:w-[500px]" />
         </div>
         <!-- RIGHT SIDE -->
         <div class="ms-auto flex items-center">
             <!-- SUBMIT A CLIP BUTTON -->
-            <NuxtLink v-if="user" to="/suggest/" class="btn btn-primary btn-sm hidden lg:inline-flex mx-3">Suggest a
+            <NuxtLink v-if="user" to="/suggest/" class="btn btn-secondary btn-sm hidden lg:inline-flex mx-3">Suggest a
                 Clip</NuxtLink>
             <!-- DARK AND LIGHT THEME SWAPPER -->
-            <label class="btn btn-ghost hidden xl:inline-flex items-center h-10">
+            <label class="btn btn-ghost btn-circle hidden xl:inline-flex items-center h-10 mx-3">
                 <div class="swap swap-rotate">
                     <ThemeSwapper />
                     <SVGThemeLight class="swap-on w-7 h-7" />
@@ -46,8 +46,8 @@
             </LanguagePicker> -->
             <!-- AUTH -->
             <div v-if="!user" class="md:flex gap-2 hidden">
-                <NuxtLink to="/register/" class="btn btn-sm btn-primary">Sign Up</NuxtLink>
-                <NuxtLink to="/login/" class="btn btn-sm btn-secondary">Log In</NuxtLink>
+                <NuxtLink to="/register/" class="btn btn-sm btn-secondary">Sign Up</NuxtLink>
+                <NuxtLink to="/login/" class="btn btn-sm btn-neutral">Log In</NuxtLink>
             </div>
             <!-- USER MENU -->
             <div class="dropdown dropdown-end ms-4" :class="{ 'xl:hidden': !user, 'dropdown-top': isHandheldDevice }">
@@ -110,5 +110,4 @@ const { logoutUser } = await useAuth()
 const navigateOnSearch = (gameId: string) => {
     navigateTo(`/game/${gameId}`)
 }
-
 </script>

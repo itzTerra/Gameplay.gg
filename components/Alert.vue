@@ -1,5 +1,5 @@
 <template>
-    <Transition>
+    <Transition name="longFade">
         <div v-show="show" class="shadow fixed bottom-16 left-1/2 -translate-x-1/2 self-center w-auto" role="alert">
             <div class="relative alert" :class="typeClass">
                 <SVGInfo v-if="alertType == 'info'" class="stroke-info shrink-0" />
@@ -55,15 +55,3 @@ const typeClass = computed(() => ({
 }))
 
 </script>
-
-<style scoped>
-.v-enter-active,
-.v-leave-active {
-    transition: opacity 0.5s ease;
-}
-
-.v-enter-from,
-.v-leave-to {
-    opacity: 0;
-}
-</style>

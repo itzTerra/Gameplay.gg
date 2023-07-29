@@ -33,7 +33,10 @@ const fillClipsFromFirestore = async (
 
     if (clip) {
       clip.id = docRef.id;
-      clip.suggested = (await getDoc(clip.suggested).catch(() => null))?.data();
+      getDoc(clip.suggested).then(snap => {
+        clip.suggested = snap.data()
+        clip.suggestedLoaded = true
+      });
       clip.approved = (await getDoc(clip.approved).catch(() => null))?.data();
       clip.date = getTimeDifference(clip.date);
 
@@ -382,8 +385,6 @@ export const usePopularClips = async (clipsPerPage: number = 8) => {
   if (firestore) {
     queryClips(clipsPerPage);
   }
-
-  console.log(clips.value, games.value);
 
   return { clips, queryClips, games };
 };

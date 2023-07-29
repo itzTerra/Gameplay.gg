@@ -78,5 +78,3 @@ const confirmReset = async () => {
     loading.value = ""
 }
 </script>
-
-<style scoped></style>

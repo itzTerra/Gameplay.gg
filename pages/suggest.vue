@@ -9,7 +9,7 @@
                     <span v-show="loading == 'gameBanner'"
                         class="loading loading-spinner loading-lg absolute -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2"></span>
                     <nuxt-img v-if="selectedGame && selectedGame.cover" :src="selectedGame?.cover" alt="" />
-                    <SVGQuestion v-else class="w-full h-full bg-slate-950 text-white" />
+                    <MissingImg v-else />
                 </div>
                 <div class="flex-grow flex flex-col items-start justify-between py-2 px-4 bg-geometry rounded-tr-box">
                     <div class="flex justify-between items-start w-full">
@@ -35,8 +35,8 @@
                         <span class="label-text">Select a game</span>
                     </label>
                     <Search @onGameSelect="selectGame" class="flex-grow flex min-w-0 max-w-3xl"
-                        inputClass="input input-bordered w-40 h-10" inputPlaceholder="🔎 Search" showButton="false"
-                        resultsClass="w-72" />
+                        inputClass="input input-lg input-bordered w-40 h-16 border-b-secondary" inputPlaceholder="🔎 Search" showButton="false"
+                        resultsClass="w-72 top-16" />
                     <label v-if="selectedGameError" class="label">
                         <span class="label-text text-red-700 dark:text-red-600 anim-shake-x">Game is required</span>
                     </label>
@@ -47,7 +47,7 @@
                         <span class="label-text">Title</span>
                     </label>
                     <input v-model="form.title" type="text" placeholder="an engaging title"
-                        class="input input-bordered input-lg w-full" required />
+                        class="input input-bordered input-lg w-full border-b-secondary" required />
                 </div>
                 <div class="form-control w-full max-w-xs">
                     <label class="label">
@@ -71,7 +71,7 @@
                         <span class="label-text">URL</span>
                     </label>
                     <input @input="(e) => { onUrlInput(e.target?.value) }" v-model="_clipUrl" type="text"
-                        placeholder="e.g. https://youtu.be/XXQgcNZSPgY" class="input input-bordered input-lg w-full"
+                        placeholder="e.g. https://youtu.be/XXQgcNZSPgY" class="input input-bordered input-lg w-full border-b-secondary"
                         required />
                     <div class="text-sm opacity-75 mt-1">
                         <SVGInfo class="inline w-5 h-5 me-1" />Paste YT video or clip URL, short or full version, or even
@@ -112,11 +112,11 @@
             <div class="w-full mb-4 flex justify-center items-center gap-4">
                 <div class="flex flex-col gap-3">
                     <label v-if="user && user.role >= 2" class="flex gap-3 cursor-pointer">
-                        <input type="checkbox" v-model="form.makeFeatured" class="checkbox checkbox-success" />
+                        <input type="checkbox" v-model="form.makeFeatured" class="checkbox checkbox-secondary" />
                         <span class="">Featured</span>
                     </label>
                     <label v-if="user && user.role >= 3" class="flex gap-3 cursor-pointer">
-                        <input type="checkbox" v-model="form.autoApprove" class="checkbox checkbox-success" />
+                        <input type="checkbox" v-model="form.autoApprove" class="checkbox checkbox-secondary" />
                         <span class="">Auto-approve</span>
                     </label>
                 </div>
@@ -212,7 +212,7 @@ const initYtPlayer = () => {
 
 const selectGame = async (gameId) => {
     loading.value = "gameBanner"
-    selectedGame.value = await getShortGame(gameId)
+    selectedGame.value = (await getShortGames([gameId]))[0]
     loading.value = ""
 
     if (selectedGame.value) {

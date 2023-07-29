@@ -14,7 +14,6 @@
 - like animation
 - length (and views?) on videos
 - better username blacklist
-- unique themes, logo, fonts
 - game backgrounds, gradients
 - i18n
 - cookie banner

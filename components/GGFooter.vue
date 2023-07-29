@@ -10,9 +10,9 @@
         </div>
         <div class="flex md:gap-3">
             <div class="divider divider-horizontal bg-base-content bg-opacity-60 w-0.5 mx-1 md:mx-3"></div>
-            <NuxtLink to="https://github.com/itzTerra/Gameplay.gg" target="_blank" class="link hover:no-underline hover:text-accent-focus">About</NuxtLink>
-            <NuxtLink to="/tos" class="link hover:no-underline hover:text-accent-focus">Terms of Service</NuxtLink>
-            <NuxtLink to="/privacy" class="link hover:no-underline hover:text-accent-focus">Privacy Policy</NuxtLink>
+            <NuxtLink to="https://github.com/itzTerra/Gameplay.gg" target="_blank" class="link hover:no-underline hover:text-secondary-focus">About</NuxtLink>
+            <NuxtLink to="/tos" class="link hover:no-underline hover:text-secondary-focus">Terms of Service</NuxtLink>
+            <NuxtLink to="/privacy" class="link hover:no-underline hover:text-secondary-focus">Privacy Policy</NuxtLink>
         </div>
     </footer>
 </template>
