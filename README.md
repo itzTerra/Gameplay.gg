@@ -8,6 +8,7 @@
 ## *IN DEVELOPMENT*
 
 ### TODO
+- support YT and Twitch clips
 - make loading as async and parallel as possible, (e.g. load games on main page clips one by one instead of waiting for all of them and then show them)
 - language tags for commentary/subtitles of clips
 - karma system
