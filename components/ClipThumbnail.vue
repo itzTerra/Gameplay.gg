@@ -1,6 +1,7 @@
 <template>
     <div @mouseenter="hovering = true" @mousemove="moveOverVideo" @mouseleave="onMouseLeave"
-        class="bg-base-200 transition-colors hover:bg-base-300 text-base-content rounded-lg shadow-sm hover:shadow" :class="`w-[${width}px]`">
+        class="bg-base-200 transition-colors hover:bg-base-300 text-base-content rounded-lg shadow-sm hover:shadow"
+        :class="`w-[${width}px]`">
         <NuxtLink class="cursor-pointer" :to="{ path: $route.path, query: { id: clip.id, title: clip.title } }">
             <div v-if="includeGame" class="flex rounded-t-lg">
                 <div class="w-[40px] h-[40px] flex-shrink-0 border border-gray-600 rounded-tl-lg">
@@ -9,32 +10,29 @@
                     <MissingImg v-else class="rounded-tl-lg" />
                 </div>
                 <div class="flex-grow flex items-center py-1 px-2 rounded-tr-lg">
-                    <p :title="game?.name" class="text-base dark:text-gray-200 leading-snug truncate w-[220px]" :class="!game ? 'bg-base-100 animate-pulse rounded-lg' : ''">
-                        {{ game?.name || "&nbsp;"}}</p>
+                    <p :title="game?.name" class="text-base dark:text-gray-200 leading-snug truncate w-[220px]"
+                        :class="!game ? 'bg-base-100 animate-pulse rounded-lg' : ''">
+                        {{ game?.name || "&nbsp;" }}</p>
                     <p class="text-sm ms-auto">{{ game?.release_date }}</p>
                 </div>
             </div>
             <div class="relative" :class="{ 'rounded-t-lg': !includeGame }"
                 :style="{ width: width + 'px', height: height + 'px' }">
                 <Transition name="fade">
-                    <nuxt-picture v-show="currSrc == 0" format="avif,webp" :src="`${rootUrl}/0.jpg`" :width="width + 'px'"
-                        :height="height + 'px'" loading="lazy" class="rounded-t-lg absolute "
-                        :imgAttrs="{ class: !includeGame ? 'rounded-t-lg object-cover' : 'object-cover' }" />
+                    <nuxt-img v-show="currSrc == 0" preset="clip" :src="`${rootUrl}/0.jpg`" class="rounded-t-lg absolute"
+                        :class="!includeGame ? 'rounded-t-lg' : ''" />
                 </Transition>
                 <Transition name="fade">
-                    <nuxt-picture v-show="currSrc == 1" format="avif,webp" :src="`${rootUrl}/sd1.jpg`" :width="width + 'px'"
-                        :height="height + 'px'" loading="lazy" class="rounded-t-lg absolute"
-                        :imgAttrs="{ class: !includeGame ? 'rounded-t-lg' : '' }" />
+                    <nuxt-img v-show="currSrc == 1" preset="clip" :src="`${rootUrl}/sd1.jpg`" class="rounded-t-lg absolute"
+                        :class="!includeGame ? 'rounded-t-lg' : ''" />
                 </Transition>
                 <Transition name="fade">
-                    <nuxt-picture v-show="currSrc == 2" format="avif,webp" :src="`${rootUrl}/sd2.jpg`" :width="width + 'px'"
-                        :height="height + 'px'" loading="lazy" class="rounded-t-lg absolute"
-                        :imgAttrs="{ class: !includeGame ? 'rounded-t-lg' : '' }" />
+                    <nuxt-img v-show="currSrc == 2" preset="clip" :src="`${rootUrl}/sd2.jpg`" class="rounded-t-lg absolute"
+                        :class="!includeGame ? 'rounded-t-lg' : ''" />
                 </Transition>
                 <Transition name="fade">
-                    <nuxt-picture v-show="currSrc == 3" format="avif,webp" :src="`${rootUrl}/sd3.jpg`" :width="width + 'px'"
-                        :height="height + 'px'" loading="lazy" class="rounded-t-lg absolute"
-                        :imgAttrs="{ class: !includeGame ? 'rounded-t-lg' : '' }" />
+                    <nuxt-img v-show="currSrc == 3" preset="clip" :src="`${rootUrl}/sd3.jpg`" class="rounded-t-lg absolute"
+                        :class="!includeGame ? 'rounded-t-lg' : ''" />
                 </Transition>
 
                 <NuxtLink v-show="hovering" :to="`https://youtu.be/${clip.id}`" target="_blank" @click.stop
