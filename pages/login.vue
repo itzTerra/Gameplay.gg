@@ -95,6 +95,8 @@ const continueGoogle = async () => {
     const response = await loginUserGoogle()
 
     if (response.credentials) {
+        msgSuccess.value = "Login successful"
+        msgError.value = ""
         navigateTo(route.query.redirect && typeof route.query.redirect === 'string'
             ? route.query.redirect
             : '/')

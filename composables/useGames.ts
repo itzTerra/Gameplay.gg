@@ -72,6 +72,8 @@ const recognizedPlatforms = [
 
 const simplePlatforms = (platforms) => {
   const res = [];
+  if (!platforms) return res
+  
   platforms.forEach((p) => {
     p = p.abbreviation;
     if (["PS3", "PS4", "PS5", "Vita"].includes(p)) {

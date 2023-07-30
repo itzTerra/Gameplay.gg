@@ -18,19 +18,19 @@
             </div>
             <div class="relative" :class="{ 'rounded-t-lg': !includeGame }"
                 :style="{ width: width + 'px', height: height + 'px' }">
-                <Transition name="fade">
+                <Transition name="longFade">
                     <nuxt-img v-show="currSrc == 0" preset="clip" :src="`${rootUrl}/0.jpg`" class="rounded-t-lg absolute object-cover w-[320px] h-[180px]"
                         :class="!includeGame ? 'rounded-t-lg' : ''" />
                 </Transition>
-                <Transition name="fade">
+                <Transition name="longFade">
                     <nuxt-img v-show="currSrc == 1" preset="clip" :src="`${rootUrl}/sd1.jpg`" class="rounded-t-lg absolute object-cover w-[320px] h-[180px]"
                         :class="!includeGame ? 'rounded-t-lg' : ''" />
                 </Transition>
-                <Transition name="fade">
+                <Transition name="longFade">
                     <nuxt-img v-show="currSrc == 2" preset="clip" :src="`${rootUrl}/sd2.jpg`" class="rounded-t-lg absolute object-cover w-[320px] h-[180px]"
                         :class="!includeGame ? 'rounded-t-lg' : ''" />
                 </Transition>
-                <Transition name="fade">
+                <Transition name="longFade">
                     <nuxt-img v-show="currSrc == 3" preset="clip" :src="`${rootUrl}/sd3.jpg`" class="rounded-t-lg absolute object-cover w-[320px] h-[180px]"
                         :class="!includeGame ? 'rounded-t-lg' : ''" />
                 </Transition>

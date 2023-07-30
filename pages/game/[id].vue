@@ -8,7 +8,7 @@
                         &nbsp; <span class="text-2xl lg:text-4xl font-light">{{ gameInfo.release_date }}</span></h1>
                     <div class="flex gap-4 items-center">
                         <p class="text-xl lg:text-2xl font-light">{{ gameInfo.companies?.join(", ") || "Unknown" }}</p>
-                        <div class="divider divider-horizontal bg-base-content px-0 w-0.5 mx-2"></div>
+                        <div v-show="gameInfo.platforms?.length > 0" class="divider divider-horizontal bg-base-content px-0 w-0.5 mx-2"></div>
                         <div class="flex gap-4">
                             <Platform v-for="platform in gameInfo.platforms" :platform="platform" width="1.25rem" height="1.25rem" />
                         </div>

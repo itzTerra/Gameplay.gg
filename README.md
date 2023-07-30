@@ -7,7 +7,8 @@
 
 ## *IN DEVELOPMENT*
 
-### TODO (later)
+### TODO
+- make loading as async and parallel as possible, (e.g. load games on main page clips one by one instead of waiting for all of them and then show them)
 - language tags for commentary/subtitles of clips
 - karma system
 - user management of suggested, approved or deleted clips
@@ -23,4 +24,6 @@
 ### Made with
 - [Nuxt.js](https://nuxt.com/)
 - [TailwindCSS](https://tailwindcss.com/) & [DaisyUI](https://daisyui.com/)
-- [Firebase](https://firebase.google.com/)
+- [Firebase](https://firebase.google.com/) (**Auth** and **Firestore**)
+
+> Deployed on [Vercel](https://vercel.com/)

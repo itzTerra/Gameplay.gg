@@ -105,7 +105,7 @@ const openedClipGame = ref<any>(null)
 
 const selectClip = async (clip: any) => {
     openedClip.value = clip
-    openedClipGame.value = await getShortGames([clip.game_id])
+    openedClipGame.value = (await getShortGames([clip.game_id]))[0]
 }
 
 const reject = async (clipId: string) => {
