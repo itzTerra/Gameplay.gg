@@ -50,6 +50,7 @@ export function delay(ms: number) {
 }
 
 export interface ClipData {
+  id: string;
   approved: DocumentReference;
   game_id: number;
   featured: boolean;
@@ -157,8 +158,8 @@ export const getLongDateString = (date: Date) => {
   const day = date.getDate();
   const month = date.getMonth();
 
-  const suffixes = ['st', 'nd', 'rd'];
-  let suffix = "th"
+  const suffixes = ["st", "nd", "rd"];
+  let suffix = "th";
   if (day < 11 || day > 13) {
     suffix = suffixes[(day % 10) - 1] || "th";
   }

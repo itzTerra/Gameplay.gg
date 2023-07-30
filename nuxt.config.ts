@@ -4,17 +4,8 @@ export default defineNuxtConfig({
   css: ["~/assets/css/tailwind.css"],
   components: [{ path: "~/components/svg", prefix: "SVG" }, "~/components"],
   routeRules: {
-    // Homepage pre-rendered at build time
-    '/': { prerender: true },
     '/game/**': { ssr: false },
     '/suggestions': {ssr: false},
-
-    // Product page generated on-demand, revalidates in background
-    '/products/**': { swr: true },
-    // Blog post generated on-demand once until next deploy
-    '/blog/**': { isr: true },
-    // Redirects legacy urls
-    '/old-page': { redirect: '/new-page' }
   },
   runtimeConfig: {
     // The private keys which are only available within server-side

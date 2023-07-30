@@ -3,8 +3,8 @@
         <div class="p-4 lg:px-6 xl:px-8 border-b-2 border-base-content border-opacity-10 shadow-lg bg-base-200 dark:bg-base-100 bg-geometry">
             <div class="flex">
                 <div class="flex flex-col gap-2">
-                    <h1 class="tracking-wide lg:mb-2"><span
-                            class="text-3xl lg:text-5xl font-bold dark:text-gray-200">{{ gameInfo.name }}</span>
+                    <h1 class="lg:mb-2"><span
+                            class="text-3xl lg:text-5xl tracking-wide font-bold dark:text-gray-200">{{ gameInfo.name }}</span>
                         &nbsp; <span class="text-2xl lg:text-4xl font-light">{{ gameInfo.release_date }}</span></h1>
                     <div class="flex gap-4 items-center">
                         <p class="text-xl lg:text-2xl font-light">{{ gameInfo.companies?.join(", ") || "Unknown" }}</p>

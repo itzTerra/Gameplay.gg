@@ -120,18 +120,13 @@ export const searchGames = async (query: string) => {
 const fillWithIgdb = async (clipArray, videos, gameId) => {
   const { $csrfFetch } = useNuxtApp();
   const cachedClips = getCachedClips();
-  const dictionary = {};
-
-  for (const clip of clipArray) {
-    dictionary[clip.id] = clip;
-  }
 
   const clipsForFirestore = [];
 
+  const clipIds = clipArray.map((clip) => clip.id);
+
   for (const video of videos) {
-    if (dictionary.hasOwnProperty(video.video_id)) {
-      continue;
-    }
+    if (clipIds.includes(video.video_id)) continue;
 
     const newClip = {
       id: video.video_id,

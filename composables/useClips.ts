@@ -24,26 +24,41 @@ import {
 import { type ClipData } from "utils/utils";
 
 const fillClipsFromFirestore = async (
-  clipArray: ClipData[] | DocumentData,
+  clipArray: ClipData[] | DocumentData[],
   firestoreClips: DocumentReference[],
   cache: globalThis.Ref<Record<string, any>>
 ) => {
-  for (const docRef of firestoreClips) {
-    const clip = (await getDoc(docRef).catch(() => null))?.data();
+  const clipIds = clipArray.map((clip) => clip.id);
+  const asyncTasks = firestoreClips.map(async (docRef) => {
+    if (clipIds.includes(docRef.id)) return;
 
-    if (clip) {
-      clip.id = docRef.id;
-      getDoc(clip.suggested).then((snap) => {
-        clip.suggested = snap.data();
+    try {
+      const snap = await getDoc(docRef);
+      const clip = snap.data();
+
+      if (clip) {
+        clip.id = docRef.id;
+
+        const suggestedSnap = await getDoc(clip.suggested);
+        clip.suggested = suggestedSnap.data();
         clip.suggestedLoaded = true;
-      });
-      clip.approved = (await getDoc(clip.approved).catch(() => null))?.data();
-      clip.date = getTimeDifference(clip.date);
 
-      clipArray.push(clip);
-      cache.value[clip.id] = clip;
+        const approvedSnap = await getDoc(clip.approved).catch(() => null);
+        clip.approved = approvedSnap?.data();
+
+        clip.date = getTimeDifference(clip.date);
+
+        // @ts-ignore
+        clipArray.push(clip);
+        cache.value[clip.id] = clip;
+      }
+    } catch (err) {
+      console.error(err);
     }
-  }
+  });
+
+  // Wait for all async tasks to complete before continuing
+  await Promise.all(asyncTasks);
 };
 
 export const getClipsForGame = async (
