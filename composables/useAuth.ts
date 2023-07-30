@@ -71,9 +71,8 @@ export default async function () {
           response.credentials.user.uid
         );
       } catch (e) {
-        response.username = await createFirestoreUser(
-          response.credentials.user.uid
-        ) || "error";
+        response.username =
+          (await createFirestoreUser(response.credentials.user.uid)) || "error";
       }
 
       // Update user state with firestore data
@@ -91,7 +90,6 @@ export default async function () {
     return response;
   };
 
-  // @ts-nocheck
   const createFirestoreUser = async (uid: string) => {
     try {
       const username = generateUsername();
@@ -101,7 +99,7 @@ export default async function () {
         username: username,
         role: 0,
         likedClips: [],
-        suggestedClips: []
+        suggestedClips: [],
       });
 
       batch.set(doc(firestoreClient, "index/users/username", username), {
@@ -113,7 +111,7 @@ export default async function () {
       return username;
     } catch (e) {
       console.error("Error adding document: ", e);
-      throw new Error(e+"");
+      throw new Error(e + "");
     }
   };
 
@@ -139,6 +137,36 @@ export default async function () {
         response.errorCode = error.code;
       }
     );
+
+    if (!response.credentials || clientUser.value.username) return response;
+
+    const userDocRef = doc(
+      firestoreClient,
+      "users",
+      response.credentials.user.uid
+    );
+
+    let firestoreData = (await getDoc(userDocRef).catch(() => null))?.data();
+
+    if (!firestoreData) {
+      // Create user entry in Firestore
+      try {
+        response.username = await createFirestoreUser(
+          response.credentials.user.uid
+        );
+      } catch (e) {
+        response.username =
+          (await createFirestoreUser(response.credentials.user.uid)) || "error";
+      }
+
+      // Update user state with firestore data
+      firestoreData = (
+        await getDoc(userDocRef).catch(() => null)
+      )?.data();
+      if (firestoreData) {
+        clientUser.value = { ...clientUser.value, ...firestoreData };
+      }
+    }
 
     return response;
   };

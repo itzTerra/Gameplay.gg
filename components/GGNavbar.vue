@@ -1,7 +1,7 @@
 <template>
     <header class="navbar bg-primary text-primary-content md:px-10">
         <!-- NAVBAR HEADER -->
-        <NuxtLink class="btn btn-ghost normal-case small-caps text-xl" to="/">
+        <NuxtLink class="btn btn-ghost" to="/">
             <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 128 128">
                 <path fill="#464C4F"
                     d="M19.64 35.33c.09-.26-.09-4.82 2.45-8.41s5.87-4.12 8.33-4.56c2.98-.53 10.17-1.4 11.31 1.05c1.14 2.45.26 3.77 2.1 4.47s-1.49 4.82-1.49 4.82l-22.7 2.63zm88.25-.09s.72-4.43-1.81-7.42c-3.8-4.51-9.75-5.97-15.38-5.97c-1.81 0-3.98.35-4.68 2.51c-.4 1.25-.68 2.77-1.56 2.94c-.87.18 17.73 5.93 23.43 7.94z" />
@@ -18,7 +18,7 @@
                 <circle cx="104.12" cy="46.4" r="4.6" fill="#F72E26" />
                 <circle cx="95.02" cy="37.01" r="4.6" fill="#FDB700" />
             </svg>
-            <span class="hidden xl:inline">Gameplay.gg</span>
+            <span class="hidden xl:inline normal-case small-caps text-2xl font-extrabold">Gameplay.gg</span>
         </NuxtLink>
         <!-- SEARCH -->
         <div class="flex-grow flex items-center justify-center md:me-5">
