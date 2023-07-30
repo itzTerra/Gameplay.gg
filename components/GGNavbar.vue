@@ -23,7 +23,7 @@
         <!-- SEARCH -->
         <div class="flex-grow flex items-center justify-center md:me-5">
             <Search @onGameSelect="navigateOnSearch" class="flex-grow flex min-w-0 max-w-3xl"
-                inputClass="input h-10 input-lg input-bordered text-black dark:text-gray-200 dark:bg-base-300 border-opacity-10 flex-grow w-40 tracking-wider"
+                inputClass="input h-10 input-lg input-bordered text-black dark:text-gray-200 dark:bg-neutral border-opacity-10 flex-grow w-40 tracking-wider"
                 buttonClass="btn btn-secondary btn-sm"
                 resultsClass="w-72 md:w-96 lg:w-[500px]" />
         </div>
@@ -53,7 +53,7 @@
             <div class="dropdown dropdown-end ms-4" :class="{ 'xl:hidden': !user, 'dropdown-top': isHandheldDevice }">
                 <label tabindex="0" class="btn btn-square btn-ghost" @mousedown="blurIfFocused">
                     <div class="avatar pointer-events-none">
-                        <div class="w-9 rounded-lg ring ring-primary bg-slate-700 text-white">
+                        <div class="w-9 rounded-lg bg-slate-700 text-gray-200">
                             <SVGUser class="w-full h-full" />
                         </div>
                     </div>

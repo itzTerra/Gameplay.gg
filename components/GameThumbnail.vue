@@ -1,11 +1,11 @@
 <template>
-    <div class="hover:bg-gray-950 hover:bg-opacity-20 hover:shadow transition-colors rounded-lg show-bar" :class="`w-[${width}px]`">
+    <div class="hover:bg-gray-950 hover:bg-opacity-30 hover:shadow transition-colors rounded-lg show-bar" :class="`w-[${width}px]`">
         <NuxtLink :to="'/game/' + game.id">
             <div class="relative rounded-t-lg" :class="`w-[${width}px] h-[${height}px]`">
                 <nuxt-img v-if="game.artworks" :src="imgUrl" class="rounded-lg" />
                 <span v-else class="loading loading-spinner loading-lg"></span>
                 <div class="absolute bottom-0 left-0">
-                    <div class="flex gap-4 p-2 bg-black bg-opacity-50 rounded-tr-lg rounded-bl-lg">
+                    <div class="flex gap-4 p-2 bg-black bg-opacity-50 text-gray-400 rounded-tr-lg rounded-bl-lg">
                         <Platform v-for="platform in game.platforms" :platform="platform" width="1rem" height="1rem" />
                     </div>
                 </div>

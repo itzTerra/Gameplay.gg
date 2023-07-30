@@ -2,7 +2,11 @@ export default defineEventHandler(async (event) => {
   const body = await readBody(event);
 
   try {
-    if (!body.limit || !body.minRating || !body.fields) throw new Error("bad arguments")
+    if (!body.limit || !body.minRating || !body.fields){
+        event.node.res.statusCode = 400;
+        event.node.res.statusMessage = "bad body"
+        return null;
+    }
 
     const res = await $fetch<Record<string, any>[]>(
       "https://api.igdb.com/v4/games",

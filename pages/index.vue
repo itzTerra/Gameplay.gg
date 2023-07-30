@@ -8,12 +8,12 @@
             <Transition>
                 <button v-show="clipPages > 1" @click="currPageC = currPageC != 1 ? currPageC - 1 : clipPages"
                     class="hidden xl:flex btn btn-accent items-center btn-circle absolute -left-14 top-1/2"><span
-                        class="text-5xl leading-none -mt-3">&lsaquo;</span></button>
+                        class="text-5xl leading-none -mt-2">&lsaquo;</span></button>
             </Transition>
             <Transition>
                 <button v-show="clipPages > 1" @click="currPageC = currPageC != clipPages ? currPageC + 1 : 1"
                     class="hidden xl:flex btn btn-accent items-center btn-circle absolute -right-14 top-1/2"><span
-                        class="text-5xl leading-none -mt-3">&rsaquo;</span></button>
+                        class="text-5xl leading-none -mt-2">&rsaquo;</span></button>
             </Transition>
         </div>
         <div class="self-center flex flex-col items-center gap-4 mt-6">
@@ -31,12 +31,12 @@
             <Transition>
                 <button v-show="gamePages > 1" @click="currPageG = currPageG != 1 ? currPageG - 1 : gamePages"
                     class="hidden xl:flex btn btn-accent items-center btn-circle absolute -left-14 top-1/2"><span
-                        class="text-5xl leading-none -mt-3">&lsaquo;</span></button>
+                        class="text-5xl leading-none -mt-2">&lsaquo;</span></button>
             </Transition>
             <Transition>
                 <button v-show="gamePages > 1" @click="currPageG = currPageG != gamePages ? currPageG + 1 : 1"
                     class="hidden xl:flex btn btn-accent items-center btn-circle absolute -right-14 top-1/2"><span
-                        class="text-5xl leading-none -mt-3">&rsaquo;</span></button>
+                        class="text-5xl leading-none -mt-2">&rsaquo;</span></button>
             </Transition>
         </div>
         <div class="self-center flex flex-col items-center gap-4 mt-6">

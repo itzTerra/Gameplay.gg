@@ -33,9 +33,9 @@ const fillClipsFromFirestore = async (
 
     if (clip) {
       clip.id = docRef.id;
-      getDoc(clip.suggested).then(snap => {
-        clip.suggested = snap.data()
-        clip.suggestedLoaded = true
+      getDoc(clip.suggested).then((snap) => {
+        clip.suggested = snap.data();
+        clip.suggestedLoaded = true;
       });
       clip.approved = (await getDoc(clip.approved).catch(() => null))?.data();
       clip.date = getTimeDifference(clip.date);
@@ -58,8 +58,8 @@ export const getClipsForGame = async (
   });
 
   const cachedClips = getCachedClips();
-  let cached = false;
-  if (cachedClips.value) {
+  let cached = true;
+  if (cachedClips.value.length > 0) {
     for (const clip of Object.values(cachedClips.value)) {
       if (clip.game_id != gameId) {
         cached = false;
@@ -72,10 +72,11 @@ export const getClipsForGame = async (
         clipsRes.value.approved.push(clip);
       }
     }
-
-    cached = Object.values(cachedClips.value).length > 0;
-    console.log("Clips are cached:", cached);
+  } else {
+    cached = false;
   }
+
+  console.log("Clips are cached:", cached);
 
   if (!cached) {
     const firestore = useNuxtApp().$firestore as Firestore;

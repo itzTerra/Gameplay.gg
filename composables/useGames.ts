@@ -1,12 +1,5 @@
 // @ts-nocheck
-import {
-  getDoc,
-  doc,
-  setDoc,
-  updateDoc,
-  arrayUnion,
-  Timestamp,
-} from "firebase/firestore";
+import { Timestamp } from "firebase/firestore";
 
 const sortedCompanies = (companies) => {
   if (!companies) return;
@@ -133,71 +126,77 @@ const fillWithIgdb = async (clipArray, videos, gameId) => {
     dictionary[clip.id] = clip;
   }
 
+  const clipsForFirestore = [];
+
   for (const video of videos) {
-    if (!dictionary.hasOwnProperty(video.video_id)) {
-      const newClip = {
-        game_id: gameId,
-        title: video.name,
-        suggested: { username: "IGDB", role: 2 },
-        approved: { username: "system", role: 3 },
-        featured: true,
-        likes: 0,
-        date: Timestamp.fromDate(new Date(2023, 6, 20)),
-      };
-
-      try {
-        await $csrfFetch("/api/firestore/addIgdbClips", {
-          method: "POST",
-          body: {
-            videoId: video.video_id,
-            gameId: gameId.toString(),
-            clip: newClip,
-          },
-        });
-      } catch (err) {
-        console.error(err);
-      }
-
-      newClip.id = video.video_id;
-      newClip.date = getTimeDifference(newClip.date);
-
-      cachedClips.value[video.video_id] = newClip;
-      clipArray.push(newClip);
+    if (dictionary.hasOwnProperty(video.video_id)) {
+      continue;
     }
+
+    const newClip = {
+      id: video.video_id,
+      game_id: gameId,
+      title: video.name,
+      suggested: { username: "IGDB", role: 2 },
+      approved: { username: "system", role: 3 },
+      featured: true,
+      likes: 0,
+      date: Timestamp.fromDate(new Date(2023, 6, 20)),
+    };
+
+    clipsForFirestore.push(newClip);
+
+    newClip.date = getTimeDifference(newClip.date);
+    newClip.suggestedLoaded = true;
+
+    cachedClips.value[video.video_id] = newClip;
+    clipArray.push(newClip);
+  }
+
+  if (clipsForFirestore.length > 0){
+    $csrfFetch("/api/firestore/addIgdbClips", {
+        method: "POST",
+        body: {
+          gameId: gameId.toString(),
+          clips: clipsForFirestore,
+        },
+      }).catch((err) => {
+        console.error(err);
+      });
   }
 };
 
 export const getFullGame = async (id: number | string) => {
   const $csrfFetch = useNuxtApp().$csrfFetch;
 
-  const game = (await $csrfFetch("/api/igdb/games", {
-    method: "POST",
-    body: {
-      ids: [id],
-      fields: [
-        "name",
-        "summary",
-        "first_release_date",
-        "involved_companies.developer",
-        "involved_companies.company.name",
-        "genres.name",
-        "platforms.abbreviation",
-        "total_rating",
-        "game_engines.name",
-        "videos.name",
-        "videos.video_id",
-        "websites.url",
-        "websites.category",
-      ],
-    },
-  }))[0];
+  const game = (
+    await $csrfFetch("/api/igdb/games", {
+      method: "POST",
+      body: {
+        ids: [id],
+        fields: [
+          "name",
+          "summary",
+          "first_release_date",
+          "involved_companies.developer",
+          "involved_companies.company.name",
+          "genres.name",
+          "platforms.abbreviation",
+          "total_rating",
+          "game_engines.name",
+          "videos.name",
+          "videos.video_id",
+          "websites.url",
+          "websites.category",
+        ],
+      },
+    })
+  )[0];
   // console.log(getCachedClips().value)
 
   const clipsRes = await getClipsForGame(game.id, async (featured) => {
     if (game.videos) {
-      fillWithIgdb(featured, game.videos, game.id).then(() => {
-        clipsRes.value.featuredLoaded = true;
-      });
+      fillWithIgdb(featured, game.videos, game.id);
     }
   });
 
@@ -288,7 +287,9 @@ export const useNewGames = async (gamesPerPage: number, minRating: number) => {
       for (let game of res) {
         game = {
           ...game,
-          release_date: getLongDateString(new Date(game.first_release_date * 1000)),
+          release_date: getLongDateString(
+            new Date(game.first_release_date * 1000)
+          ),
           genres: game.genres.map((genre) => genre.name),
           platforms: simplePlatforms(game.platforms),
         };
