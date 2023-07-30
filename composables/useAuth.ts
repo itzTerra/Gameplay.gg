@@ -138,7 +138,7 @@ export default async function () {
       }
     );
 
-    if (!response.credentials || clientUser.value.username) return response;
+    if (!response.credentials) return response;
 
     const userDocRef = doc(
       firestoreClient,
