@@ -1,6 +1,6 @@
 <template>
     <div @mouseenter="hovering = true" @mousemove="moveOverVideo" @mouseleave="onMouseLeave"
-        class="bg-base-200 transition-colors hover:bg-base-300 text-base-content rounded-lg shadow-sm hover:shadow relative" :class="`w-[${width}px]`">
+        class="bg-base-200 transition-colors hover:bg-base-300 text-base-content rounded-lg shadow-sm hover:shadow" :class="`w-[${width}px]`">
         <NuxtLink class="cursor-pointer" :to="{ path: $route.path, query: { id: clip.id, title: clip.title } }">
             <div v-if="includeGame" class="flex rounded-t-lg">
                 <div class="w-[40px] h-[40px] flex-shrink-0 border border-gray-600 rounded-tl-lg">
@@ -18,8 +18,8 @@
                 :style="{ width: width + 'px', height: height + 'px' }">
                 <Transition name="fade">
                     <nuxt-picture v-show="currSrc == 0" format="avif,webp" :src="`${rootUrl}/0.jpg`" :width="width + 'px'"
-                        :height="height + 'px'" loading="lazy" class="rounded-t-lg absolute"
-                        :imgAttrs="{ class: !includeGame ? 'rounded-t-lg' : '' }" />
+                        :height="height + 'px'" loading="lazy" class="rounded-t-lg absolute "
+                        :imgAttrs="{ class: !includeGame ? 'rounded-t-lg object-cover' : 'object-cover' }" />
                 </Transition>
                 <Transition name="fade">
                     <nuxt-picture v-show="currSrc == 1" format="avif,webp" :src="`${rootUrl}/sd1.jpg`" :width="width + 'px'"
