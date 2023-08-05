@@ -1,5 +1,5 @@
 <template>
-    <dialog ref="dialog"
+    <dialog v-if="clip" ref="dialog"
         class="fixed top-0 left-0 w-full h-full inset-0 m-0 p-0 max-h-none max-w-none bg-black bg-opacity-70 z-[999] flex justify-center items-center overscroll-contain overflow-hidden">
         <div class="p-2 md:p-4 bg-base-200 relative shadow-xl rounded-box">
             <div class="w-[320px] md:w-[480px] lg:w-[640px] xl:w-[854px]">

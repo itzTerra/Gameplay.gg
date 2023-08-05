@@ -38,18 +38,17 @@
                         <div class="flex flex-col">
                             <h2 class="text-xl md:text-2xl lg:text-3xl font-light mt-2">
                                 {{ openedClip.title }}</h2>
-                            <p>by
-                                <Username :user-data="openedClip.suggested" />
+                            <Username :user-data="openedClip.suggested" />
+                            <p class="mt-2">
+                                <SVGClock class="inline w-5 h-5" /> {{ openedClip.date }}
                             </p>
-                            <p class="mt-2"><SVGClock class="inline w-5 h-5" /> {{ openedClip.date }}</p>
                         </div>
                         <div v-if="openedClipGame" class="flex">
                             <div class="w-[72px] h-[72px] flex-shrink-0">
                                 <nuxt-img v-if="openedClipGame.cover" :src="openedClipGame?.cover" alt="" />
                                 <MissingImg v-else />
                             </div>
-                            <div
-                                class="flex flex-col items-start bg-base-200 py-2 px-4 justify-between">
+                            <div class="flex flex-col items-start bg-base-200 py-2 px-4 justify-between">
                                 <p class="text-lg text-black dark:text-white font-light line-clamp-2 leading-snug"
                                     :title="openedClipGame?.name || 'None'">
                                     {{ openedClipGame?.name || 'None' }}</p>
@@ -82,12 +81,13 @@
                 </div>
             </div>
         </div>
-        <Alert :alertType="msgError ? 'error' : 'success'" :change="change" :interval="3000">{{ msgError || msgSuccess}}</Alert>
+        <Alert :alertType="msgError ? 'error' : 'success'" :change="change" :interval="3000">{{ msgError || msgSuccess }}
+        </Alert>
     </div>
 </template>
 
 <script lang="ts" setup>
-useHead({title: "Manage Suggestions"})
+useHead({ title: "Manage Suggestions" })
 definePageMeta({
     middleware: ["auth", "save-url"]
 })
@@ -133,7 +133,7 @@ const approve = async (clipId: string) => {
     try {
         await approveClip(clipId, user.value.uid)
         suggestedClips.value = suggestedClips.value.filter((item: any) => item.id != clipId)
-        
+
         openedClip.value = null
 
         msgSuccess.value = "Successfully approved"

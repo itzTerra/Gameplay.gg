@@ -8,11 +8,13 @@
 ## *IN DEVELOPMENT*
 
 ### TODO
+- email verification
 - support YT and Twitch clips
 - make loading as async and parallel as possible, (e.g. load games on main page clips one by one instead of waiting for all of them and then show them)
 - language tags for commentary/subtitles of clips
 - karma system
 - user management of suggested, approved or deleted clips
+- admin suggestions management should display all clips log (with approved and rejected)
 - like animation
 - length (and views?) on videos
 - better username blacklist
