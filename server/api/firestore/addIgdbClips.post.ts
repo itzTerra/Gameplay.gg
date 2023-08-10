@@ -3,6 +3,7 @@ import {
   Timestamp,
   type DocumentReference,
 } from "firebase-admin/firestore";
+import { type ApprovedClip } from "utils/utils";
 
 export default defineEventHandler(async (event) => {
   const { req, res } = event.node;
@@ -16,17 +17,15 @@ export default defineEventHandler(async (event) => {
 
   const batch = firestore.batch();
   const docRefs: DocumentReference[] = [];
-  for (const clip of body.clips) {
-    const igdbUserRef = firestore.doc("users/IGDB");
-    const systemUserRef = firestore.doc("users/system");
-    clip.suggested = igdbUserRef;
-    clip.approved = systemUserRef;
-    clip.date = Timestamp.fromDate(new Date(2023, 6, 20));
+  for (const [id, data] of Object.entries(body.clips)) {
+    const clipData: ApprovedClip = data as ApprovedClip;
+    clipData.suggested = firestore.doc("users/IGDB");
+    clipData.date_suggested = Timestamp.fromDate(new Date(2023, 6, 20));
+    clipData.approved = firestore.doc("users/system");
+    clipData.date_approved = Timestamp.fromDate(new Date(2023, 6, 20));
 
-    const docRef = firestore.doc(`clips/${clip.id}`);
-    delete clip.id;
-
-    batch.set(docRef, clip);
+    const docRef = firestore.doc(`clips/${id}`);
+    batch.set(docRef, data);
     docRefs.push(docRef);
   }
 

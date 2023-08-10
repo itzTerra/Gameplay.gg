@@ -1,12 +1,85 @@
 // @ts-nocheck
-
-import { type Timestamp } from "firebase/firestore";
+import { type DocumentReference, type Timestamp } from "firebase/firestore";
+import {
+  type Timestamp as AdminTimestamp,
+  type DocumentReference as AdminDocumentReference,
+} from "firebase-admin/firestore";
 import {
   uniqueNamesGenerator,
   NumberDictionary,
   adjectives,
   animals,
 } from "unique-names-generator";
+
+// ############################### INTERFACES, ENUMS, CONSTANTS ##############################
+
+export interface SuggestedClip {
+  title: string;
+  game_id: string | number;
+  description?: string;
+  start_time?: number;
+  end_time?: number;
+  featured: boolean;
+  mod_notes?: string;
+  suggested: DocumentReference | AdminDocumentReference;
+  date_suggested: Timestamp | AdminTimestamp;
+}
+
+export interface ApprovedClip {
+  title: string;
+  game_id: string | number;
+  description?: string;
+  start_time?: number;
+  end_time?: number;
+  featured: boolean;
+  mod_notes?: string;
+  suggested: DocumentReference | AdminDocumentReference;
+  date_suggested: Timestamp | AdminTimestamp;
+
+  approved: DocumentReference | AdminDocumentReference;
+  date_approved: Timestamp | AdminTimestamp;
+  likes: number;
+}
+
+export interface RejectedClip {
+  title: string;
+  game_id: string | number;
+  description?: string;
+  start_time?: number;
+  end_time?: number | null;
+  featured: boolean;
+  mod_notes?: string;
+  suggested: DocumentReference | AdminDocumentReference;
+  date_suggested: Timestamp | AdminTimestamp;
+
+  rejected: DocumentReference | AdminDocumentReference;
+  date_rejected: Timestamp | AdminTimestamp;
+  reason: number;
+}
+
+export enum UserRole {
+  USER = 0,
+  MODERATOR = 1,
+  ADMIN = 2,
+  OWNER = 3,
+}
+
+const MONTH_NAMES = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
+
+// ################################### UTIL FUNCTIONS #############################
 
 export const generateUsername = () => {
   const numberDictionary = NumberDictionary.generate({ min: 100, max: 999 });
@@ -38,25 +111,8 @@ export const blurIfFocused = (el: Event | EventTarget | null) => {
   }
 };
 
-export enum UserRole {
-  USER = 0,
-  MODERATOR = 1,
-  ADMIN = 2,
-  OWNER = 3,
-}
-
 export function delay(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-export interface ClipData {
-  id: string;
-  approved: DocumentReference;
-  game_id: number;
-  featured: boolean;
-  likes: number;
-  suggested: DocumentReference;
-  title: string;
 }
 
 export const timeSecondsOrNull = (timeString) => {
@@ -111,7 +167,7 @@ export const secToTimeString = (seconds: number) => {
   }
 };
 
-export const getTimeDifference = (timestamp: Timestamp) => {
+export const getTimeDifference = (timestamp: Timestamp | AdminTimestamp) => {
   const now = Date.now();
   const timeDiffInSeconds = Math.floor((now - timestamp.toMillis()) / 1000);
 
@@ -139,21 +195,6 @@ export const getTimeDifference = (timestamp: Timestamp) => {
   }
 };
 
-const monthNames = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
-];
-
 export const getLongDateString = (date: Date) => {
   const day = date.getDate();
   const month = date.getMonth();
@@ -164,5 +205,5 @@ export const getLongDateString = (date: Date) => {
     suffix = suffixes[(day % 10) - 1] || "th";
   }
 
-  return `${monthNames[month]} ${day}${suffix}`;
+  return `${MONTH_NAMES[month]} ${day}${suffix}`;
 };

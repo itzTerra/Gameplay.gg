@@ -1,7 +1,7 @@
-// @ts-nocheck
 import { Timestamp } from "firebase/firestore";
+import { ApprovedClip } from "utils/utils";
 
-const sortedCompanies = (companies) => {
+const sortedCompanies = (companies: Record<string, any>[]) => {
   if (!companies) return;
   companies = companies.filter((comp) => comp.developer);
   companies.sort((a, b) => b.developer - a.developer);
@@ -28,23 +28,37 @@ const websiteCatToName = {
   18: "Discord",
 };
 
-const convertWebsites = (websites) => {
-  const res = {
+interface Websites {
+    url: string,
+    category: number
+}
+
+const convertWebsites = (websites: Websites[]) => {
+  const res:{
+    social: any[];
+    stores: any[];
+    other: any[];
+  } = {
     social: [],
     stores: [],
     other: [],
   };
 
-  websites.forEach((w) => {
-    const item = { name: websiteCatToName[w.category], url: w.url };
-    if (w.category <= 3) {
+  for (const website of websites){
+    const item = { 
+        // @ts-ignore
+        name: websiteCatToName[website.category], 
+        url: website.url 
+    };
+
+    if (website.category <= 3) {
       res.other.push(item);
-    } else if (w.category <= 9 || w.category == 14 || w.category == 18) {
+    } else if (website.category <= 9 || website.category == 14 || website.category == 18) {
       res.social.push(item);
     } else {
       res.stores.push(item);
     }
-  });
+  };
 
   return res;
 };
@@ -70,12 +84,12 @@ const recognizedPlatforms = [
   "browser",
 ];
 
-const simplePlatforms = (platforms) => {
-  const res = [];
-  if (!platforms) return res
-  
-  platforms.forEach((p) => {
-    p = p.abbreviation;
+const simplePlatforms = (platforms: {abbreviation: string}[]) => {
+  const res: any[] = [];
+  if (!platforms) return res;
+
+  for (const platform of platforms){
+    const p = platform.abbreviation;
     if (["PS3", "PS4", "PS5", "Vita"].includes(p)) {
       if (!res.includes("PlayStation")) {
         res.push("PlayStation");
@@ -91,13 +105,15 @@ const simplePlatforms = (platforms) => {
     } else if (recognizedPlatforms.includes(p)) {
       res.push(p);
     }
-  });
+  };
+
   return res;
 };
 
 export const searchGames = async (query: string) => {
   const $csrfFetch = useNuxtApp().$csrfFetch;
 
+  // @ts-ignore
   const res = await $csrfFetch("/api/igdb/search", {
     method: "POST",
     body: {
@@ -105,7 +121,7 @@ export const searchGames = async (query: string) => {
     },
   });
 
-  return res.map((game) => {
+  return res.map((game: Record<string, any>) => {
     return {
       ...game,
       release_date: game.first_release_date
@@ -119,54 +135,62 @@ export const searchGames = async (query: string) => {
   });
 };
 
-const fillWithIgdb = async (clipArray, videos, gameId) => {
+const fillWithIgdb = async (
+  clipArray: any[],
+  videos: Record<string, any>[],
+  gameId: number
+) => {
   const { $csrfFetch } = useNuxtApp();
   const cachedClips = getCachedClips();
 
-  const clipsForFirestore = [];
+  const clipsForFirestore: Record<string, any> = {};
 
   const clipIds = clipArray.map((clip) => clip.id);
 
   for (const video of videos) {
     if (clipIds.includes(video.video_id)) continue;
 
-    const newClip = {
-      id: video.video_id,
-      game_id: gameId,
+    const firestoreClip = {
       title: video.name,
-      suggested: { username: "IGDB", role: 2 },
-      approved: { username: "system", role: 3 },
+      game_id: gameId,
       featured: true,
+      suggested: { username: "IGDB", role: 2 },
+      date_suggested: Timestamp.fromDate(new Date(2023, 6, 20)),
+      approved: { username: "system", role: 3 },
+      date_approved: Timestamp.fromDate(new Date(2023, 6, 20)),
       likes: 0,
-      date: Timestamp.fromDate(new Date(2023, 6, 20)),
     };
+    clipsForFirestore[video.video_id] = firestoreClip;
 
-    clipsForFirestore.push(newClip);
-
-    newClip.date = getTimeDifference(newClip.date);
-    newClip.suggestedLoaded = true;
-
-    cachedClips.value[video.video_id] = newClip;
-    clipArray.push(newClip);
+    const returnClip = {
+        ...firestoreClip,
+        date_suggested: getTimeDifference(firestoreClip.date_suggested),
+        suggestedLoaded: true
+    }
+    cachedClips.value[video.video_id] = returnClip;
+    clipArray.push(returnClip);
   }
 
-  if (clipsForFirestore.length > 0){
+  if (clipsForFirestore) {
+    // @ts-ignore
     $csrfFetch("/api/firestore/addIgdbClips", {
-        method: "POST",
-        body: {
-          gameId: gameId.toString(),
-          clips: clipsForFirestore,
-        },
-      }).catch((err) => {
-        console.error(err);
-      });
+      method: "POST",
+      body: {
+        gameId: gameId.toString(),
+        clips: clipsForFirestore,
+      },
+    }).catch((err: any) => {
+      console.error(err);
+    });
   }
 };
 
 export const getFullGame = async (id: number | string) => {
   const $csrfFetch = useNuxtApp().$csrfFetch;
 
-  const game = (
+  const game = 
+  (
+    // @ts-ignore
     await $csrfFetch("/api/igdb/games", {
       method: "POST",
       body: {
@@ -191,7 +215,7 @@ export const getFullGame = async (id: number | string) => {
   )[0];
   // console.log(getCachedClips().value)
 
-  const clipsRes = await getClipsForGame(game.id, async (featured) => {
+  const clipsRes = await useGameClips(game.id, async (featured: any[]) => {
     if (game.videos) {
       fillWithIgdb(featured, game.videos, game.id);
     }
@@ -205,19 +229,20 @@ export const getFullGame = async (id: number | string) => {
     companies: sortedCompanies(game.involved_companies)?.map(
       (inv_comp) => inv_comp.company.name
     ),
-    genres: game.genres.map((genre) => genre.name),
+    genres: game.genres.map((genre: Record<string, any>) => genre.name),
     platforms: simplePlatforms(game.platforms),
     websites: convertWebsites(game.websites),
-    videos: game.videos?.map((video) => {
+    videos: game.videos?.map((video: Record<string, any>) => {
       return { id: video.video_id, title: video.name };
     }),
     clips: clipsRes,
   };
 };
 
-export const getShortGames = async (ids) => {
+export const getShortGames = async (ids: number[]) => {
   const $csrfFetch = useNuxtApp().$csrfFetch;
 
+  // @ts-ignore
   const games = await $csrfFetch("/api/igdb/games", {
     method: "POST",
     body: {
@@ -234,7 +259,7 @@ export const getShortGames = async (ids) => {
 
   if (!games) return null;
 
-  return games.map((game) => {
+  return games.map((game: Record<string, any>) => {
     return {
       ...game,
       release_date: game.first_release_date
@@ -258,23 +283,26 @@ export const useNewGames = async (gamesPerPage: number, minRating: number) => {
 
   const queryGames = async (count: number) => {
     try {
+        const body = {
+            minRating: minRating,
+            fields: [
+              "name",
+              "first_release_date",
+              "artworks.image_id",
+              "artworks.width",
+              "artworks.height",
+              "total_rating",
+              "platforms.abbreviation",
+              "genres.name",
+            ],
+            limit: count,
+            offset: offset.value,
+          }
+        console.log(body)
+      // @ts-ignore
       const res = await $csrfFetch("/api/igdb/newgames", {
         method: "POST",
-        body: {
-          minRating: minRating,
-          fields: [
-            "name",
-            "first_release_date",
-            "artworks.image_id",
-            "artworks.width",
-            "artworks.height",
-            "total_rating",
-            "platforms.abbreviation",
-            "genres.name",
-          ],
-          limit: count,
-          offset: offset.value,
-        },
+        body: body,
       });
 
       if (res.length < count) {
@@ -287,7 +315,7 @@ export const useNewGames = async (gamesPerPage: number, minRating: number) => {
           release_date: getLongDateString(
             new Date(game.first_release_date * 1000)
           ),
-          genres: game.genres.map((genre) => genre.name),
+          genres: game.genres.map((genre: Record<string, any>) => genre.name),
           platforms: simplePlatforms(game.platforms),
         };
 
