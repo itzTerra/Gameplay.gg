@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { type DocumentReference, type Timestamp } from "firebase/firestore";
 import {
   type Timestamp as AdminTimestamp,
@@ -13,48 +12,13 @@ import {
 
 // ############################### INTERFACES, ENUMS, CONSTANTS ##############################
 
-export interface SuggestedClip {
-  title: string;
-  game_id: string | number;
-  description?: string;
-  start_time?: number;
-  end_time?: number;
-  featured: boolean;
-  mod_notes?: string;
-  suggested: DocumentReference | AdminDocumentReference;
-  date_suggested: Timestamp | AdminTimestamp;
-}
-
-export interface ApprovedClip {
-  title: string;
-  game_id: string | number;
-  description?: string;
-  start_time?: number;
-  end_time?: number;
-  featured: boolean;
-  mod_notes?: string;
-  suggested: DocumentReference | AdminDocumentReference;
-  date_suggested: Timestamp | AdminTimestamp;
-
-  approved: DocumentReference | AdminDocumentReference;
-  date_approved: Timestamp | AdminTimestamp;
-  likes: number;
-}
-
-export interface RejectedClip {
-  title: string;
-  game_id: string | number;
-  description?: string;
-  start_time?: number;
-  end_time?: number | null;
-  featured: boolean;
-  mod_notes?: string;
-  suggested: DocumentReference | AdminDocumentReference;
-  date_suggested: Timestamp | AdminTimestamp;
-
-  rejected: DocumentReference | AdminDocumentReference;
-  date_rejected: Timestamp | AdminTimestamp;
-  reason: number;
+export interface UserData {
+  username: string;
+  role: number;
+  likedClips: string[];
+  suggestedClips: string[];
+  approvedClips: string[];
+  rejectedClips: string[];
 }
 
 export enum UserRole {
@@ -104,8 +68,12 @@ export const blurIfFocused = (el: Event | EventTarget | null) => {
   if (el instanceof Event) {
     el = el.target;
   }
-  if (el != null && (el.matches(":focus") || el === document.activeElement)) {
+
+  if (!(el instanceof Element)) return;
+
+  if (el.matches(":focus") || el === document.activeElement) {
     setTimeout(() => {
+      // @ts-ignore
       el.blur();
     }, 0);
   }
@@ -115,10 +83,10 @@ export function delay(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-export const timeSecondsOrNull = (timeString) => {
+export const timeSecondsOrNull = (timeString: string) => {
   if (timeString === "") return null;
 
-  if (!isNaN(timeString)) {
+  if (!isNaN(Number(timeString))) {
     // If the timeString is already a number, return it directly
     return Number(timeString);
   } else {

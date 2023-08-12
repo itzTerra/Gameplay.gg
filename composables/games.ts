@@ -1,115 +1,89 @@
 import { Timestamp } from "firebase/firestore";
-import { ApprovedClip } from "utils/utils";
+// import {
+//   convertWebsites,
+//   simplePlatforms,
+//   sortedCompanies,
+// } from "utils/gameUtils";
 
-const sortedCompanies = (companies: Record<string, any>[]) => {
-  if (!companies) return;
-  companies = companies.filter((comp) => comp.developer);
-  companies.sort((a, b) => b.developer - a.developer);
-  return companies;
-};
+// ####################################### COMPOSABLES ######################################
 
-const websiteCatToName = {
-  1: "Official",
-  2: "Wikia",
-  3: "Wikipedia",
-  4: "Facebook",
-  5: "Twitter",
-  6: "Twitch",
-  8: "Instagram",
-  9: "Youtube",
-  10: "iPhone",
-  11: "iPad",
-  12: "Android",
-  13: "Steam",
-  14: "Reddit",
-  15: "Itch",
-  16: "Epic Games",
-  17: "GOG",
-  18: "Discord",
-};
+/**
+ * Used in index view to show IGDB games (with respectable rating) ordered by release date (but not TBD or upcoming).
+ * @param gamesPerPage number of games to load, default 8
+ * @param minRating minimum game's rating, default 70
+ * @returns
+ * - reactive array of all games
+ * - function to load another page of games
+ * - reactive hasMore boolean to check if there are more pages to load
+ */
+export const useNewGames = async (
+  gamesPerPage: number = 8,
+  minRating: number = 70
+) => {
+  const $csrfFetch = useNuxtApp().$csrfFetch;
 
-interface Websites {
-    url: string,
-    category: number
-}
+  const newGames = ref<any>([]);
+  const hasMore = ref(true);
 
-const convertWebsites = (websites: Websites[]) => {
-  const res:{
-    social: any[];
-    stores: any[];
-    other: any[];
-  } = {
-    social: [],
-    stores: [],
-    other: [],
-  };
+  const offset = ref(0);
 
-  for (const website of websites){
-    const item = { 
-        // @ts-ignore
-        name: websiteCatToName[website.category], 
-        url: website.url 
-    };
+  const queryGames = async (count: number) => {
+    try {
+      // @ts-ignore
+      const games = await $csrfFetch("/api/igdb/newgames", {
+        method: "POST",
+        body: {
+          minRating: minRating,
+          fields: [
+            "name",
+            "first_release_date",
+            "artworks.image_id",
+            "artworks.width",
+            "artworks.height",
+            "total_rating",
+            "platforms.abbreviation",
+            "genres.name",
+          ],
+          limit: count,
+          offset: offset.value,
+        },
+      });
 
-    if (website.category <= 3) {
-      res.other.push(item);
-    } else if (website.category <= 9 || website.category == 14 || website.category == 18) {
-      res.social.push(item);
-    } else {
-      res.stores.push(item);
+      if (games.length < count) {
+        hasMore.value = false;
+      }
+
+      for (let game of games) {
+        game = {
+          ...game,
+          release_date: getLongDateString(
+            new Date(game.first_release_date * 1000)
+          ),
+          genres: game.genres.map((genre: Record<string, any>) => genre.name),
+          platforms: simplePlatforms(game.platforms),
+        };
+
+        newGames.value.push(game);
+      }
+
+      offset.value += count;
+    } catch (err) {
+      console.error(err);
     }
   };
 
-  return res;
+  queryGames(gamesPerPage);
+
+  return { newGames, queryGames, hasMore };
 };
 
-const recognizedPlatforms = [
-  "PS3",
-  "PS4",
-  "PS5",
-  "Vita",
-  "XONE",
-  "Series X",
-  "X360",
-  "Wii",
-  "WiiU",
-  "PC",
-  "Switch",
-  "Linux",
-  "Mac",
-  "iOS",
-  "Android",
-  "N64",
-  "3DS",
-  "browser",
-];
+// ################################## FUNCTIONS USED IN VIEWS ##################################
 
-const simplePlatforms = (platforms: {abbreviation: string}[]) => {
-  const res: any[] = [];
-  if (!platforms) return res;
-
-  for (const platform of platforms){
-    const p = platform.abbreviation;
-    if (["PS3", "PS4", "PS5", "Vita"].includes(p)) {
-      if (!res.includes("PlayStation")) {
-        res.push("PlayStation");
-      }
-    } else if (["XONE", "Series X", "X360"].includes(p)) {
-      if (!res.includes("Xbox")) {
-        res.push("Xbox");
-      }
-    } else if (["Wii", "WiiU"].includes(p)) {
-      if (!res.includes("Wii")) {
-        res.push("Wii");
-      }
-    } else if (recognizedPlatforms.includes(p)) {
-      res.push(p);
-    }
-  };
-
-  return res;
-};
-
+/**
+ * Used for Search component (navbar game search and in suggest)
+ * @param query string to pass to IGDB search API
+ * @returns game info
+ */
 export const searchGames = async (query: string) => {
   const $csrfFetch = useNuxtApp().$csrfFetch;
 
@@ -135,6 +109,13 @@ export const searchGames = async (query: string) => {
   });
 };
 
+/**
+ * Used in getFullGame after firestore clips finish loading. 
+ * If there are videos from IGDB not in firestore, add them to firestore and fills the clips array with them.
+ * @param clipArray array of (featured) firestore clips of a game to be filled
+ * @param videos IGDB videos
+ * @param gameId 
+ */
 const fillWithIgdb = async (
   clipArray: any[],
   videos: Record<string, any>[],
@@ -152,21 +133,23 @@ const fillWithIgdb = async (
 
     const firestoreClip = {
       title: video.name,
-      game_id: gameId,
+      gameId: gameId,
+      description: "Automatically present from IGDB database.",
       featured: true,
       suggested: { username: "IGDB", role: 2 },
-      date_suggested: Timestamp.fromDate(new Date(2023, 6, 20)),
+      dateSuggested: Timestamp.fromDate(new Date(2023, 6, 20)),
       approved: { username: "system", role: 3 },
-      date_approved: Timestamp.fromDate(new Date(2023, 6, 20)),
+      dateApproved: Timestamp.fromDate(new Date(2023, 6, 20)),
       likes: 0,
     };
     clipsForFirestore[video.video_id] = firestoreClip;
 
     const returnClip = {
-        ...firestoreClip,
-        date_suggested: getTimeDifference(firestoreClip.date_suggested),
-        suggestedLoaded: true
-    }
+      ...firestoreClip,
+      dateSuggested: getTimeDifference(firestoreClip.dateSuggested),
+    //   TODO: dateApproved
+      suggestedLoaded: true,
+    };
     cachedClips.value[video.video_id] = returnClip;
     clipArray.push(returnClip);
   }
@@ -188,32 +171,29 @@ const fillWithIgdb = async (
 export const getFullGame = async (id: number | string) => {
   const $csrfFetch = useNuxtApp().$csrfFetch;
 
-  const game = 
-  (
-    // @ts-ignore
-    await $csrfFetch("/api/igdb/games", {
-      method: "POST",
-      body: {
-        ids: [id],
-        fields: [
-          "name",
-          "summary",
-          "first_release_date",
-          "involved_companies.developer",
-          "involved_companies.company.name",
-          "genres.name",
-          "platforms.abbreviation",
-          "total_rating",
-          "game_engines.name",
-          "videos.name",
-          "videos.video_id",
-          "websites.url",
-          "websites.category",
-        ],
-      },
-    })
-  )[0];
-  // console.log(getCachedClips().value)
+  // @ts-ignore
+  const gamesArray = await $csrfFetch("/api/igdb/games", {
+    method: "POST",
+    body: {
+      ids: [id],
+      fields: [
+        "name",
+        "summary",
+        "first_release_date",
+        "involved_companies.developer",
+        "involved_companies.company.name",
+        "genres.name",
+        "platforms.abbreviation",
+        "total_rating",
+        "game_engines.name",
+        "videos.name",
+        "videos.video_id",
+        "websites.url",
+        "websites.category",
+      ],
+    },
+  });
+  const game = gamesArray[0];
 
   const clipsRes = await useGameClips(game.id, async (featured: any[]) => {
     if (game.videos) {
@@ -271,64 +251,4 @@ export const getShortGames = async (ids: number[]) => {
       cover: game.cover ? "http:" + game.cover.url : null,
     };
   });
-};
-
-export const useNewGames = async (gamesPerPage: number, minRating: number) => {
-  const $csrfFetch = useNuxtApp().$csrfFetch;
-
-  const newGames = ref<any>([]);
-  const hasMore = ref(true);
-
-  const offset = ref(0);
-
-  const queryGames = async (count: number) => {
-    try {
-        const body = {
-            minRating: minRating,
-            fields: [
-              "name",
-              "first_release_date",
-              "artworks.image_id",
-              "artworks.width",
-              "artworks.height",
-              "total_rating",
-              "platforms.abbreviation",
-              "genres.name",
-            ],
-            limit: count,
-            offset: offset.value,
-          }
-        console.log(body)
-      // @ts-ignore
-      const res = await $csrfFetch("/api/igdb/newgames", {
-        method: "POST",
-        body: body,
-      });
-
-      if (res.length < count) {
-        hasMore.value = false;
-      }
-
-      for (let game of res) {
-        game = {
-          ...game,
-          release_date: getLongDateString(
-            new Date(game.first_release_date * 1000)
-          ),
-          genres: game.genres.map((genre: Record<string, any>) => genre.name),
-          platforms: simplePlatforms(game.platforms),
-        };
-
-        newGames.value.push(game);
-      }
-
-      offset.value += count;
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  queryGames(gamesPerPage);
-
-  return { newGames, queryGames, hasMore };
 };

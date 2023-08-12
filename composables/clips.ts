@@ -2,7 +2,7 @@ import {
   getDoc,
   doc,
   type Firestore,
-  type DocumentReference,
+  DocumentReference,
   type DocumentData,
   setDoc,
   addDoc,
@@ -21,35 +21,28 @@ import {
   startAfter,
   type QueryDocumentSnapshot,
   where,
+  type WriteBatch,
+  writeBatch,
 } from "firebase/firestore";
-import { ApprovedClip } from "utils/utils";
+// import {
+//   ApprovedClip,
+//   RejectedClip,
+//   SuggestedClip,
+//   addApprovedClip,
+//   getApprovedClipData,
+//   getFrontendClip,
+//   getRejectedClipData,
+//   updateGameClips,
+// } from "utils/clipUtils";
 
-const getFrontendClip = async (docRef: DocumentReference) => {
-  try {
-    const snap = await getDoc(docRef);
-    const clip = snap.data();
+// ####################################### COMPOSABLES ######################################
 
-    if (clip) {
-      clip.id = docRef.id;
-
-      const suggestedSnap = await getDoc(clip.suggested);
-      clip.suggested = suggestedSnap.data();
-      clip.date_suggested = getTimeDifference(clip.date_suggested);
-      clip.suggestedLoaded = true;
-
-      const approvedSnap = await getDoc(clip.approved);
-      clip.approved = approvedSnap.data();
-      clip.date_approved = getTimeDifference(clip.date_approved);
-
-      return clip;
-    }
-  } catch (err) {
-    console.error(err);
-    return null;
-  }
-};
-
-// Used twice in useGameClips below
+/**
+ * Used twice in useGameClips.
+ * @param clipArray array to be filled
+ * @param firestoreClips firestore clip references got from game's approved or featured clips data
+ * @param cache global frontend state for clips cache, not working very well atm
+ */
 const fillClipsFromFirestore = async (
   clipArray: DocumentData[],
   firestoreClips: DocumentReference[],
@@ -70,6 +63,12 @@ const fillClipsFromFirestore = async (
   await Promise.all(asyncTasks);
 };
 
+/**
+ * Used in games composable for game detail view.
+ * @param gameId id of IGDB game
+ * @param onFeaturedLoaded callback function to be called after loading
+ * @returns reactive array of clips updated asynchronously
+ */
 export const useGameClips = async (
   gameId: string | number,
   onFeaturedLoaded: CallableFunction | null = null
@@ -85,7 +84,7 @@ export const useGameClips = async (
   let cached = true;
   if (cachedClips.value.length > 0) {
     for (const clip of Object.values(cachedClips.value)) {
-      if (clip.game_id != gameId) {
+      if (clip.gameId != gameId) {
         cached = false;
         break;
       }
@@ -148,47 +147,27 @@ export const useGameClips = async (
   return clipsRes;
 };
 
+/**
+ * Used to get firestore clip data for clip detail (embed dialog).
+ * @param id clip id - both the key of firestore document and YT video id atm
+ * @returns reactive clip object updated asynchronously
+ */
 export const useClip = async (id: string | number) => {
   const clip = ref<Record<string, any>>({});
 
   const firestore = useNuxtApp().$firestore as Firestore;
-  const clipDocRef = doc(firestore, "clips", id.toString());
+  const docRef = doc(firestore, "approvedClips", id.toString());
 
   const cachedClips = getCachedClips();
   if (cachedClips.value && cachedClips.value[id]) {
     clip.value = cachedClips.value[id];
   } else {
-    clip.value = getFrontendClip(clipDocRef)
-    // const clipData: ApprovedClip = (
-    //   await getDoc(clipDocRef).catch(() => null)
-    // )?.data() as ApprovedClip;
-
-    // if (clipData) {
-    //   clip.value = {
-    //     ...clipData,
-    //     id: id,
-    //     date_approved: getTimeDifference(clipData.date_approved),
-    //   };
-
-    //   getDoc(clipData.suggested as DocumentReference)
-    //     .then((snap) => {
-    //       clip.value.suggested = snap.data();
-    //     })
-    //     .catch(() => {
-    //       clip.value.suggested = null;
-    //     });
-    //   getDoc(clipData.approved as DocumentReference)
-    //     .then((snap) => {
-    //       clip.value.approved = snap.data();
-    //     })
-    //     .catch(() => {
-    //       clip.value.approved = null;
-    //     });
-    // }
+    // Intentionally not awaiting
+    clip.value = getFrontendClip(docRef);
   }
 
   // Update values on Firestore update
-  onSnapshot(clipDocRef, (snap) => {
+  onSnapshot(docRef, (snap) => {
     const data = snap.data();
     if (data && data.likes != clip.value.likes) {
       clip.value.likes = data.likes;
@@ -198,73 +177,10 @@ export const useClip = async (id: string | number) => {
   return clip;
 };
 
-const updateGameClips = async (
-  firestore: Firestore,
-  gameId: string,
-  data: DocumentData
-) => {
-  const docRef = doc(firestore, "games", gameId);
-
-  if (!(await getDoc(docRef)).exists()) {
-    await setDoc(docRef, {
-      featured: [],
-      approved: [],
-    });
-  }
-
-  await updateDoc(docRef, data);
-};
-
-const createClip = async (
-  firestore: Firestore,
-  clipId: string,
-  clipData: Record<string, any>
-) => {
-  const clipDocRef = doc(firestore, "clips", clipId);
-  await setDoc(clipDocRef, {
-    ...clipData,
-    likes: 0,
-    date_approved: Timestamp.now(),
-  });
-
-  if (clipData.featured) {
-    await updateGameClips(firestore, clipData.game_id.toString(), {
-      featured: arrayUnion(clipDocRef),
-    });
-  } else {
-    await updateGameClips(firestore, clipData.game_id.toString(), {
-      approved: arrayUnion(clipDocRef),
-    });
-  }
-};
-
-export const submitClip = async (
-  clipDataRaw: Record<string, any>,
-  autoApprove: boolean
-) => {
-  const firestore = useNuxtApp().$firestore as Firestore;
-  const userRef = doc(firestore, "users", clipDataRaw.suggested);
-
-  if (autoApprove) {
-    const clipId = clipDataRaw.clipId;
-    delete clipDataRaw.clipId;
-
-    await createClip(firestore, clipId, {
-      ...clipDataRaw,
-      suggested: userRef,
-      approved: userRef,
-      date: Timestamp.now(),
-    });
-  } else {
-    await addDoc(collection(firestore, "suggestedClips"), {
-      ...clipDataRaw,
-      suggested: userRef,
-      date: Timestamp.now(),
-      status: "pending",
-    });
-  }
-};
-
+/**
+ * Used in admin suggestions view to see all suggestions.
+ * @returns reactive array of clips updated asynchronously
+ */
 export const useSuggestedClips = async () => {
   const clips = ref<any>([]);
 
@@ -272,27 +188,11 @@ export const useSuggestedClips = async () => {
 
   if (firestore) {
     getDocs(
-      query(
-        collection(firestore, "suggestedClips"),
-        where("status", "==", "pending"),
-        orderBy("date")
-      )
+      query(collection(firestore, "suggestedClips"), orderBy("dateSuggested"))
     )
       .then(async (snap) => {
         for (const doc of snap.docs) {
-          const clip = doc.data();
-
-          clip.id = doc.id;
-          const userObj = (
-            await getDoc(clip.suggested).catch(() => null)
-          )?.data();
-          // @ts-ignore
-          userObj.id = clip.suggested.id;
-          clip.suggested = userObj;
-          clip.date = getTimeDifference(clip.date);
-          delete clip.suggested.approvedClips;
-
-          clips.value.push(clip);
+          clips.value.push(await getFrontendClip(doc));
         }
       })
       .catch((err) => {
@@ -303,67 +203,14 @@ export const useSuggestedClips = async () => {
   return clips;
 };
 
-export const rejectClip = async (docId: string) => {
-  const firestore = useNuxtApp().$firestore as Firestore;
-
-  await updateDoc(doc(firestore, "suggestedClips", docId), {
-    status: "rejected",
-    date_rejected: Timestamp.now(),
-  });
-};
-
-export const approveClip = async (docId: string, uid: string) => {
-  const firestore = useNuxtApp().$firestore as Firestore;
-
-  const sClipDocRef = doc(firestore, "suggestedClips", docId);
-  const sClipSnap = await getDoc(sClipDocRef);
-  const clip = sClipSnap.data();
-
-  if (!clip) {
-    throw new Error("suggested clip doc does not exist");
-  }
-
-  await updateDoc(sClipDocRef, {
-    status: "approved",
-  });
-
-  const clipId = clip.clip_id;
-  delete clip.clip_id;
-  delete clip.id;
-  delete clip.mod_notes;
-  delete clip.status;
-
-  await createClip(firestore, clipId, {
-    ...clip,
-    approved: doc(firestore, "users", uid),
-    suggested: doc(firestore, "users", clip.suggested.id),
-  });
-};
-
-export const likeClip = async (uid: string, clipId: string) => {
-  const firestore = useNuxtApp().$firestore as Firestore;
-
-  updateDoc(doc(firestore, "users", uid), {
-    likedClips: arrayUnion(clipId),
-  });
-
-  updateDoc(doc(firestore, "clips", clipId), {
-    likes: increment(1),
-  });
-};
-
-export const dislikeClip = async (uid: string, clipId: string) => {
-  const firestore = useNuxtApp().$firestore as Firestore;
-
-  updateDoc(doc(firestore, "users", uid), {
-    likedClips: arrayRemove(clipId),
-  });
-
-  updateDoc(doc(firestore, "clips", clipId), {
-    likes: increment(-1),
-  });
-};
-
+/**
+ * Used in index view to see N approvedClips ordered by likes, date and title with their game.
+ * @param clipsPerPage number of clips to load, default 8
+ * @returns
+ * - reactive array of all clips
+ * - function to load another page of clips
+ * - reactive object of game data indexed by game ids for the clips
+ */
 export const usePopularClips = async (clipsPerPage: number = 8) => {
   const firestore = useNuxtApp().$firestore as Firestore;
 
@@ -376,17 +223,17 @@ export const usePopularClips = async (clipsPerPage: number = 8) => {
       const snap = await getDocs(
         lastClipSnap
           ? query(
-              collection(firestore, "clips"),
+              collection(firestore, "approvedClips"),
               orderBy("likes", "desc"),
-              orderBy("date", "desc"),
+              orderBy("dateSuggested", "desc"),
               orderBy("title"),
               startAfter(lastClipSnap),
               limit(count)
             )
           : query(
-              collection(firestore, "clips"),
+              collection(firestore, "approvedClips"),
               orderBy("likes", "desc"),
-              orderBy("date", "desc"),
+              orderBy("dateSuggested", "desc"),
               orderBy("title"),
               limit(count)
             )
@@ -401,8 +248,14 @@ export const usePopularClips = async (clipsPerPage: number = 8) => {
           clip.suggested = snap.data();
           clip.suggestedLoaded = true;
         });
-        clip.date = getTimeDifference(clip.date);
-        gameIds.push(clip.game_id);
+        clip.dateSuggested = getTimeDifference(clip.dateSuggested);
+
+        getDoc(clip.approved).then((snap) => {
+          clip.approved = snap.data();
+        });
+        clip.dateApproved = getTimeDifference(clip.dateApproved);
+
+        gameIds.push(clip.gameId);
 
         clips.value.push(clip);
 
@@ -430,4 +283,168 @@ export const usePopularClips = async (clipsPerPage: number = 8) => {
   }
 
   return { clips, queryClips, games };
+};
+
+// ################################## FUNCTIONS USED IN VIEWS ##################################
+
+/**
+ * Used in suggest view.
+ * @param clipDataRaw data from suggest form
+ * @param autoApprove bool from form checkbox (admin-only)
+ */
+export const suggestClip = async (
+  clipDataRaw: Record<string, any>,
+  autoApprove: boolean
+) => {
+  const firestore = useNuxtApp().$firestore as Firestore;
+  const userRef = doc(firestore, "users", clipDataRaw.suggested);
+
+  clipDataRaw.suggested = userRef;
+
+  if (autoApprove) {
+    const batch = writeBatch(firestore);
+    await addApprovedClip(firestore, batch, clipDataRaw.clipId, {
+        ...clipDataRaw,
+        approved: userRef
+    });
+    await batch.commit()
+  } else {
+    const firestoreClip: SuggestedClip = {
+      id: clipDataRaw.id,
+      title: clipDataRaw.title,
+      gameId: clipDataRaw.gameId,
+      description: clipDataRaw.description || "",
+      startTime: clipDataRaw.startTime || 0,
+      endTime: clipDataRaw.endTime || null,
+      featured: clipDataRaw.featured || false,
+      modNotes: clipDataRaw.modNotes || "",
+      suggested: clipDataRaw.suggested,
+      dateSuggested: clipDataRaw.dateSuggested || Timestamp.now(),
+    };
+
+    await addDoc(collection(firestore, "suggestedClips"), firestoreClip);
+  }
+};
+
+
+/**
+ * Used in suggestions admin view to approve clip.
+ * @param docId firestore key for document in suggestedClips collection, from v-for
+ * @param uid user id from session's authentication
+ */
+export const approveClip = async (docId: string, uid: string) => {
+  const firestore = useNuxtApp().$firestore as Firestore;
+
+  const docRefSuggested = doc(firestore, "suggestedClips", docId);
+  const clipData = (await getDoc(docRefSuggested)).data();
+
+  if (!clipData) {
+    throw new Error("suggested clip doc does not exist");
+  }
+
+  const batch = writeBatch(firestore);
+
+  await addApprovedClip(firestore, batch, clipData.id, {
+    ...clipData,
+    approved: doc(firestore, "users", uid),
+  })
+
+  batch.delete(docRefSuggested);
+
+  try {
+    await batch.commit();
+  } catch (e) {
+    console.error(e);
+  }
+};
+
+/**
+ * Used in suggestions admin view to reject clip AND to delete approved clips in general (TBD).
+ * @param approved is this clip suggested or approved
+ * @param docId firestore document id, for approvedClips collection if approved, else suggestedClips
+ * @param uid user id from session's authentication
+ * @param reason reason for rejection from form (TBD)
+ */
+export const rejectClip = async (
+  approved: boolean = false,
+  docId: string,
+  uid: string,
+  reason: string
+) => {
+  const firestore = useNuxtApp().$firestore as Firestore;
+  let docRef;
+  if (approved) {
+    docRef = doc(firestore, "approvedClips", docId);
+  } else {
+    docRef = doc(firestore, "suggestedClips", docId);
+  }
+
+  const clipData = (await getDoc(docRef)).data();
+
+  if (!clipData) {
+    throw new Error("clip doc does not exist");
+  }
+
+  const batch = writeBatch(firestore);
+
+  const rejectedClipData = getRejectedClipData({
+    ...clipData,
+    rejected: doc(firestore, "users", uid),
+    reason: reason,
+  });
+  batch.set(doc(collection(firestore, "rejectedClips")), rejectedClipData);
+
+  if (approved) {
+    if (clipData.featured) {
+      await updateGameClips(firestore, batch, clipData.gameId.toString(), {
+        featured: arrayRemove(docRef),
+      });
+    } else {
+      await updateGameClips(firestore, batch, clipData.gameId.toString(), {
+        approved: arrayRemove(docRef),
+      });
+    }
+  }
+
+  batch.delete(docRef);
+
+  try {
+    await batch.commit();
+  } catch (e) {
+    console.error(e);
+  }
+};
+
+/**
+ * Increments approved clip's likes field and adds reference to user's likedClips
+ * @param uid user id from session's authentication
+ * @param clipId 
+ */
+export const likeClip = async (uid: string, clipId: string) => {
+  const firestore = useNuxtApp().$firestore as Firestore;
+
+  updateDoc(doc(firestore, "users", uid), {
+    likedClips: arrayUnion(clipId),
+  });
+
+  updateDoc(doc(firestore, "approvedClips", clipId), {
+    likes: increment(1),
+  });
+};
+
+/**
+ * Decrements approved clip's likes field and removes reference from user's likedClips
+ * @param uid user id from session's authentication
+ * @param clipId 
+ */
+export const dislikeClip = async (uid: string, clipId: string) => {
+  const firestore = useNuxtApp().$firestore as Firestore;
+
+  updateDoc(doc(firestore, "users", uid), {
+    likedClips: arrayRemove(clipId),
+  });
+
+  updateDoc(doc(firestore, "approvedClips", clipId), {
+    likes: increment(-1),
+  });
 };
