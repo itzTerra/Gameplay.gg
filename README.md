@@ -8,6 +8,7 @@
 ## *IN DEVELOPMENT*
 
 ### TODO
+- add reject-reason text field to admin suggestions view and option to delete (reject) approved clips
 - email verification
 - support YT and Twitch clips
 - make loading as async and parallel as possible, (e.g. load games on main page clips one by one instead of waiting for all of them and then show them)
