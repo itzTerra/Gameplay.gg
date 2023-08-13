@@ -30,6 +30,9 @@ export default defineNuxtConfig({
     "@nuxtjs/color-mode",
     "nuxt-csurf",
   ],
+  plugins: [
+    { src: "~/plugins/jquery", mode: "client" },
+  ],
   image: {
     format: ["avif", "webp", "jpg"],
     dir: "assets/img",

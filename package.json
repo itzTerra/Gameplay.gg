@@ -23,8 +23,11 @@
     "@nuxtjs/color-mode": "^3.3.0",
     "@nuxtjs/tailwindcss": "^6.8.0",
     "apicalypse": "^0.2.0",
+    "datatables.net-dt": "^1.13.6",
+    "datatables.net-vue3": "^2.1.2",
     "firebase": "^9.23.0",
     "firebase-admin": "^11.9.0",
+    "jquery": "^3.7.0",
     "nuxt-csurf": "^1.2.0",
     "the-big-username-blacklist": "^1.5.2",
     "unique-names-generator": "^4.7.1"
