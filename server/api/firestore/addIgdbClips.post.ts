@@ -3,11 +3,13 @@ import {
   Timestamp,
   type DocumentReference,
 } from "firebase-admin/firestore";
-import { type ApprovedClip } from "utils/utils";
+import { type ApprovedClip } from "utils/clipUtils";
 
 export default defineEventHandler(async (event) => {
   const { req, res } = event.node;
   const body = await readBody(event);
+
+  console.log(body)
 
   if (!body.gameId || !body.clips) {
     res.statusCode = 400;
@@ -20,9 +22,9 @@ export default defineEventHandler(async (event) => {
   for (const [id, data] of Object.entries(body.clips)) {
     const clipData: ApprovedClip = data as ApprovedClip;
     clipData.suggested = firestore.doc("users/IGDB");
-    clipData.date_suggested = Timestamp.fromDate(new Date(2023, 6, 20));
+    clipData.dateSuggested = Timestamp.fromDate(new Date(2023, 6, 20));
     clipData.approved = firestore.doc("users/system");
-    clipData.date_approved = Timestamp.fromDate(new Date(2023, 6, 20));
+    clipData.dateApproved = Timestamp.fromDate(new Date(2023, 6, 20));
 
     const docRef = firestore.doc(`clips/${id}`);
     batch.set(docRef, data);

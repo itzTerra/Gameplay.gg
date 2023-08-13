@@ -22,7 +22,7 @@
                 More !
             </button>
             <Pagination v-show="clipPages > 1" :pages="clipPages" :curr-page="currPageC"
-                @page-change="(val) => { currPageC = val }" />
+                @page-change="(val: number) => { currPageC = val }" />
         </div>
         <h2 class="text-4xl font-bold">🧭 New Games</h2>
         <div class="divider before:bg-primary after:bg-primary"></div>
@@ -45,7 +45,7 @@
                 More !
             </button>
             <Pagination v-show="gamePages > 1" :pages="gamePages" :curr-page="currPageG"
-                @page-change="(val) => { currPageG = val }" />
+                @page-change="(val: number) => { currPageG = val }" />
         </div>
     </div>
 </template>
