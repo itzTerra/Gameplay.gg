@@ -1,10 +1,3 @@
-import { Timestamp } from "firebase/firestore";
-// import {
-//   convertWebsites,
-//   simplePlatforms,
-//   sortedCompanies,
-// } from "utils/gameUtils";
-
 // ####################################### COMPOSABLES ######################################
 
 /**
@@ -77,6 +70,66 @@ export const useNewGames = async (
   return { newGames, queryGames, hasMore };
 };
 
+/**
+ * Used in game detail view to get data from IGDB.
+ * @param id game id
+ * @returns reactive game data object
+ */
+export const useFullGame = async (id: number | string) => {
+  const $csrfFetch = useNuxtApp().$csrfFetch;
+
+  const game = ref<Record<string, any>>({});
+
+  // @ts-ignore
+  const gamesArray = await $csrfFetch("/api/igdb/games", {
+    method: "POST",
+    body: {
+      ids: [id],
+      fields: [
+        "name",
+        "summary",
+        "first_release_date",
+        "involved_companies.developer",
+        "involved_companies.company.name",
+        "genres.name",
+        "platforms.abbreviation",
+        "total_rating",
+        "game_engines.name",
+        "videos.name",
+        "videos.video_id",
+        "websites.url",
+        "websites.category",
+      ],
+    },
+  });
+  const gameData = gamesArray[0];
+
+  const clipsRes = await useGameClips(gameData.id, async (featured: any[]) => {
+    if (gameData.videos) {
+      fillWithIgdb(featured, gameData.videos, gameData.id);
+    }
+  });
+
+  game.value = {
+    ...gameData,
+    release_date: gameData.first_release_date
+      ? new Date(gameData.first_release_date * 1000).getFullYear()
+      : "?",
+    companies: sortedCompanies(gameData.involved_companies)?.map(
+      (inv_comp) => inv_comp.company.name
+    ),
+    genres: gameData.genres.map((genre: Record<string, any>) => genre.name),
+    platforms: simplePlatforms(gameData.platforms),
+    websites: convertWebsites(gameData.websites),
+    videos: gameData.videos?.map((video: Record<string, any>) => {
+      return { id: video.video_id, title: video.name };
+    }),
+    clips: clipsRes,
+  };
+
+  return game;
+};
+
 // ################################## FUNCTIONS USED IN VIEWS ##################################
 
 /**
@@ -110,115 +163,10 @@ export const searchGames = async (query: string) => {
 };
 
 /**
- * Used in getFullGame after firestore clips finish loading. 
- * If there are videos from IGDB not in firestore, add them to firestore and fills the clips array with them.
- * @param clipArray array of (featured) firestore clips of a game to be filled
- * @param videos IGDB videos
- * @param gameId 
+ * Used in usePopularClips in index view to get the game info for each clip.
+ * @param ids ids of needed games
+ * @returns game data object
  */
-const fillWithIgdb = async (
-  clipArray: any[],
-  videos: Record<string, any>[],
-  gameId: number
-) => {
-  const { $csrfFetch } = useNuxtApp();
-  const cachedClips = getCachedClips();
-
-  const clipsForFirestore: Record<string, any> = {};
-
-  const clipIds = clipArray.map((clip) => clip.id);
-
-  for (const video of videos) {
-    if (clipIds.includes(video.video_id)) continue;
-
-    const firestoreClip = {
-      title: video.name,
-      gameId: gameId,
-      description: "Automatically present from IGDB database.",
-      featured: true,
-      suggested: { username: "IGDB", role: 2 },
-      dateSuggested: Timestamp.fromDate(new Date(2023, 6, 20)),
-      approved: { username: "system", role: 3 },
-      dateApproved: Timestamp.fromDate(new Date(2023, 6, 20)),
-      likes: 0,
-    };
-    clipsForFirestore[video.video_id] = firestoreClip;
-
-    const returnClip = {
-      ...firestoreClip,
-      dateSuggested: getTimeDifference(firestoreClip.dateSuggested),
-    //   TODO: dateApproved
-      suggestedLoaded: true,
-    };
-    cachedClips.value[video.video_id] = returnClip;
-    clipArray.push(returnClip);
-  }
-
-  if (clipsForFirestore) {
-    // @ts-ignore
-    $csrfFetch("/api/firestore/addIgdbClips", {
-      method: "POST",
-      body: {
-        gameId: gameId.toString(),
-        clips: clipsForFirestore,
-      },
-    }).catch((err: any) => {
-      console.error(err);
-    });
-  }
-};
-
-export const getFullGame = async (id: number | string) => {
-  const $csrfFetch = useNuxtApp().$csrfFetch;
-
-  // @ts-ignore
-  const gamesArray = await $csrfFetch("/api/igdb/games", {
-    method: "POST",
-    body: {
-      ids: [id],
-      fields: [
-        "name",
-        "summary",
-        "first_release_date",
-        "involved_companies.developer",
-        "involved_companies.company.name",
-        "genres.name",
-        "platforms.abbreviation",
-        "total_rating",
-        "game_engines.name",
-        "videos.name",
-        "videos.video_id",
-        "websites.url",
-        "websites.category",
-      ],
-    },
-  });
-  const game = gamesArray[0];
-
-  const clipsRes = await useGameClips(game.id, async (featured: any[]) => {
-    if (game.videos) {
-      fillWithIgdb(featured, game.videos, game.id);
-    }
-  });
-
-  return {
-    ...game,
-    release_date: game.first_release_date
-      ? new Date(game.first_release_date * 1000).getFullYear()
-      : "?",
-    companies: sortedCompanies(game.involved_companies)?.map(
-      (inv_comp) => inv_comp.company.name
-    ),
-    genres: game.genres.map((genre: Record<string, any>) => genre.name),
-    platforms: simplePlatforms(game.platforms),
-    websites: convertWebsites(game.websites),
-    videos: game.videos?.map((video: Record<string, any>) => {
-      return { id: video.video_id, title: video.name };
-    }),
-    clips: clipsRes,
-  };
-};
-
 export const getShortGames = async (ids: number[]) => {
   const $csrfFetch = useNuxtApp().$csrfFetch;
 

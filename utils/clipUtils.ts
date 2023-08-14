@@ -76,6 +76,32 @@ const rejectedClipReqFields = ["title", "gameId", "suggested", "rejected"];
 
 // ################################### UTIL FUNCTIONS #############################
 
+/**
+ * Used twice in useGameClips.
+ * @param clipArray array to be filled
+ * @param firestoreClips firestore clip references got from game's approved or featured clips data
+ * @param cache global frontend state for clips cache, not working very well atm
+ */
+export const fillClipsFromFirestore = async (
+  clipArray: DocumentData[],
+  firestoreClips: DocumentReference[],
+  cache: globalThis.Ref<Record<string, any>>
+) => {
+  const clipIds = clipArray.map((clip) => clip.id);
+  const asyncTasks = firestoreClips.map(async (docRef) => {
+    if (clipIds.includes(docRef.id)) return;
+
+    const clip = await getFrontendClip(docRef);
+    if (clip) {
+      clipArray.push(clip);
+      cache.value[clip.id] = clip;
+    }
+  });
+
+  // Wait for all async tasks to complete before continuing
+  await Promise.all(asyncTasks);
+};
+
 export const getApprovedClipData = (clipData: Record<string, any>) => {
   for (const field of approvedClipReqFields) {
     if (!(field in clipData)) {
@@ -182,12 +208,11 @@ export const updateGameClips = async (
   batch.update(docRef, data);
 };
 
-
 /**
  * Used in suggestClip for auto-approve to skip adding to suggestedClips and ofc. in approveClip.
- * @param firestore 
- * @param batch 
- * @param clipId 
+ * @param firestore
+ * @param batch
+ * @param clipId
  * @param clipData data with approved user info
  */
 export const addApprovedClip = async (

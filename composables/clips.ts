@@ -24,44 +24,9 @@ import {
   type WriteBatch,
   writeBatch,
 } from "firebase/firestore";
-// import {
-//   ApprovedClip,
-//   RejectedClip,
-//   SuggestedClip,
-//   addApprovedClip,
-//   getApprovedClipData,
-//   getFrontendClip,
-//   getRejectedClipData,
-//   updateGameClips,
-// } from "utils/clipUtils";
+import { type SuggestedClip } from "utils/clipUtils";
 
 // ####################################### COMPOSABLES ######################################
-
-/**
- * Used twice in useGameClips.
- * @param clipArray array to be filled
- * @param firestoreClips firestore clip references got from game's approved or featured clips data
- * @param cache global frontend state for clips cache, not working very well atm
- */
-const fillClipsFromFirestore = async (
-  clipArray: DocumentData[],
-  firestoreClips: DocumentReference[],
-  cache: globalThis.Ref<Record<string, any>>
-) => {
-  const clipIds = clipArray.map((clip) => clip.id);
-  const asyncTasks = firestoreClips.map(async (docRef) => {
-    if (clipIds.includes(docRef.id)) return;
-
-    const clip = await getFrontendClip(docRef);
-    if (clip) {
-      clipArray.push(clip);
-      cache.value[clip.id] = clip;
-    }
-  });
-
-  // Wait for all async tasks to complete before continuing
-  await Promise.all(asyncTasks);
-};
 
 /**
  * Used in games composable for game detail view.

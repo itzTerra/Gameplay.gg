@@ -118,8 +118,7 @@
 <script setup>
 const user = await useUser()
 const route = useRoute()
-const gameInfo = ref()
-gameInfo.value = await getFullGame(route.params.id)
+const gameInfo = await useFullGame(route.params.id)
 useHead({ title: gameInfo.value.name })
 
 const summaryShown = ref(false)

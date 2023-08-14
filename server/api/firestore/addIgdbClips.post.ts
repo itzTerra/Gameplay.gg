@@ -21,6 +21,7 @@ export default defineEventHandler(async (event) => {
   const docRefs: DocumentReference[] = [];
   for (const [id, data] of Object.entries(body.clips)) {
     const clipData: ApprovedClip = data as ApprovedClip;
+    // MUST BE SAME AS gameUtils CONSTANTS
     clipData.suggested = firestore.doc("users/IGDB");
     clipData.dateSuggested = Timestamp.fromDate(new Date(2023, 6, 20));
     clipData.approved = firestore.doc("users/system");
