@@ -8,6 +8,7 @@
 ## *IN DEVELOPMENT*
 
 ### TODO
+- make and test caches to minimize requests to APIs and db (games and clips caches primarily)
 - add reject-reason text field to admin suggestions view and option to delete (reject) approved clips
 - email verification
 - support YT and Twitch clips
