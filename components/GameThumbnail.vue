@@ -3,7 +3,7 @@
         <NuxtLink :to="'/game/' + game.id">
             <div class="relative rounded-t-lg" :class="`w-[${width}px] h-[${height}px]`">
                 <nuxt-img v-if="game.artworks" :src="imgUrl" class="rounded-lg" />
-                <span v-else class="loading loading-spinner loading-lg"></span>
+                <div v-else class="bg-gray-950 bg-y w-full h-full rounded-lg"></div>
                 <div class="absolute bottom-0 left-0">
                     <div class="flex gap-4 p-2 bg-black bg-opacity-50 text-gray-400 rounded-tr-lg rounded-bl-lg">
                         <Platform v-for="platform in game.platforms" :platform="platform" width="1rem" height="1rem" />

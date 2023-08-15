@@ -1,24 +1,25 @@
 <template>
-    <div class="flex flex-col items-center ">
-        <div
-            class="mx-auto my-auto bg-base-200 rounded-box px-8 py-6 w-full sm:w-[400px] min-h-[300px] flex flex-col items-start">
-            <h1 class="self-center text-3xl font-bold">Profile</h1>
-            <div class="divider my-1 before:bg-primary after:bg-primary"></div>
+    <div class="flex flex-col lg:flex-row items-center">
+        <div class="mx-auto my-auto bg-base-200 rounded-box px-8 py-6 max-w-7xl min-h-[300px] flex flex-col items-start">
+            <h2 class="text-3xl font-bold mb-4">Profile</h2>
             <div class="flex flex-wrap gap-10 items-center justify-around w-full">
                 <div>
                     <p class="font-light text-lg mb-2">Username</p>
                     <form v-if="usernameEditing" @submit.prevent="setUsername" class="flex items-center gap-1">
                         <input ref="usernameInput" type="text" v-model="newUsername" class="input w-56 me-4">
-                        <button v-if="!usernameLoading" type="submit" class="btn btn-sm btn-success btn-circle" title="Save">
+                        <button v-if="!usernameLoading" type="submit" class="btn btn-sm btn-success btn-circle"
+                            title="Save">
                             <SVGSave class="w-6 h-6" />
                         </button>
                         <span v-else class="loading loading-spinner"></span>
-                        <button @click="usernameEditing = false" type="button" class="btn btn-sm btn-error btn-circle" title="Cancel">
+                        <button @click="usernameEditing = false" type="button" class="btn btn-sm btn-error btn-circle"
+                            title="Cancel">
                             <SVGClose class="w-6 h-6" />
                         </button>
                     </form>
                     <div v-else class="flex items-center gap-4">
-                        <p class="font-semibold text-xl p-3 bg-base-100 rounded-lg w-56 overflow-x-auto small-scrollbar">{{ user ? user.username : '' }}</p>
+                        <p class="font-semibold text-xl p-3 bg-base-100 rounded-lg w-56 overflow-x-auto small-scrollbar">
+                            {{ user ? user.username : '' }}</p>
                         <button @click="editUsername" class="btn btn-sm btn-ghost btn-circle">
                             <SVGEdit class="w-6 h-6" />
                         </button>
@@ -88,6 +89,13 @@
                     </dialog>
                 </div>
             </div>
+            <div class="divider before:bg-primary after:bg-primary"></div>
+            <h2 class="text-3xl font-bold mb-4">My Clips</h2>
+            <div>
+                <ClientOnly>
+                    <ClipsTable />
+                </ClientOnly>
+            </div>
         </div>
         <Alert :alertType="msgError ? 'error' : 'success'" :change="change" :interval="5000">
             {{ msgError || msgSuccess }}
@@ -96,7 +104,7 @@
 </template>
 
 <script setup lang="ts">
-useHead({title: "Profile"})
+useHead({ title: "Profile" })
 definePageMeta({
     middleware: ["auth", "save-url"]
 })

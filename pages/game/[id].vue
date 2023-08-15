@@ -107,7 +107,7 @@
                 <div class="collapse-content">
                     <p v-if="!gameInfo.clips.approved" class="text-base-content text-opacity-75">Nothing here yet...</p>
                     <div class="flex flex-wrap gap-x-4 gap-y-8 justify-center items-start">
-                        <ClipThumbnail v-for="clip in gameInfo.clips.approved" :key="clip.clip_id" width="320" height="180" :clip="clip" />
+                        <ClipThumbnail v-for="clip in gameInfo.clips.approved" :key="clip.id" width="320" height="180" :clip="clip" />
                     </div>
                 </div>
             </div>
@@ -116,6 +116,9 @@
 </template>
 
 <script setup>
+definePageMeta({
+    middleware: ["save-url"]
+})
 const user = await useUser()
 const route = useRoute()
 const gameInfo = await useFullGame(route.params.id)

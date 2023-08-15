@@ -13,8 +13,6 @@ export const useNewGames = async (
   gamesPerPage: number = 8,
   minRating: number = 70
 ) => {
-  const $csrfFetch = useNuxtApp().$csrfFetch;
-
   const newGames = ref<any>([]);
   const hasMore = ref(true);
 
@@ -22,8 +20,7 @@ export const useNewGames = async (
 
   const queryGames = async (count: number) => {
     try {
-      // @ts-ignore
-      const games = await $csrfFetch("/api/igdb/newgames", {
+      const games = await $fetch("/api/igdb/newgames", {
         method: "POST",
         body: {
           minRating: minRating,
@@ -40,7 +37,7 @@ export const useNewGames = async (
           limit: count,
           offset: offset.value,
         },
-      });
+      }) as Record<string, any>[];
 
       if (games.length < count) {
         hasMore.value = false;

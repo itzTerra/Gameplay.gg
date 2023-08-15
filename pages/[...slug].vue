@@ -9,3 +9,8 @@
         </ContentDoc>
     </div>
 </template>
+<script setup>
+definePageMeta({
+    middleware: ["save-url"]
+})
+</script>

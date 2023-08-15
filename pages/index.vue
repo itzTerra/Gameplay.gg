@@ -4,7 +4,7 @@
         <div class="divider before:bg-primary after:bg-primary"></div>
         <div class="flex flex-wrap gap-x-4 gap-y-8 items-start justify-center relative">
             <ClipThumbnail v-for="clip in currPageClips" :key="clip.id" width="320" height="180" :clip="clip"
-                :include-game="true" :game="games[clip.game_id]" />
+                :include-game="true" :game="games[clip.gameId]" />
             <Transition>
                 <button v-show="clipPages > 1" @click="currPageC = currPageC != 1 ? currPageC - 1 : clipPages"
                     class="hidden xl:flex btn btn-accent items-center btn-circle absolute -left-14 top-1/2"><span
@@ -40,7 +40,7 @@
             </Transition>
         </div>
         <div class="self-center flex flex-col items-center gap-4 mt-6">
-            <button @click="loadMoreGames" class="btn btn-primary text-xl">
+            <button @click="loadMoreGames" class="btn btn-primary text-xl" :disabled="!isMoreNewGames">
                 <span v-show="loading == 'newGames'" class="loading loading-spinner"></span>
                 More !
             </button>
@@ -81,7 +81,7 @@ const loadMoreClips = async () => {
 
 const gamesPerPage = 8
 const minRating = 70
-const { newGames, queryGames } = await useNewGames(gamesPerPage, minRating)
+const { newGames, queryGames, hasMore: isMoreNewGames } = await useNewGames(gamesPerPage, minRating)
 
 const gamePages = computed(() => {
     return Math.ceil(newGames.value.length / gamesPerPage);

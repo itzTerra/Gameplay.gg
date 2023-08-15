@@ -6,7 +6,7 @@
                 <div class="flex flex-col gap-2">
                     <iframe
                         class="w-[320px] h-[180px] md:w-[480px] md:h-[270px] lg:w-[640px] lg:h-[360px] xl:w-[854px] xl:h-[480px]"
-                        :src="`https://www.youtube-nocookie.com/embed/${videoId}?modestbranding=1&loop=1${clip.start_time ? '&start=' + clip.start_time : ''}${clip.end_time ? '&end=' + clip.end_time : ''}`"
+                        :src="`https://www.youtube-nocookie.com/embed/${videoId}?modestbranding=1&loop=1${clip.startTime ? '&start=' + clip.startTime : ''}${clip.endTime ? '&end=' + clip.endTime : ''}`"
                         title="YouTube video player" frameborder="0"
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                         allowfullscreen>
@@ -15,10 +15,11 @@
                         <div class="flex flex-col">
                             <h2 class="text-xl md:text-2xl lg:text-3xl font-light mt-3 mb-1">
                                 {{ clip.title || clipTitle || '&nbsp;' }}</h2>
-                            <Username :user-data="clip.suggested" /><span v-if="user && user.role > 2" class="text-base-content">
+                            <Username v-if="clip.suggested" :user-data="clip.suggested" />
+                            <span v-if="user && user.role > 2" class="text-base-content">
                                 (approved by
                                 <strong
-                                    :class="{ 'text-green-700': clip.approved.role == 2, 'text-blue-700': clip.approved.role == 3, 'text-red-700': clip.approved.role == 4 }">{{ clip.approved.username }}</strong>)
+                                    :class="{ 'text-green-700': clip.approved?.role == 2, 'text-blue-700': clip.approved?.role == 3, 'text-red-700': clip.approved?.role == 4 }">{{ clip.approved?.username }}</strong>)
                             </span>
                         </div>
                         <div class="flex gap-2 items-center">
@@ -33,7 +34,7 @@
                         </div>
                     </div>
                     <p class="text-base-content">
-                        <SVGClock class="inline w-5 h-5" /> {{ clip.date }}
+                        <SVGClock class="inline w-5 h-5" /> {{ clip.dateApproved }}
                     </p>
                     <h3 class="font-semibold text-lg mt-2">Description</h3>
                     <p class="p-2 bg-base-100 text-base-content rounded-lg">

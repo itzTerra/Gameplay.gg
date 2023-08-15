@@ -175,11 +175,15 @@ export const getFrontendClip = async (
       clip.id = docRef.id;
 
       clip.suggested = (await getDoc(clip.suggested)).data();
-      clip.dateSuggested = getTimeDifference(clip.dateSuggested);
+      clip.dateSuggested = clip.dateSuggested
+        ? getTimeDifference(clip.dateSuggested)
+        : "";
       clip.suggestedLoaded = true;
 
       clip.approved = (await getDoc(clip.approved)).data();
-      clip.dateApproved = getTimeDifference(clip.dateApproved);
+      clip.dateApproved = clip.dateApproved
+        ? getTimeDifference(clip.dateApproved)
+        : "";
 
       return clip;
     }
@@ -234,5 +238,34 @@ export const addApprovedClip = async (
     await updateGameClips(firestore, batch, clipData.gameId.toString(), {
       approved: arrayUnion(docRefApproved),
     });
+  }
+};
+
+export const getClipsOfStatus = async (
+  clipSnaps: QueryDocumentSnapshot<DocumentData>[],
+  clipsArray: globalThis.Ref<any[]>,
+  gameIdsArray: any[],
+  status: string
+) => {
+  for (const docSnap of clipSnaps) {
+    const clip = reactive(docSnap.data());
+
+    clip.id = docSnap.id;
+    getDoc(clip.suggested).then((snap) => {
+      clip.suggested = snap.data();
+      clip.suggestedLoaded = true;
+    });
+    clip.dateSuggested = getTimeDifference(clip.dateSuggested);
+
+    getDoc(clip.approved).then((snap) => {
+      clip.approved = snap.data();
+    });
+    clip.dateApproved = getTimeDifference(clip.dateApproved);
+
+    clip.status = status;
+
+    gameIdsArray.push(clip.gameId);
+
+    clipsArray.value.push(clip);
   }
 };

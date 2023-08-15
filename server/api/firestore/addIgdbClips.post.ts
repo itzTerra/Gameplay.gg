@@ -9,8 +9,6 @@ export default defineEventHandler(async (event) => {
   const { req, res } = event.node;
   const body = await readBody(event);
 
-  console.log(body)
-
   if (!body.gameId || !body.clips) {
     res.statusCode = 400;
     res.statusMessage = "bad request body";
@@ -27,10 +25,12 @@ export default defineEventHandler(async (event) => {
     clipData.approved = firestore.doc("users/system");
     clipData.dateApproved = Timestamp.fromDate(new Date(2023, 6, 20));
 
-    const docRef = firestore.doc(`clips/${id}`);
+    const docRef = firestore.doc(`approvedClips/${id}`);
     batch.set(docRef, data);
     docRefs.push(docRef);
   }
+
+  if (!docRefs.length) return "no clips to add"
 
   try {
     await batch.commit();
@@ -42,6 +42,7 @@ export default defineEventHandler(async (event) => {
         approved: [],
       });
     }
+
     await gameDocRef.update({
       featured: FieldValue.arrayUnion(...docRefs),
     });

@@ -48,7 +48,7 @@
                     <div v-if="!clip.suggestedLoaded" class="w-10 animate-pulse bg-base-100 text-sm rounded">&nbsp;</div>
                     <Username v-else :user-data="clip.suggested" class="text-sm" />
                 </div>
-                <span class="text-sm flex-shrink text-end">{{ clip.date }}</span>
+                <span class="text-sm flex-shrink text-end">{{ clip.dateApproved }}</span>
             </div>
         </NuxtLink>
     </div>

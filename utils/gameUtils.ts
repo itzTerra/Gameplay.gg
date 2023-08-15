@@ -158,6 +158,7 @@ export const fillWithIgdb = async (
 
     const returnClip = {
       ...clipBase,
+      id: video.video_id,
       suggested: IGDB_SUGGESTED,
       dateSuggested: getTimeDifference(IGDB_DATE),
       approved: IGDB_APPROVED,
@@ -169,7 +170,7 @@ export const fillWithIgdb = async (
     clipArray.push(returnClip);
   }
 
-  if (clipsForFirestore) {
+  if (!isObjectEmpty(clipsForFirestore)) {
     // @ts-ignore
     $csrfFetch("/api/firestore/addIgdbClips", {
       method: "POST",

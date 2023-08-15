@@ -45,6 +45,10 @@ const MONTH_NAMES = [
 
 // ################################### UTIL FUNCTIONS #############################
 
+export function isObjectEmpty(obj: Object) {
+  return Object.keys(obj).length === 0;
+}
+
 export const generateUsername = () => {
   const numberDictionary = NumberDictionary.generate({ min: 100, max: 999 });
   const generated_name = uniqueNamesGenerator({
