@@ -14,10 +14,12 @@
 
         <NuxtLoadingIndicator />
 
-        <Transition name="fade">
-            <YTEmbed v-if="$route.query.id" :videoId="$route.query.id" />
-        </Transition>
-
+        <ClientOnly>
+            <Transition name="fade">
+                <YTEmbed v-if="$route.query.id" :videoId="$route.query.id" />
+            </Transition>
+        </ClientOnly>
+        
         <button v-show="bttBtnVisible" @click="scrollTop" id="back-to-top-btn"
             class="btn btn-accent btn-circle opacity-50 hover:opacity-75">
             <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24">
@@ -80,6 +82,7 @@ const onScroll = (event) => {
 const scrollTop = () => {
     scrollEl.value.scrollTop = 0;
 }
+
 </script>
 
 <style scoped>
@@ -108,14 +111,16 @@ const scrollTop = () => {
 </style>
 
 <style>
+@import 'datatables.net-dt';
+
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity 0.25s ease-in-out;
+    transition: opacity 0.25s ease-in-out;
 }
 
 .fade-enter-from,
 .fade-leave-to {
-  opacity: 0;
+    opacity: 0;
 }
 
 .longFade-enter-active,
